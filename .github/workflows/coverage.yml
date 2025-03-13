@@ -1,0 +1,117 @@
+name: ACE Test Coverage
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - 'ace_standalone/**'
+  pull_request:
+    branches: ["main"]
+    paths:
+      - 'ace_standalone/**'
+  workflow_dispatch:
+
+env:
+  MIX_ENV: test
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: ace_test
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  test-coverage:
+    services:
+      db:
+        image: postgres:16
+        ports: ["5432:5432"]
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ace_test
+        options: --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ace_standalone
+    steps:
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.2"
+          elixir-version: "1.18"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache deps
+        id: cache-deps
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-ace-deps
+        with:
+          path: ace_standalone/deps
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('ace_standalone/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+
+      - name: Cache compiled build
+        id: cache-build
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-ace-compiled-build
+        with:
+          path: ace_standalone/_build
+          key: ${{ runner.os }}-mix-${{ env.cache-name }}-${{ hashFiles('ace_standalone/mix.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-mix-${{ env.cache-name }}-
+            ${{ runner.os }}-mix-
+
+      - name: Install dependencies
+        run: |
+          mix local.rebar --force
+          mix local.hex --force
+          mix deps.get
+
+      - name: Run tests with coverage
+        run: mix test --cover
+
+      - name: Generate coverage report
+        run: mix coveralls.html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: ace_standalone/cover/
+          retention-days: 7
+
+      - name: Generate Codecov report
+        run: mix coveralls.json
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ace_standalone/cover/excoveralls.json
+          fail_ci_if_error: false
+
+      - name: Comment on PR with coverage results
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          header: coverage
+          message: |
+            ## Test Coverage Report
+
+            File | % Covered
+            -----|----------
+            ${cat ace_standalone/cover/excoveralls.json | jq -r '.source_files | sort_by(.covered_percent) | reverse | .[0:10] | map("\(.name) | \(.covered_percent | floor)%") | .[]'}
+
+            The complete coverage report is available as an artifact from this workflow.

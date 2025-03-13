@@ -1,0 +1,67 @@
+{
+  "codebases": [
+    {
+      "name": "phoenix",
+      "repo": "https://github.com/phoenixframework/phoenix.git",
+      "description": "Elixir web framework",
+      "language": "elixir",
+      "size": "medium",
+      "branch": "main",
+      "focus_areas": ["performance", "maintainability"]
+    },
+    {
+      "name": "ecto",
+      "repo": "https://github.com/elixir-ecto/ecto.git",
+      "description": "Elixir database library",
+      "language": "elixir",
+      "size": "medium",
+      "branch": "master",
+      "focus_areas": ["performance", "maintainability"]
+    },
+    {
+      "name": "express",
+      "repo": "https://github.com/expressjs/express.git",
+      "description": "JavaScript web framework",
+      "language": "javascript",
+      "size": "medium",
+      "branch": "master",
+      "focus_areas": ["performance", "maintainability", "security"]
+    },
+    {
+      "name": "lodash",
+      "repo": "https://github.com/lodash/lodash.git",
+      "description": "JavaScript utility library",
+      "language": "javascript",
+      "size": "medium",
+      "branch": "main",
+      "focus_areas": ["performance"]
+    },
+    {
+      "name": "flask",
+      "repo": "https://github.com/pallets/flask.git",
+      "description": "Python web framework",
+      "language": "python",
+      "size": "medium",
+      "branch": "main",
+      "focus_areas": ["maintainability", "security"]
+    },
+    {
+      "name": "requests",
+      "repo": "https://github.com/psf/requests.git",
+      "description": "Python HTTP library",
+      "language": "python",
+      "size": "small",
+      "branch": "main",
+      "focus_areas": ["maintainability"]
+    },
+    {
+      "name": "gin",
+      "repo": "https://github.com/gin-gonic/gin.git",
+      "description": "Go web framework",
+      "language": "go",
+      "size": "medium",
+      "branch": "master",
+      "focus_areas": ["performance", "security"]
+    }
+  ]
+}

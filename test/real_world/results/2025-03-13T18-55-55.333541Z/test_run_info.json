@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-03-13T18-55-55.333541Z",
+  "version": "0.1.0",
+  "elixir_version": "1.18.2",
+  "otp_version": "27",
+  "codebases": [
+    "phoenix",
+    "ecto",
+    "express",
+    "lodash",
+    "flask",
+    "requests",
+    "gin"
+  ]
+}

@@ -1,0 +1,51 @@
+# Development Dockerfile for ACE
+# Provides a full development environment with all dependencies
+FROM hexpm/elixir:1.18.2-erlang-27.2.2-debian-bullseye-20250203-slim
+
+# Install development dependencies
+# Group all apt commands in a single RUN to reduce image layers
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+      build-essential \
+      git \
+      curl \
+      inotify-tools \
+      postgresql-client \
+      vim \
+      nano \
+      nodejs \
+      npm && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Install Hex and Rebar
+RUN mix local.hex --force && \
+    mix local.rebar --force
+
+# Copy mix files and install dependencies
+# This creates a separate layer for dependencies to improve caching
+COPY mix.exs mix.lock ./
+COPY config ./config/
+
+# Install and compile dependencies
+RUN mix do deps.get, deps.compile
+
+# Copy the rest of the application
+COPY . .
+
+# Set environment variables
+ENV MIX_ENV=dev \
+    PORT=4000
+
+# Expose port
+EXPOSE 4000
+
+# Add a healthcheck to ensure the app is running properly
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:4000/ || exit 1
+
+# Start the application
+CMD ["mix", "phx.server"]

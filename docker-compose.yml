@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "4000:4000"
+    environment:
+      - MIX_ENV=dev
+      - DATABASE_URL=ecto://postgres:postgres@db/ace_dev
+      - POSTGRES_HOST=db
+      - SECRET_KEY_BASE=Bv+sFeMoA7jQiQr9BaSbPhPVXV/qisaWnidSRe5teaT8tkyQe4J/2tN6etzEa+Lr
+      # AI Provider Settings
+      - GROQ_API_KEY=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
+      # - OPENAI_API_KEY=${OPENAI_API_KEY}
+      # - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ACE_LLM_PROVIDER=groq  # Options: groq, openai, anthropic, mock
+      - ACE_LLM_MODEL=llama3-70b-8192  # See provider docs for available models
+      - IP=0.0.0.0  # Crucial - bind to all interfaces, not just localhost
+    command: >
+      bash -c "
+        mix deps.get &&
+        mix ecto.setup &&
+        mix phx.server
+      "
+    volumes:
+      - .:/app
+      - /app/deps
+      - /app/_build
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ace_dev
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  pgdata:

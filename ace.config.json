@@ -1,0 +1,6 @@
+{
+  "llm_provider": "groq",
+  "llm_model": "llama3-70b-8192",
+  "focus_areas": ["performance", "maintainability"],
+  "severity_threshold": "medium"
+}

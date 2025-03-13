@@ -1,0 +1,84 @@
+{
+  "stats": {
+    "files_by_extension": {
+      "": 4,
+      ".br": 1,
+      ".cheatmd": 1,
+      ".css": 7,
+      ".eex": 16,
+      ".ex": 150,
+      ".exs": 137,
+      ".foo": 1,
+      ".gz": 1,
+      ".heex": 12,
+      ".ico": 2,
+      ".js": 26,
+      ".json": 8,
+      ".lock": 3,
+      ".map": 3,
+      ".md": 49,
+      ".mjs": 2,
+      ".pem": 2,
+      ".png": 9,
+      ".po": 1,
+      ".pot": 1,
+      ".sh": 2,
+      ".svg": 1,
+      ".txt": 2,
+      ".yml": 1
+    },
+    "line_count": {
+      "code": 0,
+      "total": 0,
+      "comments": 0,
+      "blanks": 0
+    },
+    "git_stats": {
+      "commit_count": 8317,
+      "contributor_count": 1346,
+      "latest_commit_date": "2025-03-11 16:00:31 +0100"
+    },
+    "repo_size_bytes": 29347840,
+    "files_total": 442
+  },
+  "metrics": {
+    "summary": {
+      "relationship_count": 0,
+      "file_count": 0,
+      "opportunity_count": 0,
+      "total_elapsed_ms": 2,
+      "per_1k_loc": {
+        "elapsed_ms_per_1k_loc": 0,
+        "relationships_per_1k_loc": 0,
+        "opportunities_per_1k_loc": 0
+      }
+    },
+    "file_analysis": {
+      "elapsed_ms": 2,
+      "memory_delta_bytes": 34080
+    },
+    "relationship_detection": {},
+    "cross_file_analysis": {}
+  },
+  "codebase": {
+    "branch": "main",
+    "description": "Elixir web framework",
+    "focus_areas": [
+      "performance",
+      "maintainability"
+    ],
+    "language": "elixir",
+    "name": "phoenix",
+    "repo": "https://github.com/phoenixframework/phoenix.git",
+    "size": "medium"
+  },
+  "timestamps": {
+    "started_at": "2025-03-13T18:57:47.899322Z",
+    "completed_at": "2025-03-13T18:57:47.901577Z"
+  },
+  "analysis_results": {
+    "files": [],
+    "opportunities": [],
+    "relationships": []
+  }
+}

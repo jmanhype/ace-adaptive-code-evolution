@@ -1,0 +1,129 @@
+name: ACE Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  MIX_ENV: prod
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    name: Build ACE release for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact_name: ace-linux
+          - os: macos-latest
+            platform: macos
+            artifact_name: ace-macos
+    
+    defaults:
+      run:
+        working-directory: ./ace_standalone
+        
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.2"
+          elixir-version: "1.18"
+          
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        shell: bash
+          
+      - name: Install dependencies
+        run: mix deps.get
+        
+      - name: Compile project
+        run: mix compile
+        
+      - name: Build CLI executable
+        run: mix escript.build
+        
+      - name: Rename executable
+        run: |
+          if [ "${{ matrix.platform }}" == "linux" ]; then
+            mv ace ace-linux
+          elif [ "${{ matrix.platform }}" == "macos" ]; then
+            mv ace ace-macos
+          fi
+        shell: bash
+        
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ace_standalone/${{ matrix.artifact_name }}
+          
+  create-release:
+    needs: build-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Get version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+        shell: bash
+          
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ace-linux
+          path: ./binaries
+          
+      - name: Download MacOS artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ace-macos
+          path: ./binaries
+          
+      - name: Make executables runnable
+        run: |
+          chmod +x ./binaries/ace-linux
+          chmod +x ./binaries/ace-macos
+        shell: bash
+          
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ACE v${{ env.VERSION }}
+          draft: false
+          prerelease: false
+          files: |
+            ./binaries/ace-linux
+            ./binaries/ace-macos
+          body: |
+            # ACE v${{ env.VERSION }}
+            
+            Adaptive Code Evolution (ACE) CLI release v${{ env.VERSION }}.
+            
+            ## Downloads
+            - [Linux binary](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/ace-linux)
+            - [macOS binary](https://github.com/${{ github.repository }}/releases/download/v${{ env.VERSION }}/ace-macos)
+            
+            ## Installation
+            
+            After downloading, make the file executable:
+            ```bash
+            chmod +x ace-linux  # or ace-macos
+            ```
+            
+            You can move it to a directory in your PATH for easier access:
+            ```bash
+            sudo mv ace-linux /usr/local/bin/ace  # or ace-macos
+            ```

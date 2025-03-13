@@ -1,0 +1,68 @@
+{
+  "stats": {
+    "files_by_extension": {
+      "": 2,
+      ".go": 91,
+      ".md": 9,
+      ".mod": 1,
+      ".pem": 2,
+      ".proto": 1,
+      ".sum": 1,
+      ".tmpl": 2,
+      ".yml": 1
+    },
+    "line_count": {
+      "code": 0,
+      "total": 0,
+      "comments": 0,
+      "blanks": 0
+    },
+    "git_stats": {
+      "commit_count": 1803,
+      "contributor_count": 468,
+      "latest_commit_date": "2025-02-12 10:22:02 +0800"
+    },
+    "repo_size_bytes": 5152768,
+    "files_total": 110
+  },
+  "metrics": {
+    "summary": {
+      "relationship_count": 0,
+      "file_count": 0,
+      "opportunity_count": 0,
+      "total_elapsed_ms": 3,
+      "per_1k_loc": {
+        "elapsed_ms_per_1k_loc": 0,
+        "relationships_per_1k_loc": 0,
+        "opportunities_per_1k_loc": 0
+      }
+    },
+    "file_analysis": {
+      "elapsed_ms": 3,
+      "memory_delta_bytes": 28792
+    },
+    "relationship_detection": {},
+    "cross_file_analysis": {}
+  },
+  "codebase": {
+    "branch": "master",
+    "description": "Go web framework",
+    "focus_areas": [
+      "performance",
+      "security"
+    ],
+    "language": "go",
+    "name": "gin",
+    "repo": "https://github.com/gin-gonic/gin.git",
+    "size": "medium"
+  },
+  "timestamps": {
+    "started_at": "2025-03-13T18:58:09.146533Z",
+    "completed_at": "2025-03-13T18:58:09.149287Z"
+  },
+  "analysis_results": {
+    "files": [],
+    "opportunities": [],
+    "relationships": []
+  }
+}

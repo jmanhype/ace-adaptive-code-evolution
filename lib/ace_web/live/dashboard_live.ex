@@ -1,0 +1,924 @@
+defmodule AceWeb.DashboardLive do
+  @moduledoc """
+  LiveView dashboard for the ACE system.
+  
+  Provides a real-time interface for monitoring and interacting with
+  the Adaptive Code Evolution system. Features include:
+  
+  - Overview of system metrics and recent activities
+  - File analysis interface
+  - Opportunity management and optimization
+  - Evaluation results visualization
+  - File relationship visualization
+  - Real-time updates through PubSub
+  """
+  use AceWeb, :live_view
+  
+  alias Ace.Core.AnalysisRelationship
+  import Ecto.Query, only: [from: 2]
+  
+  @topic "ace:dashboard"
+  @page_size 10
+  
+  # TODO: Refactor this file to group handle_info and handle_event functions together
+  # Currently there are separate sections for different features, leading to compiler warnings
+  # about handle_info and handle_event clauses not being grouped together
+  
+  # Rely on automatic template rendering
+  
+  @impl true
+  def mount(_params, _session, socket) do
+    # Subscribe to PubSub topics for real-time updates
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(Ace.PubSub, @topic)
+      Phoenix.PubSub.subscribe(Ace.PubSub, "ace:analyses")
+      Phoenix.PubSub.subscribe(Ace.PubSub, "ace:optimizations")
+      Phoenix.PubSub.subscribe(Ace.PubSub, "ace:evaluations")
+      Phoenix.PubSub.subscribe(Ace.PubSub, "ace:projects")
+      Phoenix.PubSub.subscribe(Ace.PubSub, "ace:relationships")
+      Phoenix.PubSub.subscribe(Ace.PubSub, "ace:errors")
+    end
+    
+    # Check API provider status
+    api_status = check_api_availability()
+    
+    socket =
+      socket
+      |> assign(:page_title, "ACE Dashboard")
+      |> assign(:active_tab, :overview)
+      |> assign(:analyses, [])
+      |> assign(:opportunities, [])
+      |> assign(:optimizations, [])
+      |> assign(:evaluations, [])
+      |> assign(:analyzing, false)
+      |> assign(:recent_activities, mock_activities())
+      |> assign(:projects, load_projects())
+      |> assign(:metrics, load_system_metrics())
+      |> assign(:file_path, "")
+      |> assign(:language, "elixir")
+      |> assign(:focus_areas, ["performance", "maintainability"])
+      |> assign(:severity_threshold, "medium")
+      |> assign(:content, "")
+      |> assign(:selected_opportunity_id, nil)
+      |> assign(:selected_optimization_id, nil)
+      |> assign(:selected_project_id, nil)
+      |> assign(:chart_data, generate_chart_data())
+      |> assign(:upload_errors, [])
+      |> assign(:loading, false)
+      |> assign(:multi_file_mode, false)
+      |> assign(:file_list, [])
+      # Optimization strategy options
+      |> assign(:strategy, "auto")
+      |> assign(:use_ast, true)
+      |> assign(:modern_js, true)
+      |> assign(:use_type_hints, false)
+      # Relationship visualization options
+      |> assign(:relationship_type_filters, nil) # nil means all types
+      |> assign(:relationship_graph_data, build_relationship_graph_data())
+      |> assign(:selected_file_id, nil)
+      |> assign(:selected_file, nil)
+      |> assign(:selected_file_relationships, %{incoming: [], outgoing: []})
+      |> assign(:selected_file_stats, %{incoming_count: 0, outgoing_count: 0})
+      |> assign(:selected_file_opportunities, [])
+      # API availability
+      |> assign(:api_status, api_status)
+    
+    # Show warning if no API keys are available
+    socket = if not api_status.has_api_key do
+      socket
+      |> put_flash(:warning, "No API keys found. Running in mock mode. Set GROQ_API_KEY, OPENAI_API_KEY, or ANTHROPIC_API_KEY to use real AI.")
+    else
+      socket
+    end
+    
+    {:ok, socket}
+  end
+  
+  # Check the availability of AI API providers
+  defp check_api_availability do
+    api_keys = %{
+      "groq" => System.get_env("GROQ_API_KEY"),
+      "openai" => System.get_env("OPENAI_API_KEY"),
+      "anthropic" => System.get_env("ANTHROPIC_API_KEY")
+    }
+    
+    has_api_key = Enum.any?(api_keys, fn {_provider, key} -> 
+      not is_nil(key) and key != ""
+    end)
+    
+    active_provider = cond do
+      not is_nil(api_keys["groq"]) and api_keys["groq"] != "" -> "groq"
+      not is_nil(api_keys["openai"]) and api_keys["openai"] != "" -> "openai"
+      not is_nil(api_keys["anthropic"]) and api_keys["anthropic"] != "" -> "anthropic"
+      true -> "mock"
+    end
+    
+    %{
+      has_api_key: has_api_key,
+      provider: active_provider,
+      providers: Map.keys(api_keys) |> Enum.filter(fn provider -> 
+        not is_nil(api_keys[provider]) and api_keys[provider] != ""
+      end)
+    }
+  end
+  
+  @impl true
+  def handle_params(params, _url, socket) do
+    {:noreply, apply_action(socket, socket.assigns.live_action, params)}
+  end
+
+  defp apply_action(socket, :index, _params) do
+    socket
+    |> assign(:active_tab, :overview)
+  end
+
+  defp apply_action(socket, live_action, _params) when live_action in [:projects, :files, :opportunities, :optimizations, :evaluations] do
+    socket
+    |> assign(:active_tab, live_action)
+  end
+  
+  # Group all handle_event functions together
+  @impl true
+  def handle_event("analyze", _params, socket) do
+    # This would normally trigger an actual analysis
+    # Here we'll just set the flag and use a mock response
+    
+    Process.send_after(self(), :analysis_complete, 2000)
+    
+    {:noreply, assign(socket, :analyzing, true)}
+  end
+  
+  @impl true
+  def handle_event("select-project-for-relationships", %{"value" => ""}, socket) do
+    socket = 
+      socket
+      |> assign(:selected_project_id, nil)
+      |> assign(:relationship_graph_data, build_relationship_graph_data())
+      |> assign(:selected_file_id, nil)
+      |> assign(:selected_file, nil)
+      |> assign(:selected_file_relationships, %{incoming: [], outgoing: []})
+      |> assign(:selected_file_stats, %{incoming_count: 0, outgoing_count: 0})
+      |> assign(:selected_file_opportunities, [])
+      
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_event("select-project-for-relationships", %{"value" => project_id}, socket) do
+    {project_id, _} = Integer.parse(project_id)
+    
+    socket = 
+      socket
+      |> assign(:selected_project_id, project_id)
+      |> assign(:relationship_graph_data, build_relationship_graph_data(project_id))
+      |> assign(:selected_file_id, nil)
+      |> assign(:selected_file, nil)
+      |> assign(:selected_file_relationships, %{incoming: [], outgoing: []})
+      |> assign(:selected_file_stats, %{incoming_count: 0, outgoing_count: 0})
+      |> assign(:selected_file_opportunities, [])
+      
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_event("toggle-relationship-type-filter", %{"type" => type}, socket) do
+    current_filters = socket.assigns.relationship_type_filters || AnalysisRelationship.relationship_types()
+    
+    new_filters = 
+      if Enum.member?(current_filters, type) do
+        List.delete(current_filters, type)
+      else
+        [type | current_filters]
+      end
+    
+    # If all types are selected, set to nil for "all"
+    new_filters = 
+      if length(new_filters) == length(AnalysisRelationship.relationship_types()) do
+        nil
+      else
+        new_filters
+      end
+    
+    socket = 
+      socket
+      |> assign(:relationship_type_filters, new_filters)
+      |> assign(:relationship_graph_data, build_relationship_graph_data(socket.assigns.selected_project_id, new_filters))
+      
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_event("select-file-node", %{"id" => file_id}, socket) do
+    {file_id, _} = Integer.parse(file_id)
+    
+    case Ace.Repo.get(Ace.Core.Analysis, file_id) do
+      nil -> 
+        {:noreply, socket}
+        
+      file ->
+        # Get relationships for this file
+        relationships = load_file_relationships(file_id)
+        
+        # Get cross-file opportunities for this file
+        opportunities = load_cross_file_opportunities(file_id)
+        
+        # Count stats
+        stats = %{
+          incoming_count: length(relationships.incoming),
+          outgoing_count: length(relationships.outgoing)
+        }
+        
+        {:noreply, 
+          socket
+          |> assign(:selected_file_id, file_id)
+          |> assign(:selected_file, file)
+          |> assign(:selected_file_relationships, relationships)
+          |> assign(:selected_file_stats, stats)
+          |> assign(:selected_file_opportunities, opportunities)}
+    end
+  end
+  
+  @impl true
+  def handle_event("select-relationship-file", %{"id" => file_id}, socket) do
+    handle_event("select-file-node", %{"id" => file_id}, socket)
+  end
+  
+  @impl true
+  def handle_info(:analysis_complete, socket) do
+    # Mock analysis results
+    analyses = mock_analyses()
+    opportunities = mock_opportunities()
+    
+    socket =
+      socket
+      |> assign(:analyzing, false)
+      |> assign(:analyses, analyses)
+      |> assign(:opportunities, opportunities)
+      |> Phoenix.Component.update(:recent_activities, fn activities ->
+        [{"Analysis", "project.ex", "Complete", "just now"} | Enum.take(activities, 9)]
+      end)
+    
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_info({:analysis_created, analysis}, socket) do
+    {:noreply, Phoenix.Component.update(socket, :analyses, &[analysis | &1])}
+  end
+  
+  @impl true
+  def handle_info({:opportunity_created, opportunity}, socket) do
+    {:noreply, Phoenix.Component.update(socket, :opportunities, &[opportunity | &1])}
+  end
+  
+  @impl true
+  def handle_info({:optimization_created, optimization}, socket) do
+    {:noreply, Phoenix.Component.update(socket, :optimizations, &[optimization | &1])}
+  end
+  
+  @impl true
+  def handle_info({:evaluation_completed, {:ok, evaluation}}, socket) do
+    # Update assigns
+    updated_socket = 
+      socket
+      |> assign(:loading, false)
+      |> assign(:evaluations, [evaluation | socket.assigns.evaluations] |> Enum.take(@page_size))
+      |> assign(:metrics, load_system_metrics())
+      |> assign(:chart_data, generate_chart_data())
+      |> put_flash(:info, "Evaluation completed successfully")
+    
+    # Notify charts to update with new data
+    updated_socket = if socket.assigns.active_tab == :overview do
+      # Format chart data for JavaScript
+      performance_data = %{
+        dates: Enum.map(updated_socket.assigns.chart_data.performance, fn p -> p.date end),
+        improvements: Enum.map(updated_socket.assigns.chart_data.performance, fn p -> p.improvement end)
+      }
+      
+      # Send updates to charts
+      push_event(updated_socket, "chart-data-updated", %{chart: "performance-chart", data: performance_data})
+    else
+      updated_socket
+    end
+    
+    {:noreply, updated_socket}
+  end
+  
+  @impl true
+  def handle_info({:evaluation_completed, {:error, reason}}, socket) do
+    {:noreply, 
+      socket
+      |> assign(:loading, false)
+      |> put_flash(:error, "Evaluation failed: #{reason}")}
+  end
+  
+  @impl true
+  def handle_info({:optimization_applied, {:ok, optimization}}, socket) do
+    socket = 
+      socket
+      |> assign(:loading, false)
+      |> assign(:optimizations, 
+        Enum.map(socket.assigns.optimizations, fn opt ->
+          if opt.id == optimization.id, do: optimization, else: opt
+        end)
+      )
+      |> assign(:metrics, load_system_metrics())
+      |> put_flash(:info, "Optimization applied successfully")
+    
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_info({:optimization_applied, {:error, reason}}, socket) do
+    {:noreply, 
+      socket
+      |> assign(:loading, false)
+      |> put_flash(:error, "Failed to apply optimization: #{reason}")}
+  end
+  
+  @impl true
+  def handle_info({:pipeline_completed, {:ok, results}}, socket) do
+    socket = 
+      socket
+      |> assign(:loading, false)
+      |> assign(:analyses, 
+        (if results.analysis, do: [results.analysis | socket.assigns.analyses], else: socket.assigns.analyses) 
+        |> Enum.take(@page_size)
+      )
+      |> assign(:opportunities, 
+        (results.opportunities ++ socket.assigns.opportunities) 
+        |> Enum.take(@page_size * 2)
+      )
+      |> assign(:optimizations,
+        (results.optimizations ++ socket.assigns.optimizations)
+        |> Enum.take(@page_size)
+      )
+      |> assign(:evaluations,
+        (results.evaluations ++ socket.assigns.evaluations)
+        |> Enum.take(@page_size)
+      )
+      |> assign(:metrics, load_system_metrics())
+      |> assign(:chart_data, generate_chart_data())
+      |> put_flash(:info, "Pipeline completed successfully")
+    
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_info({:pipeline_completed, {:error, reason}}, socket) do
+    {:noreply, 
+      socket
+      |> assign(:loading, false)
+      |> put_flash(:error, "Pipeline failed: #{reason}")}
+  end
+  
+  @impl true
+  def handle_info({:api_error, %{provider: provider, reason: reason}}, socket) do
+    error_message = case provider do
+      "groq" -> 
+        "Groq API error: #{format_api_error(reason)}. Check your API key and try again."
+      "openai" -> 
+        "OpenAI API error: #{format_api_error(reason)}. Check your API key and try again."
+      "anthropic" -> 
+        "Anthropic API error: #{format_api_error(reason)}. Check your API key and try again."
+      _ -> 
+        "API error: #{format_api_error(reason)}"
+    end
+    
+    {:noreply, 
+      socket
+      |> assign(:loading, false)
+      |> put_flash(:error, error_message)}
+  end
+  
+  # Format API error messages for display
+  defp format_api_error(error) do
+    cond do
+      is_binary(error) -> 
+        error
+      is_map(error) && Map.has_key?(error, :message) -> 
+        error.message
+      is_map(error) && Map.has_key?(error, "message") -> 
+        error["message"]
+      is_tuple(error) && tuple_size(error) == 2 -> 
+        "#{elem(error, 0)}: #{elem(error, 1)}"
+      true -> 
+        inspect(error)
+    end
+  end
+  
+  # credo:disable-for-next-line Credo.Check.Consistency.FunctionDispatch
+  @impl true
+  def handle_info({:project_created, {:ok, result}}, socket) do
+    socket = 
+      socket
+      |> assign(:loading, false)
+      |> assign(:projects, [result.project | socket.assigns.projects] |> Enum.take(@page_size))
+      |> assign(:analyses, (result.analyses ++ socket.assigns.analyses) |> Enum.take(@page_size))
+      |> assign(:opportunities, 
+        (result.cross_file_opportunities ++ socket.assigns.opportunities) 
+        |> Enum.take(@page_size * 2))
+      |> assign(:metrics, load_system_metrics())
+      |> assign(:file_list, [])
+      |> assign(:selected_project_id, result.project.id)
+      |> assign(:show_project_modal, false)
+      |> put_flash(:info, "Project created and analyzed successfully")
+    
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_info({:project_created, {:error, reason}}, socket) do
+    {:noreply, 
+      socket
+      |> assign(:loading, false)
+      |> assign(:show_project_modal, false)
+      |> put_flash(:error, "Project creation failed: #{reason}")}
+  end
+  
+  # Load projects from the database
+  defp load_projects do
+    Ace.Repo.all(
+      from project in Ace.Core.Project,
+        order_by: [desc: project.inserted_at],
+        limit: @page_size,
+        preload: [:analyses]
+    )
+  end
+  
+  # Load system metrics
+  defp load_system_metrics do
+    analyses_count = Ace.Repo.aggregate(Ace.Core.Analysis, :count, :id)
+    opportunities_count = Ace.Repo.aggregate(Ace.Core.Opportunity, :count, :id)
+    optimizations_count = Ace.Repo.aggregate(Ace.Core.Optimization, :count, :id)
+    evaluations_count = Ace.Repo.aggregate(Ace.Core.Evaluation, :count, :id)
+    projects_count = Ace.Repo.aggregate(Ace.Core.Project, :count, :id)
+    
+    # Calculate success rate
+    total_evaluations = max(evaluations_count, 1)
+    successful_evaluations = Ace.Repo.one(
+      from evaluation in Ace.Core.Evaluation, 
+      where: evaluation.success == true,
+      select: count(evaluation.id)
+    )
+    success_rate = Float.round((successful_evaluations || 0) / total_evaluations * 100, 1)
+    
+    # Calculate applied rate
+    total_optimizations = max(optimizations_count, 1)
+    applied_optimizations = Ace.Repo.one(
+      from optimization in Ace.Core.Optimization, 
+      where: optimization.status == "applied",
+      select: count(optimization.id)
+    )
+    applied_rate = Float.round((applied_optimizations || 0) / total_optimizations * 100, 1)
+    
+    # Get language distribution
+    language_counts = Ace.Repo.all(
+      from analysis in Ace.Core.Analysis,
+        group_by: analysis.language,
+        select: {analysis.language, count(analysis.id)}
+    )
+    |> Enum.into(%{})
+    
+    # Get opportunity type distribution
+    opportunity_types = Ace.Repo.all(
+      from opportunity in Ace.Core.Opportunity,
+        group_by: opportunity.type,
+        select: {opportunity.type, count(opportunity.id)}
+    )
+    |> Enum.into(%{})
+    
+    # Get cross-file opportunities count
+    cross_file_count = Ace.Repo.one(
+      from opportunity in Ace.Core.Opportunity, 
+      where: opportunity.scope == "cross_file",
+      select: count(opportunity.id)
+    ) || 0
+    
+    %{
+      analyses_count: analyses_count,
+      opportunities_count: opportunities_count,
+      optimizations_count: optimizations_count,
+      evaluations_count: evaluations_count,
+      projects_count: projects_count,
+      cross_file_count: cross_file_count,
+      success_rate: success_rate,
+      applied_rate: applied_rate,
+      language_counts: language_counts,
+      opportunity_types: opportunity_types,
+      avg_opportunities_per_analysis: (
+        if analyses_count > 0 do 
+          Float.round(opportunities_count / analyses_count, 1)
+        else 
+          0
+        end
+      )
+    }
+  end
+  
+  # Generate chart data for visualizations
+  defp generate_chart_data do
+    # Get performance improvements over time
+    performance_data = Ace.Repo.all(
+      from evaluation in Ace.Core.Evaluation,
+        order_by: evaluation.inserted_at,
+        select: %{
+          date: fragment("date_trunc('day', ?)", evaluation.inserted_at),
+          improvement: fragment("(metrics->>'overall_improvement')::float"),
+          success: evaluation.success
+        },
+        where: fragment("metrics->>'overall_improvement' IS NOT NULL")
+    )
+    
+    # Get language distribution
+    language_data = Ace.Repo.all(
+      from analysis in Ace.Core.Analysis,
+        group_by: analysis.language,
+        select: %{language: analysis.language, count: count()}
+    )
+    
+    # Get opportunity type distribution
+    type_data = Ace.Repo.all(
+      from opportunity in Ace.Core.Opportunity,
+        group_by: opportunity.type,
+        select: %{type: opportunity.type, count: count()}
+    )
+    
+    # Get severity distribution
+    severity_data = Ace.Repo.all(
+      from opportunity in Ace.Core.Opportunity,
+        group_by: opportunity.severity,
+        select: %{severity: opportunity.severity, count: count()}
+    )
+    
+    %{
+      performance: performance_data,
+      languages: language_data,
+      types: type_data,
+      severities: severity_data
+    }
+  end
+  
+  # Format datetime for display
+  def format_datetime(datetime) do
+    case datetime do
+      %DateTime{} = dt -> 
+        Calendar.strftime(dt, "%b %d, %Y %H:%M")
+      %NaiveDateTime{} = dt -> 
+        Calendar.strftime(dt, "%b %d, %Y %H:%M")
+      nil -> 
+        "N/A"
+      _ -> 
+        "Invalid datetime"
+    end
+  end
+  
+  # Helper function to determine status class for UI
+  def status_class(status) do
+    case status do
+      "Complete" -> "text-green-600 font-medium"
+      "Applied" -> "text-green-600 font-medium"
+      "Pending" -> "text-yellow-600 font-medium"
+      "Failed" -> "text-red-600 font-medium"
+      _ -> "text-gray-500"
+    end
+  end
+  
+  # Format evaluation report with proper styling
+  def format_report(report) when is_binary(report) do
+    report
+    |> String.replace(~r/^# (.+)$/m, "<h3>\\1</h3>")
+    |> String.replace(~r/^## (.+)$/m, "<h4>\\1</h4>")
+    |> String.replace(~r/^- (.+)$/m, "<li>\\1</li>")
+    |> String.replace(~r/<li>(.+)\n(?!<li>)/, "<li>\\1</li>\n")
+    |> String.replace(~r/✅/m, "<span class=\"success-icon\">✅</span>")
+    |> String.replace(~r/❌/m, "<span class=\"error-icon\">❌</span>")
+    |> String.replace(~r/\n\n/, "<br><br>")
+  end
+  def format_report(_), do: ""
+  
+  # Check if an evaluation exists for an optimization
+  def has_evaluation?(optimization_id, evaluations) do
+    Enum.any?(evaluations, fn e -> e.optimization_id == optimization_id end)
+  end
+  
+  # Get an evaluation for an optimization
+  def get_evaluation(optimization_id, evaluations) do
+    Enum.find(evaluations, fn e -> e.optimization_id == optimization_id end)
+  end
+  
+  # Format percentage for display
+  def format_percentage(value) when is_number(value) do
+    sign = if value >= 0, do: "+", else: ""
+    "#{sign}#{Float.round(value, 2)}%"
+  end
+  def format_percentage(_), do: "N/A"
+  
+  # Format complexity change
+  def format_complexity_change(%{score: score}) when is_number(score) do
+    cond do
+      score < -10 -> "Significantly improved (#{format_percentage(score)})"
+      score < 0 -> "Slightly improved (#{format_percentage(score)})"
+      score == 0 -> "Unchanged"
+      score < 10 -> "Slightly increased (#{format_percentage(score)})"
+      true -> "Significantly increased (#{format_percentage(score)})"
+    end
+  end
+  def format_complexity_change(%{percentage: percentage}) when is_number(percentage) do
+    format_percentage(percentage)
+  end
+  def format_complexity_change(_), do: "Unknown"
+  
+  # Relationship visualization functions
+  
+  # credo:disable-for-next-line Credo.Check.Consistency.FunctionDispatch
+  @impl true
+  def handle_event("select-project-for-relationships", %{"value" => ""}, socket) do
+    socket = 
+      socket
+      |> assign(:selected_project_id, nil)
+      |> assign(:relationship_graph_data, build_relationship_graph_data())
+      |> assign(:selected_file_id, nil)
+      |> assign(:selected_file, nil)
+      |> assign(:selected_file_relationships, %{incoming: [], outgoing: []})
+      |> assign(:selected_file_stats, %{incoming_count: 0, outgoing_count: 0})
+      |> assign(:selected_file_opportunities, [])
+      
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_event("select-project-for-relationships", %{"value" => project_id}, socket) do
+    {project_id, _} = Integer.parse(project_id)
+    
+    socket = 
+      socket
+      |> assign(:selected_project_id, project_id)
+      |> assign(:relationship_graph_data, build_relationship_graph_data(project_id))
+      |> assign(:selected_file_id, nil)
+      |> assign(:selected_file, nil)
+      |> assign(:selected_file_relationships, %{incoming: [], outgoing: []})
+      |> assign(:selected_file_stats, %{incoming_count: 0, outgoing_count: 0})
+      |> assign(:selected_file_opportunities, [])
+      
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_event("toggle-relationship-type-filter", %{"type" => type}, socket) do
+    current_filters = socket.assigns.relationship_type_filters || AnalysisRelationship.relationship_types()
+    
+    new_filters = 
+      if Enum.member?(current_filters, type) do
+        List.delete(current_filters, type)
+      else
+        [type | current_filters]
+      end
+    
+    # If all types are selected, set to nil for "all"
+    new_filters = 
+      if length(new_filters) == length(AnalysisRelationship.relationship_types()) do
+        nil
+      else
+        new_filters
+      end
+    
+    socket = 
+      socket
+      |> assign(:relationship_type_filters, new_filters)
+      |> assign(:relationship_graph_data, build_relationship_graph_data(socket.assigns.selected_project_id, new_filters))
+      
+    {:noreply, socket}
+  end
+  
+  @impl true
+  def handle_event("select-file-node", %{"id" => file_id}, socket) do
+    {file_id, _} = Integer.parse(file_id)
+    
+    case Ace.Repo.get(Ace.Core.Analysis, file_id) do
+      nil -> 
+        {:noreply, socket}
+        
+      file ->
+        # Get relationships for this file
+        relationships = load_file_relationships(file_id)
+        
+        # Get cross-file opportunities for this file
+        opportunities = load_cross_file_opportunities(file_id)
+        
+        # Count stats
+        stats = %{
+          incoming_count: length(relationships.incoming),
+          outgoing_count: length(relationships.outgoing)
+        }
+        
+        {:noreply, 
+          socket
+          |> assign(:selected_file_id, file_id)
+          |> assign(:selected_file, file)
+          |> assign(:selected_file_relationships, relationships)
+          |> assign(:selected_file_stats, stats)
+          |> assign(:selected_file_opportunities, opportunities)}
+    end
+  end
+  
+  @impl true
+  def handle_event("select-relationship-file", %{"id" => file_id}, socket) do
+    handle_event("select-file-node", %{"id" => file_id}, socket)
+  end
+  
+  # Get all supported relationship types
+  def get_relationship_types do
+    AnalysisRelationship.relationship_types()
+  end
+  
+  # Format relationship details
+  def format_relationship_details(details) when is_map(details) do
+    details
+    |> Enum.map(fn {key, value} -> "#{key}: #{value}" end)
+    |> Enum.join(", ")
+  end
+  def format_relationship_details(_), do: ""
+  
+  # Load relationships for a specific file
+  defp load_file_relationships(file_id) do
+    import Ecto.Query
+    
+    # Get outgoing relationships (this file -> other files)
+    outgoing_query = 
+      from r in AnalysisRelationship,
+        where: r.source_analysis_id == ^file_id,
+        join: t in Ace.Core.Analysis, on: r.target_analysis_id == t.id,
+        select: %{
+          id: r.id,
+          relationship_type: r.relationship_type,
+          details: r.details,
+          source_analysis_id: r.source_analysis_id,
+          target_analysis_id: r.target_analysis_id,
+          target_file_path: t.file_path
+        }
+    
+    # Get incoming relationships (other files -> this file)
+    incoming_query = 
+      from r in AnalysisRelationship,
+        where: r.target_analysis_id == ^file_id,
+        join: s in Ace.Core.Analysis, on: r.source_analysis_id == s.id,
+        select: %{
+          id: r.id,
+          relationship_type: r.relationship_type,
+          details: r.details,
+          source_analysis_id: r.source_analysis_id,
+          target_analysis_id: r.target_analysis_id,
+          source_file_path: s.file_path
+        }
+    
+    %{
+      outgoing: Ace.Repo.all(outgoing_query),
+      incoming: Ace.Repo.all(incoming_query)
+    }
+  end
+  
+  # Load cross-file opportunities for a specific file
+  defp load_cross_file_opportunities(file_id) do
+    import Ecto.Query
+    
+    # Find the analysis
+    case Ace.Repo.get(Ace.Core.Analysis, file_id) do
+      nil -> []
+      _analysis ->
+        # Get opportunities that are related to this file
+        query = 
+          from o in Ace.Core.Opportunity,
+            where: o.analysis_id == ^file_id,
+            where: o.scope == "cross_file",
+            order_by: [desc: o.severity, desc: o.inserted_at]
+            
+        Ace.Repo.all(query)
+    end
+  end
+  
+  # Build relationship graph data
+  defp build_relationship_graph_data(project_id \\ nil, type_filters \\ nil) do
+    import Ecto.Query
+    
+    # Get analyses based on project
+    analyses_query = 
+      case project_id do
+        nil -> 
+          from a in Ace.Core.Analysis,
+            select: %{id: a.id, file_path: a.file_path, language: a.language}
+          
+        id -> 
+          from a in Ace.Core.Analysis,
+            where: a.project_id == ^id,
+            select: %{id: a.id, file_path: a.file_path, language: a.language}
+      end
+    
+    analyses = Ace.Repo.all(analyses_query)
+    
+    # Get relationships based on filters
+    relationships_query = 
+      case {project_id, type_filters} do
+        {nil, nil} -> 
+          from r in AnalysisRelationship,
+            select: %{
+              id: r.id,
+              source_id: r.source_analysis_id,
+              target_id: r.target_analysis_id,
+              type: r.relationship_type
+            }
+          
+        {id, nil} -> 
+          from r in AnalysisRelationship,
+            join: s in Ace.Core.Analysis, on: r.source_analysis_id == s.id,
+            join: t in Ace.Core.Analysis, on: r.target_analysis_id == t.id,
+            where: s.project_id == ^id and t.project_id == ^id,
+            select: %{
+              id: r.id,
+              source_id: r.source_analysis_id,
+              target_id: r.target_analysis_id,
+              type: r.relationship_type
+            }
+          
+        {nil, types} -> 
+          from r in AnalysisRelationship,
+            where: r.relationship_type in ^types,
+            select: %{
+              id: r.id,
+              source_id: r.source_analysis_id,
+              target_id: r.target_analysis_id,
+              type: r.relationship_type
+            }
+            
+        {id, types} -> 
+          from r in AnalysisRelationship,
+            join: s in Ace.Core.Analysis, on: r.source_analysis_id == s.id,
+            join: t in Ace.Core.Analysis, on: r.target_analysis_id == t.id,
+            where: s.project_id == ^id and t.project_id == ^id,
+            where: r.relationship_type in ^types,
+            select: %{
+              id: r.id,
+              source_id: r.source_analysis_id,
+              target_id: r.target_analysis_id,
+              type: r.relationship_type
+            }
+      end
+      
+    relationships = Ace.Repo.all(relationships_query)
+    
+    # Format for the graph visualization
+    %{
+      nodes: Enum.map(analyses, fn a -> 
+        %{
+          id: a.id,
+          label: Path.basename(a.file_path),
+          group: a.language,
+          title: a.file_path
+        }
+      end),
+      edges: Enum.map(relationships, fn r -> 
+        %{
+          id: r.id,
+          from: r.source_id,
+          to: r.target_id,
+          label: r.type,
+          arrows: "to"
+        }
+      end)
+    }
+  end
+  
+  # Mock data for demonstration
+  defp mock_activities do
+    [
+      {"Analysis", "user_controller.ex", "Complete", "2 hours ago"},
+      {"Optimization", "Performance issue in sort algorithm", "Complete", "3 hours ago"},
+      {"Evaluation", "O(n²) to O(n log n) conversion", "Complete", "3 hours ago"},
+      {"Applied", "Sort algorithm improvement", "Complete", "3 hours ago"},
+      {"Analysis", "auth_service.ex", "Complete", "1 day ago"},
+      {"Optimization", "Memory usage in caching layer", "Failed", "1 day ago"},
+      {"Analysis", "dashboard_live.ex", "Complete", "2 days ago"},
+      {"Optimization", "Query optimization", "Complete", "2 days ago"},
+      {"Evaluation", "Database query restructuring", "Complete", "2 days ago"},
+      {"Applied", "Query optimization", "Complete", "2 days ago"}
+    ]
+  end
+  
+  defp mock_analyses do
+    [
+      %{id: "1", file_path: "lib/project/user.ex", language: "elixir", focus_areas: ["performance", "maintainability"]},
+      %{id: "2", file_path: "lib/project/auth.ex", language: "elixir", focus_areas: ["security", "reliability"]}
+    ]
+  end
+  
+  defp mock_opportunities do
+    [
+      %{id: "1", analysis_id: "1", type: "performance", severity: "high", location: "sort_users/1", 
+        description: "O(n²) sorting algorithm can be replaced with more efficient implementation"},
+      %{id: "2", analysis_id: "1", type: "maintainability", severity: "medium", location: "process_data/2",
+        description: "Complex function with multiple responsibilities can be refactored"},
+      %{id: "3", analysis_id: "2", type: "security", severity: "high", location: "validate_token/1",
+        description: "Potential timing attack vulnerability in token comparison"}
+    ]
+  end
+end

@@ -3,11 +3,18 @@ import Config
 # Development configuration for ACE
 config :ace, 
   environment: "development",
-  ai_provider: "mock",
-  supported_languages: ["elixir", "javascript", "python", "ruby", "go"]
+  ai_provider: "groq",
+  supported_languages: ["elixir", "javascript", "python", "ruby", "go"],
+  self_evolution_enabled: true,
+  evolution_check_interval: 60 * 60 * 1000, # 1 hour
+  evolution_modules: [
+    [module: Ace.Core.Demo, feedback_source: "demo", threshold: 7.0]
+  ],
+  autonomous_deploy: true
 
 # Phoenix configuration
 config :ace, AceWeb.Endpoint,
+  url: [host: "localhost", port: 4000],
   http: [ip: {127, 0, 0, 1}, port: 4000],
   check_origin: false,
   code_reloader: true,

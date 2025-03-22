@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>FunctionClauseError at GET /</title>
+    <meta name="viewport" content="width=device-width">
+    <style>/*! normalize.css v4.2.0 | MIT License | github.com/necolas/normalize.css */html{font-family:sans-serif;line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section{display:block}audio,canvas,progress,video{display:inline-block}audio:not([controls]){display:none;height:0}progress{vertical-align:baseline}template,[hidden]{display:none}a{background-color:transparent;-webkit-text-decoration-skip:objects}a:active,a:hover{outline-width:0}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:inherit}b,strong{font-weight:bolder}dfn{font-style:italic}h1{font-size:2em;margin:0.67em 0}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-0.25em}sup{top:-0.5em}img{border-style:none}svg:not(:root){overflow:hidden}code,kbd,pre,samp{font-family:monospace, monospace;font-size:1em}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}button,input,optgroup,select,textarea{font:inherit;margin:0}optgroup{font-weight:bold}button,input{overflow:visible}button,select{text-transform:none}button,html [type="button"],[type="reset"],[type="submit"]{-webkit-appearance:button}button::-moz-focus-inner,[type="button"]::-moz-focus-inner,[type="reset"]::-moz-focus-inner,[type="submit"]::-moz-focus-inner{border-style:none;padding:0}button:-moz-focusring,[type="button"]:-moz-focusring,[type="reset"]:-moz-focusring,[type="submit"]:-moz-focusring{outline:1px dotted ButtonText}fieldset{border:1px solid #c0c0c0;margin:0 2px;padding:0.35em 0.625em 0.75em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}textarea{overflow:auto}[type="checkbox"],[type="radio"]{box-sizing:border-box;padding:0}[type="number"]::-webkit-inner-spin-button,[type="number"]::-webkit-outer-spin-button{height:auto}[type="search"]{-webkit-appearance:textfield;outline-offset:-2px}[type="search"]::-webkit-search-cancel-button,[type="search"]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-input-placeholder{color:inherit;opacity:0.54}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}</style>
+    <style>
+    html, body, td, input {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        font-size: 15px;
+        line-height: 1.6;
+        background: white;
+        color: #203040;
+        color-scheme: light;
+    }
+
+    
+
+    @media (max-width: 768px) {
+        html {
+             font-size: 14px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        html {
+             font-size: 13px;
+        }
+    }
+
+    button:focus,
+    summary:focus {
+        outline: 0;
+    }
+
+    summary {
+        cursor: pointer;
+    }
+
+    pre {
+        font-family: menlo, consolas, monospace;
+        overflow: auto;
+        max-width: 100%;
+    }
+
+    .top-details {
+        padding: 48px;
+        background: #f9f9fa;
+    }
+
+    
+
+    .top-details,
+    .conn-info {
+        padding: 48px;
+    }
+
+
+    @media (max-width: 768px) {
+        .top-details,
+        .conn-info {
+            padding: 32px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .top-details,
+        .conn-info {
+            padding: 16px;
+        }
+    }
+
+    /*
+     * Exception logo
+     */
+
+    
+    .exception-logo {
+        position: absolute;
+        right: 48px;
+        top: 48px;
+        pointer-events: none;
+        width: 100%;
+    }
+
+    .exception-logo:before {
+        content: '';
+        display: block;
+        height: 64px;
+        width: 100%;
+        background-size: auto 100%;
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNzEgNDgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiPgoJPHBhdGggZD0ibTI2LjM3MSAzMy40NzctLjU1Mi0uMWMtMy45Mi0uNzI5LTYuMzk3LTMuMS03LjU3LTYuODI5LS43MzMtMi4zMjQuNTk3LTQuMDM1IDMuMDM1LTQuMTQ4IDEuOTk1LS4wOTIgMy4zNjIgMS4wNTUgNC41NyAyLjM5IDEuNTU3IDEuNzIgMi45ODQgMy41NTggNC41MTQgNS4zMDUgMi4yMDIgMi41MTUgNC43OTcgNC4xMzQgOC4zNDcgMy42MzQgMy4xODMtLjQ0OCA1Ljk1OC0xLjcyNSA4LjM3MS0zLjgyOC4zNjMtLjMxNi43NjEtLjU5MiAxLjE0NC0uODg2bC0uMjQxLS4yODRjLTIuMDI3LjYzLTQuMDkzLjg0MS02LjIwNS43MzUtMy4xOTUtLjE2LTYuMjQtLjgyOC04Ljk2NC0yLjU4Mi0yLjQ4Ni0xLjYwMS00LjMxOS0zLjc0Ni01LjE5LTYuNjExLS43MDQtMi4zMTUuNzM2LTMuOTM0IDMuMTM1LTMuNi45NDguMTMzIDEuNzQ2LjU2IDIuNDYzIDEuMTY1LjU4My40OTMgMS4xNDMgMS4wMTUgMS43MzggMS40OTMgMi44IDIuMjUgNi43MTIgMi4zNzUgMTAuMjY1LS4wNjgtNS44NDItLjAyNi05LjgxNy0zLjI0LTEzLjMwOC03LjMxMy0xLjM2Ni0xLjU5NC0yLjctMy4yMTYtNC4wOTUtNC43ODUtMi42OTgtMy4wMzYtNS42OTItNS43MS05Ljc5LTYuNjIzQzEyLjgtLjYyMyA3Ljc0NS4xNCAyLjg5MyAyLjM2MSAxLjkyNiAyLjgwNC45OTcgMy4zMTkgMCA0LjE0OWMuNDk0IDAgLjc2My4wMDYgMS4wMzIgMCAyLjQ0Ni0uMDY0IDQuMjggMS4wMjMgNS42MDIgMy4wMjQuOTYyIDEuNDU3IDEuNDE1IDMuMTA0IDEuNzYxIDQuNzk4LjUxMyAyLjUxNS4yNDcgNS4wNzguNTQ0IDcuNjA1Ljc2MSA2LjQ5NCA0LjA4IDExLjAyNiAxMC4yNiAxMy4zNDYgMi4yNjcuODUyIDQuNTkxIDEuMTM1IDcuMTcyLjU1NVpNMTAuNzUxIDMuODUyYy0uOTc2LjI0Ni0xLjc1Ni0uMTQ4LTIuNTYtLjk2MiAxLjM3Ny0uMzQzIDIuNTkyLS40NzYgMy44OTctLjUyOC0uMTA3Ljg0OC0uNjA3IDEuMzA2LTEuMzM2IDEuNDlabTMyLjAwMiAzNy45MjRjLS4wODUtLjYyNi0uNjItLjkwMS0xLjA0LTEuMjI4LTEuODU3LTEuNDQ2LTQuMDMtMS45NTgtNi4zMzMtMi0xLjM3NS0uMDI2LTIuNzM1LS4xMjgtNC4wMzEtLjYxLS41OTUtLjIyLTEuMjYtLjUwNS0xLjI0NC0xLjI3Mi4wMTUtLjc4LjY5My0xIDEuMzEtMS4xODQuNTA1LS4xNSAxLjAyNi0uMjQ3IDEuNi0uMzgyLTEuNDYtLjkzNi0yLjg4Ni0xLjA2NS00Ljc4Ny0uMy0yLjk5MyAxLjIwMi01Ljk0MyAxLjA2LTguOTI2LS4wMTctMS42ODQtLjYwOC0zLjE3OS0xLjU2My00LjczNS0yLjQwOGwtLjA0My4wM2EyLjk2IDIuOTYgMCAwIDAgLjA0LS4wMjljLS4wMzgtLjExNy0uMTA3LS4xMi0uMTk3LS4wNTRsLjEyMi4xMDdjMS4yOSAyLjExNSAzLjAzNCAzLjgxNyA1LjAwNCA1LjI3MSAzLjc5MyAyLjggNy45MzYgNC40NzEgMTIuNzg0IDMuNzNBNjYuNzE0IDY2LjcxNCAwIDAgMSAzNyA0MC44NzdjMS45OC0uMTYgMy44NjYuMzk4IDUuNzUzLjg5OVptLTkuMTQtMzAuMzQ1Yy0uMTA1LS4wNzYtLjIwNi0uMjY2LS40Mi0uMDY5IDEuNzQ1IDIuMzYgMy45ODUgNC4wOTggNi42ODMgNS4xOTMgNC4zNTQgMS43NjcgOC43NzMgMi4wNyAxMy4yOTMuNTEgMy41MS0xLjIxIDYuMDMzLS4wMjggNy4zNDMgMy4zOC4xOS0zLjk1NS0yLjEzNy02LjgzNy01Ljg0My03LjQwMS0yLjA4NC0uMzE4LTQuMDEuMzczLTUuOTYyLjk0LTUuNDM0IDEuNTc1LTEwLjQ4NS43OTgtMTUuMDk0LTIuNTUzWm0yNy4wODUgMTUuNDI1Yy43MDguMDU5IDEuNDE2LjEyMyAyLjEyNC4xODUtMS42LTEuNDA1LTMuNTUtMS41MTctNS41MjMtMS40MDQtMy4wMDMuMTctNS4xNjcgMS45MDMtNy4xNCAzLjk3Mi0xLjczOSAxLjgyNC0zLjMxIDMuODctNS45MDMgNC42MDQuMDQzLjA3OC4wNTQuMTE3LjA2Ni4xMTcuMzUuMDA1LjY5OS4wMjEgMS4wNDcuMDA1IDMuNzY4LS4xNyA3LjMxNy0uOTY1IDEwLjE0LTMuNy44OS0uODYgMS42ODUtMS44MTcgMi41NDQtMi43MS43MTYtLjc0NiAxLjU4NC0xLjE1OSAyLjY0NS0xLjA3Wm0tOC43NTMtNC42N2MtMi44MTIuMjQ2LTUuMjU0IDEuNDA5LTcuNTQ4IDIuOTQzLTEuNzY2IDEuMTgtMy42NTQgMS43MzgtNS43NzYgMS4zNy0uMzc0LS4wNjYtLjc1LS4xMTQtMS4xMjQtLjE3bC0uMDEzLjE1NmMuMTM1LjA3LjI2NS4xNTEuNDA1LjIwNy4zNTQuMTQuNzAyLjMwOCAxLjA3LjM5NSA0LjA4My45NzEgNy45OTIuNDc0IDExLjUxNi0xLjgwMyAyLjIyMS0xLjQzNSA0LjUyMS0xLjcwNyA3LjAxMy0xLjMzNi4yNTIuMDM4LjUwMy4wODMuNzU2LjEwNy4yMzQuMDIyLjQ3OS4yNTUuNzk1LjAwMy0yLjE3OS0xLjU3NC00LjUyNi0yLjA5Ni03LjA5NC0xLjg3MlptLTEwLjA0OS05LjU0NGMxLjQ3NS4wNTEgMi45NDMtLjE0MiA0LjQ4Ni0xLjA1OS0uNDUyLjA0LS42NDMuMDQtLjgyNy4wNzYtMi4xMjYuNDI0LTQuMDMzLS4wNC01LjczMy0xLjM4My0uNjIzLS40OTMtMS4yNTctLjk3NC0xLjg4OS0xLjQ1Ny0yLjUwMy0xLjkxNC01LjM3NC0yLjU1NS04LjUxNC0yLjUuMDUuMTU0LjA1NC4yNi4xMDguMzE1IDMuNDE3IDMuNDU1IDcuMzcxIDUuODM2IDEyLjM2OSA2LjAwOFptMjQuNzI3IDE3LjczMWMtMi4xMTQtMi4wOTctNC45NTItMi4zNjctNy41NzgtLjUzNyAxLjczOC4wNzggMy4wNDMuNjMyIDQuMTAxIDEuNzI4LjM3NC4zODguNzYzLjc2OCAxLjE4MiAxLjEwNiAxLjYgMS4yOSA0LjMxMSAxLjM1MiA1Ljg5Ni4xNTUtMS44NjEtLjcyNi0xLjg2MS0uNzI2LTMuNjAxLTIuNDUyWm0tMjEuMDU4IDE2LjA2Yy0xLjg1OC0zLjQ2LTQuOTgxLTQuMjQtOC41OS00LjAwOGE5LjY2NyA5LjY2NyAwIDAgMSAyLjk3NyAxLjM5Yy44NC41ODYgMS41NDcgMS4zMTEgMi4yNDMgMi4wNTUgMS4zOCAxLjQ3MyAzLjUzNCAyLjM3NiA0Ljk2MiAyLjA3LS42NTYtLjQxMi0xLjIzOC0uODQ4LTEuNTkyLTEuNTA3Wm0xNy4yOS0xOS4zMmMwLS4wMjMuMDAxLS4wNDUuMDAzLS4wNjhsLS4wMDYuMDA2LjAwNi0uMDA2LS4wMzYtLjAwNC4wMjEuMDE4LjAxMi4wNTNabS0yMCAxNC43NDRhNy42MSA3LjYxIDAgMCAwLS4wNzItLjA0MS4xMjcuMTI3IDAgMCAwIC4wMTUuMDQzYy4wMDUuMDA4LjAzOCAwIC4wNTgtLjAwMlptLS4wNzItLjA0MS0uMDA4LS4wMzQtLjAwOC4wMS4wMDgtLjAxLS4wMjItLjAwNi4wMDUuMDI2LjAyNC4wMTRaIgogICAgICAgICAgICBmaWxsPSIjRkQ0RjAwIiAvPgo8L3N2Zz4K");
+        background-position: right 0;
+        background-repeat: no-repeat;
+        margin-bottom: 16px;
+    }
+
+    
+
+    @media (max-width: 768px) {
+        .exception-logo {
+            position: static;
+        }
+
+        .exception-logo:before {
+            height: 32px;
+            background-position: left 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .exception-logo {
+            display: none;
+        }
+    }
+    
+
+    /*
+     * Exception info
+     */
+
+    /* Compensate for logo placement */
+    @media (min-width: 769px) {
+        .exception-info {
+            max-width: 90%;
+        }
+    }
+
+    .exception-info > .struct {
+        margin: 0;
+        padding: 0;
+    }
+
+    .exception-info > .struct {
+        font-size: 1em;
+        font-weight: 700;
+        color: #EB532D;
+    }
+
+    .exception-info > .struct > small {
+        font-size: 1em;
+        color: #607080;
+        font-weight: 400;
+    }
+
+    
+
+    .exception-info > code {
+        line-height: 1.5;
+        font-size: 0.7692307692307692em;
+    }
+
+    .exception-details-text {
+        white-space: pre-wrap;
+     }
+
+    /*
+     * Code explorer
+     */
+
+    .code-explorer {
+      margin: 32px 0 0 0;
+    }
+
+    @media (max-width: 768px) {
+        .code-explorer {
+            margin-top: 16px;
+        }
+    }
+
+    .code-explorer:after {
+        content: '';
+        display: table;
+        clear: both;
+        zoom: 1;
+    }
+
+    .code-explorer > .code-snippets {
+        float: left;
+        width: 45%;
+    }
+
+    .code-explorer > .stack-trace {
+        float: right;
+        width: 55%;
+        padding-left: 32px;
+    }
+
+    .code-explorer .hidden-contents {
+        position: absolute;
+        left: -999em;
+    }
+
+    /* Collapse to single-column */
+    @media (max-width: 960px) {
+        .code-explorer > .code-snippets {
+            float: none;
+            width: auto;
+            margin-bottom: 16px;
+        }
+
+        .code-explorer > .stack-trace {
+            float: none;
+            width: auto;
+            padding-left: 0;
+        }
+    }
+
+    /*
+     * Frame info:
+     * Holds the code (code-block) and more
+     */
+
+    .frame-info {
+        background: @style.background;
+        border-radius: 4px;
+        box-shadow:
+            0 1px 3px rgba(80, 100, 140, .1),
+            0 8px 15px rgba(80, 100, 140, .05);
+    }
+
+    
+
+    .frame-info > .meta,
+    .frame-info > .file {
+        padding: 12px 16px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.8333333333333334em;
+    }
+
+    @media (max-width: 480px) {
+        .frame-info > .meta,
+        .frame-info > .file {
+            padding: 6px 16px;
+            font-size: 0.9090909090909091em;
+        }
+    }
+
+    .frame-info > .file > a {
+        text-decoration: none;
+        color: #203040;
+        font-weight: 700;
+    }
+
+    
+
+    .frame-info > .code {
+        border-top: solid 1px #eee;
+        border-bottom: solid 1px #eee;
+        font-size: 0.8em;
+    }
+
+    /* Hiding */
+    .frame-info {
+        display: none;
+    }
+
+    .frame-info.-active {
+        display: block;
+    }
+
+    .frame-info > details.meta {
+        border-top: solid 1px #eee;
+        padding: 0;
+    }
+
+    .frame-info > details.meta > summary {
+        padding: 12px 16px;
+    }
+
+    .frame-info > details.meta > pre {
+        line-height: 16px;
+        padding: 6px 0 24px 30px;
+    }
+
+    .frame-info > details.meta > ol {
+        counter-reset: item;
+        padding: 6px 0 24px 46px;
+        list-style: none;
+    }
+
+    .frame-info > details.meta > ol > li {
+        counter-increment: item;
+    }
+
+    .frame-info > details.meta > ol > li:before {
+        content: counter(item) ". ";
+        color: #EB532D;
+        filter: saturate(50%);
+    }
+
+    /*
+     * Frame details
+     */
+
+    .frame-mfa {
+        color: #607080;
+    }
+
+    .frame-mfa > .app {
+        color: #607080;
+    }
+
+    .frame-mfa > .docs {
+        color: #EB532D;
+        text-decoration: none;
+    }
+
+    
+
+    .frame-mfa .docs:hover {
+        text-decoration: underline;
+    }
+
+    .frame-mfa > .right {
+        float: right;
+        padding-left: 5px;
+    }
+
+    .frame-mfa > .right:after {
+        content: '·';
+        margin-left: .2em;
+        padding-left: .2em;
+    }
+
+    .frame-mfa > .right:first-child:after {
+        content: '';
+    }
+
+    /*
+     * Code block:
+     * The `pre` that holds the code
+     */
+
+    .code-block {
+        margin: 0;
+        padding: 12px 0;
+        font-size: 0.8333333333333334em;
+        line-height: 1.4;
+        white-space: normal;
+    }
+
+    .code-block > .line {
+        white-space: pre;
+        display: block;
+        padding: 0 16px;
+    }
+
+    /* Line highlight */
+    .code-block > .line.-highlight {
+        background-color: #f0f4fa;
+        -webkit-animation: line-highlight 750ms linear;
+        animation: line-highlight 750ms linear;
+    }
+
+    
+
+    @-webkit-keyframes line-highlight {
+        0% { background-color: #f0f4fa; }
+        25% { background-color: #ffe5e5; }
+        50% { background-color: #f0f4fa; }
+        75% { background-color: #ffe5e5; }
+    }
+
+    
+
+    @keyframes line-highlight {
+        0% { background-color: #f0f4fa; }
+        25% { background-color: #ffe5e5; }
+        50% { background-color: #f0f4fa; }
+        75% { background-color: #ffe5e5; }
+    }
+
+    
+
+    .code-block > .line > .ln {
+        color: #607080;
+        margin-right: 1.5em;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    
+
+    .code-block > .line > .code {
+        font-family: menlo, consolas, monospace;
+    }
+
+    /*
+     * Empty code
+     */
+
+    .code-block-empty {
+        text-align: center;
+        color: #607080;
+        padding-top: 48px;
+        padding-bottom: 48px;
+    }
+
+    
+
+    /*
+     * Stack trace heading
+     */
+
+    .stack-trace-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 8px;
+    }
+
+    .stack-trace-heading > h3 {
+        display: none;
+    }
+
+    .stack-trace-heading > label {
+        display: inline-block;
+        padding-left: 5px;
+        line-height: 1.9;
+        font-size: 0.8333333333333334em;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+
+    .stack-trace-heading > label > input {
+        margin: -0.2em 0.5em 0 0;
+        vertical-align: middle;
+    }
+
+    .stack-trace-heading .copy-markdown {
+        color: #203040;
+        background-color: transparent;
+        display: inline-flex;
+        align-items: center;
+        font-size: 0.8333333333333334em;
+        line-height: 1.9;
+        border-width: 0;
+    }
+
+    
+
+    .stack-trace-heading .copy-markdown:active {
+        cursor: pointer;
+    }
+
+    .stack-trace-heading .copy-markdown:hover {
+        cursor: pointer;
+    }
+
+    .stack-trace-heading .copy-markdown-icon {
+        height: 1rem;
+        width: 1rem;
+        margin: 0.1em 0.3rem 0;
+        fill: currentColor;
+    }
+
+    @media (max-width: 480px) {
+        .stack-trace-heading > label {
+            font-size: 0.9090909090909091em;
+        }
+    }
+
+    /*
+     * Stack trace
+     */
+
+    .stack-trace-list,
+    .stack-trace-list > li {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+    }
+
+    .stack-trace-list > li > .stack-trace-item.-all {
+        display: none;
+    }
+
+    .stack-trace-list.-show-all > li > .stack-trace-item.-all {
+        display: block;
+    }
+
+    /*
+     * Stack trace item:
+     * The clickable line to inspect a stack trace
+     */
+
+    .stack-trace-item {
+        font-size: 0.8333333333333334em;
+        display: block;
+        width: 100%;
+        border: 0;
+        margin: 0;
+        padding: 4px 8px;
+        background: transparent;
+        cursor: pointer;
+        text-align: left;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .stack-trace-item:hover,
+    .stack-trace-item:focus {
+        background-color: rgba(80, 100, 140, 0.05);
+        border-radius: 4px;
+    }
+
+    .stack-trace-item,
+    .stack-trace-item:active {
+        color: #203040;
+    }
+
+    
+
+    .stack-trace-item:active {
+        background-color: rgba(80, 100, 140, 0.1);
+    }
+
+    .stack-trace-item.-active {
+        background-color: rgba(80, 100, 140, 0.1);
+        border-radius: 4px;
+    }
+
+    /* Circle */
+    .stack-trace-item > .left:before {
+        content: '';
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: #a0b0c0;
+        border-radius: 50%;
+        margin-right: 8px;
+        opacity: 0.5;
+    }
+
+    .stack-trace-item.-active > .left:before {
+        opacity: 1;
+    }
+
+    .stack-trace-item.-app > .left:before {
+        background: #EB532D;
+    }
+
+    
+
+    .stack-trace-item.-app > .left > .app {
+        display: none;
+    }
+
+    .stack-trace-item > .left {
+        float: left;
+        max-width: 55%;
+    }
+
+    .stack-trace-item > .info {
+        color: #607080;
+        float: right;
+        max-width: 45%;
+    }
+
+    
+
+    .stack-trace-item > .left,
+    .stack-trace-item > .info {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stack-trace-item > .left > .filename > .line {
+        color: #607080;
+    }
+
+    /* App name */
+    .stack-trace-item > .left > .app {
+        color: #607080;
+    }
+
+    
+
+    .stack-trace-item > .left > .app:after {
+        content: '·';
+        margin: 0 .2em;
+    }
+
+    /*
+     * Code as a blockquote:
+     * Like `pre` but with wrapping
+     */
+
+    .code-quote {
+        font-family: menlo, consolas, monospace;
+        font-size: 0.8333333333333334em;
+        margin: 0;
+        overflow: auto;
+        max-width: 100%;
+        word-wrap: break-word;
+        white-space: normal;
+    }
+
+    .code-quote > pre {
+        margin: 0;
+    }
+
+    .code-quote > li {
+        padding: 6px 0;
+    }
+
+    .code.-padded {
+        padding: 0 16px 16px 16px;
+    }
+
+    .code i.red {
+        color: #CC0000;
+        font-style: normal;
+    }
+
+    .code i.green {
+        font-style: normal;
+    }
+
+    .banner {
+      padding: 24px 48px 24px 48px;
+      border-top: solid 1px #eee;
+    }
+
+    
+
+    /*
+     * Conn info
+     */
+
+    .conn-info {
+        border-top: solid 1px #eee;
+    }
+
+    
+
+    /*
+     * Conn details
+     */
+
+    .conn-details {
+    }
+
+    .conn-details + .conn-details {
+        margin-top: 16px;
+    }
+
+    .conn-details > summary {
+    }
+
+    .conn-details > dl {
+        display: block;
+        overflow: hidden;
+        margin: 0;
+        padding: 4px 0;
+        border-bottom: solid 1px #eee;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .conn-details > dl:first-of-type {
+        margin-top: 16px;
+        border-top: solid 1px #eee;
+    }
+
+    /* Term */
+    .conn-details > dl > dt {
+        width: 20%;
+        float: left;
+        font-size: 0.8333333333333334em;
+        color: #607080;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        position: relative;
+        top: -1px; /* Compensate for font metrics */
+    }
+
+    
+
+    /* Definition */
+    .conn-details > dl > dd {
+        width: 80%;
+        float: left;
+    }
+
+    @media (max-width: 480px) {
+        .conn-details > dl > dt {
+            font-size: 0.9090909090909091em;
+        }
+    }
+
+    .action-form {
+        display: inline-block;
+        margin: 20px 10px 5px 0;
+    }
+
+    .action-button {
+        padding: 0 10px;
+        cursor: pointer;
+    }
+    </style>
+</head>
+<body>
+    <div class="top-details">
+        
+        <aside class="exception-logo"></aside>
+        
+
+        <header class="exception-info">
+            <h5 class="struct">
+                FunctionClauseError
+                <small>at GET</small>
+                <small class="path">/</small>
+            </h5>
+            <code><pre class="exception-details-text">no function clause matching in DateTime.diff/3</pre></code>
+        </header>
+
+        
+
+    
+
+        <div class="code-explorer">
+            <textarea class="hidden-contents" role="copy-contents"># FunctionClauseError at GET /
+
+Exception:
+
+    ** (FunctionClauseError) no function clause matching in DateTime.diff/3
+        (elixir 1.18.2) lib/calendar/datetime.ex:1542: DateTime.diff(~U[2025-03-22 05:35:32.556078Z], ~N[2025-03-22 03:40:16], :second)
+        (ace 0.1.0) lib/ace_web/live/dashboard_live.ex:1864: AceWeb.DashboardLive.time_ago/1
+        (ace 0.1.0) lib/ace_web/live/dashboard_live.ex:1824: anonymous fn/1 in AceWeb.DashboardLive.load_recent_activities/0
+        (elixir 1.18.2) lib/enum.ex:1714: Enum.&quot;-map/2-lists^map/1-1-&quot;/2
+        (ace 0.1.0) lib/ace_web/live/dashboard_live.ex:1822: AceWeb.DashboardLive.load_recent_activities/0
+        (ace 0.1.0) lib/ace_web/live/dashboard_live.ex:52: AceWeb.DashboardLive.mount/3
+        (phoenix_live_view 0.20.17) lib/phoenix_live_view/utils.ex:343: anonymous fn/6 in Phoenix.LiveView.Utils.maybe_call_live_view_mount!/5
+        (telemetry 1.3.0) /Users/speed/ash_swarm/ace_standalone/deps/telemetry/src/telemetry.erl:324: :telemetry.span/3
+    
+
+Code:
+
+`lib/calendar/datetime.ex`
+
+    No code available.
+
+  Called with 3 arguments
+
+  * `~U[2025-03-22 05:35:32.556078Z]`
+  * `~N[2025-03-22 03:40:16]`
+  * `:second`
+  
+  Attempted function clauses (showing 4 out of 4)
+
+     def diff(datetime1, datetime2, :day)
+     def diff(datetime1, datetime2, :hour)
+     def diff(datetime1, datetime2, :minute)
+     def diff(%{utc_offset: utc_offset1, std_offset: std_offset1} = datetime1, %{utc_offset: utc_offset2, std_offset: std_offset2} = datetime2, unit)
+    
+
+`lib/ace_web/live/dashboard_live.ex`
+
+    1859     end
+    1860   
+    1861     # Helper to format time difference as a human-readable string
+    1862     defp time_ago(datetime) do
+    1863       now = DateTime.utc_now()
+    1864&gt;      diff = DateTime.diff(now, datetime, :second)
+    1865   
+    1866       cond do
+    1867         diff &amp;lt; 60 -&amp;gt; &amp;quot;just now&amp;quot;
+    1868         diff &amp;lt; 3600 -&amp;gt; &amp;quot;#{div(diff, 60)} #{if div(diff, 60) == 1, do: &amp;quot;minute&amp;quot;, else: &amp;quot;minutes&amp;quot;} ago&amp;quot;
+    1869         diff &amp;lt; 86400 -&amp;gt; &amp;quot;#{div(diff, 3600)} #{if div(diff, 3600) == 1, do: &amp;quot;hour&amp;quot;, else: &amp;quot;hours&amp;quot;} ago&amp;quot;
+    
+`lib/ace_web/live/dashboard_live.ex`
+
+    1819         {&amp;quot;Analysis&amp;quot;, file_path, status, time_ago}
+    1820       end)
+    1821   
+    1822       optimization_activities = Enum.map(optimizations, fn {description, status, inserted_at} -&amp;gt;
+    1823         formatted_status = if status == &amp;quot;applied&amp;quot;, do: &amp;quot;Complete&amp;quot;, else: status
+    1824&gt;        {&amp;quot;Optimization&amp;quot;, description, formatted_status, time_ago(inserted_at)}
+    1825       end)
+    1826   
+    1827       evaluation_activities = Enum.map(evaluations, fn {description, success, inserted_at} -&amp;gt;
+    1828         status = if success, do: &amp;quot;Complete&amp;quot;, else: &amp;quot;Failed&amp;quot;
+    1829         {&amp;quot;Evaluation&amp;quot;, description, status, time_ago(inserted_at)}
+    
+`lib/enum.ex`
+
+    No code available.
+
+`lib/ace_web/live/dashboard_live.ex`
+
+    1817         status = if completed_at, do: &amp;quot;Complete&amp;quot;, else: &amp;quot;Pending&amp;quot;
+    1818         time_ago = time_ago(completed_at || inserted_at)
+    1819         {&amp;quot;Analysis&amp;quot;, file_path, status, time_ago}
+    1820       end)
+    1821   
+    1822&gt;      optimization_activities = Enum.map(optimizations, fn {description, status, inserted_at} -&amp;gt;
+    1823         formatted_status = if status == &amp;quot;applied&amp;quot;, do: &amp;quot;Complete&amp;quot;, else: status
+    1824         {&amp;quot;Optimization&amp;quot;, description, formatted_status, time_ago(inserted_at)}
+    1825       end)
+    1826   
+    1827       evaluation_activities = Enum.map(evaluations, fn {description, success, inserted_at} -&amp;gt;
+    
+`lib/ace_web/live/dashboard_live.ex`
+
+    47         |&amp;gt; assign(:analyses, [])
+    48         |&amp;gt; assign(:opportunities, [])
+    49         |&amp;gt; assign(:optimizations, [])
+    50         |&amp;gt; assign(:evaluations, [])
+    51         |&amp;gt; assign(:analyzing, false)
+    52&gt;        |&amp;gt; assign(:recent_activities, load_recent_activities())
+    53         |&amp;gt; assign(:projects, load_projects())
+    54         |&amp;gt; assign(:metrics, load_system_metrics())
+    55         |&amp;gt; assign(:file_path, &amp;quot;&amp;quot;)
+    56         |&amp;gt; assign(:language, &amp;quot;elixir&amp;quot;)
+    57         |&amp;gt; assign(:focus_areas, [&amp;quot;performance&amp;quot;, &amp;quot;maintainability&amp;quot;])
+    
+`lib/phoenix_live_view/utils.ex`
+
+    338           %{socket: socket, params: params, session: session, uri: uri},
+    339           fn -&amp;gt;
+    340             socket =
+    341               case Lifecycle.mount(params, session, socket) do
+    342                 {:cont, %Socket{} = socket} when exported? -&amp;gt;
+    343&gt;                  view.mount(params, session, socket)
+    344   
+    345                 {_, %Socket{} = socket} -&amp;gt;
+    346                   {:ok, socket}
+    347               end
+    348               |&amp;gt; handle_mount_result!({view, :mount, 3})
+    
+`/Users/speed/ash_swarm/ace_standalone/deps/telemetry/src/telemetry.erl`
+
+    319           EventPrefix ++ [start],
+    320           #{monotonic_time =&amp;gt; StartTime, system_time =&amp;gt; erlang:system_time()},
+    321           merge_ctx(StartMetadata, DefaultCtx)
+    322       ),
+    323   
+    324&gt;      try SpanFunction() of
+    325         {Result, StopMetadata} -&amp;gt;
+    326             StopTime = erlang:monotonic_time(),
+    327             execute(
+    328                 EventPrefix ++ [stop],
+    329                 #{duration =&amp;gt; StopTime - StartTime, monotonic_time =&amp;gt; StopTime},
+    
+
+## Connection details
+
+### Params
+
+    %{}
+
+### Request info
+
+  * URI: http://localhost:4000/
+  * Query string: 
+
+### Headers
+  
+  * accept: */*
+  * host: localhost:4000
+  * user-agent: curl/8.7.1
+
+### Session
+
+    %{}
+</textarea>
+            <div class="code-snippets">
+                
+                  <div class="frame-info" data-index="0" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">lib/calendar/datetime.ex</a>
+                    </div>
+
+                    
+                    <div class="code code-block-empty">No code available.</div>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            DateTime.diff/3
+                            
+                                <a class="docs right" href="https://hexdocs.pm/elixir/1.18.2/DateTime.html#diff/3">Docs</a>
+                            
+                            
+                                <span class="app right">elixir</span>
+                            
+                        </div>
+                    </div>
+
+                    
+                        <details class="meta" open>
+                            <summary>Called with 3 arguments</summary>
+                            <ol class="code code-quote -padded">
+                                
+                                    <li>~U[2025-03-22 05:35:32.556078Z]</li>
+                                
+                                    <li>~N[2025-03-22 03:40:16]</li>
+                                
+                                    <li>:second</li>
+                                
+                            </ol>
+                        </details>
+                    
+
+                    
+                        
+                        <details class="meta" open>
+                            <summary>Attempted function clauses (showing 4 out of 4)</summary>
+                            <pre class="code code-block -padded">
+                                
+                                    <span class="line">def diff(<i class="green">datetime1</i>, <i class="green">datetime2</i>, <i class="red">:day</i>)</span>
+                                
+                                    <span class="line">def diff(<i class="green">datetime1</i>, <i class="green">datetime2</i>, <i class="red">:hour</i>)</span>
+                                
+                                    <span class="line">def diff(<i class="green">datetime1</i>, <i class="green">datetime2</i>, <i class="red">:minute</i>)</span>
+                                
+                                    <span class="line">def diff(<i class="green">%{utc_offset: utc_offset1, std_offset: std_offset1} = datetime1</i>, <i class="red">%{utc_offset: utc_offset2, std_offset: std_offset2} = datetime2</i>, <i class="green">unit</i>)</span>
+                                
+                            </pre>
+                        </details>
+                    
+                </div>
+                
+                  <div class="frame-info" data-index="1" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">lib/ace_web/live/dashboard_live.ex</a>
+                    </div>
+
+                    
+<pre class="code code-block"><span class="line "><span class="ln">1859</span><span class="code">  end</span></span>
+<span class="line "><span class="ln">1860</span><span class="code"></span></span>
+<span class="line "><span class="ln">1861</span><span class="code">  # Helper to format time difference as a human-readable string</span></span>
+<span class="line "><span class="ln">1862</span><span class="code">  defp time_ago(datetime) do</span></span>
+<span class="line "><span class="ln">1863</span><span class="code">    now = DateTime.utc_now()</span></span>
+<span class="line -highlight"><span class="ln">1864</span><span class="code">    diff = DateTime.diff(now, datetime, :second)</span></span>
+<span class="line "><span class="ln">1865</span><span class="code"></span></span>
+<span class="line "><span class="ln">1866</span><span class="code">    cond do</span></span>
+<span class="line "><span class="ln">1867</span><span class="code">      diff &lt; 60 -&gt; &quot;just now&quot;</span></span>
+<span class="line "><span class="ln">1868</span><span class="code">      diff &lt; 3600 -&gt; &quot;#{div(diff, 60)} #{if div(diff, 60) == 1, do: &quot;minute&quot;, else: &quot;minutes&quot;} ago&quot;</span></span>
+<span class="line "><span class="ln">1869</span><span class="code">      diff &lt; 86400 -&gt; &quot;#{div(diff, 3600)} #{if div(diff, 3600) == 1, do: &quot;hour&quot;, else: &quot;hours&quot;} ago&quot;</span></span>
+</pre>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            AceWeb.DashboardLive.time_ago/1
+                            
+                            
+                                <span class="app right">ace</span>
+                            
+                        </div>
+                    </div>
+
+                    
+
+                    
+                </div>
+                
+                  <div class="frame-info" data-index="2" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">lib/ace_web/live/dashboard_live.ex</a>
+                    </div>
+
+                    
+<pre class="code code-block"><span class="line "><span class="ln">1819</span><span class="code">      {&quot;Analysis&quot;, file_path, status, time_ago}</span></span>
+<span class="line "><span class="ln">1820</span><span class="code">    end)</span></span>
+<span class="line "><span class="ln">1821</span><span class="code"></span></span>
+<span class="line "><span class="ln">1822</span><span class="code">    optimization_activities = Enum.map(optimizations, fn {description, status, inserted_at} -&gt;</span></span>
+<span class="line "><span class="ln">1823</span><span class="code">      formatted_status = if status == &quot;applied&quot;, do: &quot;Complete&quot;, else: status</span></span>
+<span class="line -highlight"><span class="ln">1824</span><span class="code">      {&quot;Optimization&quot;, description, formatted_status, time_ago(inserted_at)}</span></span>
+<span class="line "><span class="ln">1825</span><span class="code">    end)</span></span>
+<span class="line "><span class="ln">1826</span><span class="code"></span></span>
+<span class="line "><span class="ln">1827</span><span class="code">    evaluation_activities = Enum.map(evaluations, fn {description, success, inserted_at} -&gt;</span></span>
+<span class="line "><span class="ln">1828</span><span class="code">      status = if success, do: &quot;Complete&quot;, else: &quot;Failed&quot;</span></span>
+<span class="line "><span class="ln">1829</span><span class="code">      {&quot;Evaluation&quot;, description, status, time_ago(inserted_at)}</span></span>
+</pre>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            anonymous fn/1 in AceWeb.DashboardLive.load_recent_activities/0
+                            
+                            
+                                <span class="app right">ace</span>
+                            
+                        </div>
+                    </div>
+
+                    
+
+                    
+                </div>
+                
+                  <div class="frame-info" data-index="3" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">lib/enum.ex</a>
+                    </div>
+
+                    
+                    <div class="code code-block-empty">No code available.</div>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            Enum.&quot;-map/2-lists^map/1-1-&quot;/2
+                            
+                            
+                                <span class="app right">elixir</span>
+                            
+                        </div>
+                    </div>
+
+                    
+
+                    
+                </div>
+                
+                  <div class="frame-info" data-index="4" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">lib/ace_web/live/dashboard_live.ex</a>
+                    </div>
+
+                    
+<pre class="code code-block"><span class="line "><span class="ln">1817</span><span class="code">      status = if completed_at, do: &quot;Complete&quot;, else: &quot;Pending&quot;</span></span>
+<span class="line "><span class="ln">1818</span><span class="code">      time_ago = time_ago(completed_at || inserted_at)</span></span>
+<span class="line "><span class="ln">1819</span><span class="code">      {&quot;Analysis&quot;, file_path, status, time_ago}</span></span>
+<span class="line "><span class="ln">1820</span><span class="code">    end)</span></span>
+<span class="line "><span class="ln">1821</span><span class="code"></span></span>
+<span class="line -highlight"><span class="ln">1822</span><span class="code">    optimization_activities = Enum.map(optimizations, fn {description, status, inserted_at} -&gt;</span></span>
+<span class="line "><span class="ln">1823</span><span class="code">      formatted_status = if status == &quot;applied&quot;, do: &quot;Complete&quot;, else: status</span></span>
+<span class="line "><span class="ln">1824</span><span class="code">      {&quot;Optimization&quot;, description, formatted_status, time_ago(inserted_at)}</span></span>
+<span class="line "><span class="ln">1825</span><span class="code">    end)</span></span>
+<span class="line "><span class="ln">1826</span><span class="code"></span></span>
+<span class="line "><span class="ln">1827</span><span class="code">    evaluation_activities = Enum.map(evaluations, fn {description, success, inserted_at} -&gt;</span></span>
+</pre>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            AceWeb.DashboardLive.load_recent_activities/0
+                            
+                            
+                                <span class="app right">ace</span>
+                            
+                        </div>
+                    </div>
+
+                    
+
+                    
+                </div>
+                
+                  <div class="frame-info" data-index="5" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">lib/ace_web/live/dashboard_live.ex</a>
+                    </div>
+
+                    
+<pre class="code code-block"><span class="line "><span class="ln">47</span><span class="code">      |&gt; assign(:analyses, [])</span></span>
+<span class="line "><span class="ln">48</span><span class="code">      |&gt; assign(:opportunities, [])</span></span>
+<span class="line "><span class="ln">49</span><span class="code">      |&gt; assign(:optimizations, [])</span></span>
+<span class="line "><span class="ln">50</span><span class="code">      |&gt; assign(:evaluations, [])</span></span>
+<span class="line "><span class="ln">51</span><span class="code">      |&gt; assign(:analyzing, false)</span></span>
+<span class="line -highlight"><span class="ln">52</span><span class="code">      |&gt; assign(:recent_activities, load_recent_activities())</span></span>
+<span class="line "><span class="ln">53</span><span class="code">      |&gt; assign(:projects, load_projects())</span></span>
+<span class="line "><span class="ln">54</span><span class="code">      |&gt; assign(:metrics, load_system_metrics())</span></span>
+<span class="line "><span class="ln">55</span><span class="code">      |&gt; assign(:file_path, &quot;&quot;)</span></span>
+<span class="line "><span class="ln">56</span><span class="code">      |&gt; assign(:language, &quot;elixir&quot;)</span></span>
+<span class="line "><span class="ln">57</span><span class="code">      |&gt; assign(:focus_areas, [&quot;performance&quot;, &quot;maintainability&quot;])</span></span>
+</pre>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            AceWeb.DashboardLive.mount/3
+                            
+                            
+                                <span class="app right">ace</span>
+                            
+                        </div>
+                    </div>
+
+                    
+
+                    
+                </div>
+                
+                  <div class="frame-info" data-index="6" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">lib/phoenix_live_view/utils.ex</a>
+                    </div>
+
+                    
+<pre class="code code-block"><span class="line "><span class="ln">338</span><span class="code">        %{socket: socket, params: params, session: session, uri: uri},</span></span>
+<span class="line "><span class="ln">339</span><span class="code">        fn -&gt;</span></span>
+<span class="line "><span class="ln">340</span><span class="code">          socket =</span></span>
+<span class="line "><span class="ln">341</span><span class="code">            case Lifecycle.mount(params, session, socket) do</span></span>
+<span class="line "><span class="ln">342</span><span class="code">              {:cont, %Socket{} = socket} when exported? -&gt;</span></span>
+<span class="line -highlight"><span class="ln">343</span><span class="code">                view.mount(params, session, socket)</span></span>
+<span class="line "><span class="ln">344</span><span class="code"></span></span>
+<span class="line "><span class="ln">345</span><span class="code">              {_, %Socket{} = socket} -&gt;</span></span>
+<span class="line "><span class="ln">346</span><span class="code">                {:ok, socket}</span></span>
+<span class="line "><span class="ln">347</span><span class="code">            end</span></span>
+<span class="line "><span class="ln">348</span><span class="code">            |&gt; handle_mount_result!({view, :mount, 3})</span></span>
+</pre>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            anonymous fn/6 in Phoenix.LiveView.Utils.maybe_call_live_view_mount!/5
+                            
+                            
+                                <span class="app right">phoenix_live_view</span>
+                            
+                        </div>
+                    </div>
+
+                    
+
+                    
+                </div>
+                
+                  <div class="frame-info" data-index="7" role="stack-trace-details">
+                    <div class="file">
+                      <a href="">/Users/speed/ash_swarm/ace_standalone/deps/telemetry/src/telemetry.erl</a>
+                    </div>
+
+                    
+<pre class="code code-block"><span class="line "><span class="ln">319</span><span class="code">        EventPrefix ++ [start],</span></span>
+<span class="line "><span class="ln">320</span><span class="code">        #{monotonic_time =&gt; StartTime, system_time =&gt; erlang:system_time()},</span></span>
+<span class="line "><span class="ln">321</span><span class="code">        merge_ctx(StartMetadata, DefaultCtx)</span></span>
+<span class="line "><span class="ln">322</span><span class="code">    ),</span></span>
+<span class="line "><span class="ln">323</span><span class="code"></span></span>
+<span class="line -highlight"><span class="ln">324</span><span class="code">    try SpanFunction() of</span></span>
+<span class="line "><span class="ln">325</span><span class="code">      {Result, StopMetadata} -&gt;</span></span>
+<span class="line "><span class="ln">326</span><span class="code">          StopTime = erlang:monotonic_time(),</span></span>
+<span class="line "><span class="ln">327</span><span class="code">          execute(</span></span>
+<span class="line "><span class="ln">328</span><span class="code">              EventPrefix ++ [stop],</span></span>
+<span class="line "><span class="ln">329</span><span class="code">              #{duration =&gt; StopTime - StartTime, monotonic_time =&gt; StopTime},</span></span>
+</pre>
+                    
+
+                    <div class="meta">
+                        <div class="frame-mfa">
+                            :telemetry.span/3
+                            
+                                <a class="docs right" href="https://hexdocs.pm/telemetry/1.3.0/:telemetry.html#span/3">Docs</a>
+                            
+                            
+                                <span class="app right">telemetry</span>
+                            
+                        </div>
+                    </div>
+
+                    
+
+                    
+                </div>
+                
+            </div>
+
+            <div class="stack-trace">
+                <div class="stack-trace-heading">
+                    <label><input type="checkbox" role="show-all-toggle">Show only app frames</label>
+                    <button class="copy-markdown" role="copy-to-markdown" type="button">
+                      <span role="copy-to-markdown-text">Copy markdown</span>
+                      <svg xmlns="http://www.w3.org/2000/svg" class="copy-markdown-icon" viewBox="0 0 115.77 122.88"><g><path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z"/></g></svg>
+                    </button>
+                </div>
+
+                <ul class="stack-trace-list -show-all" role="stack-trace-list">
+                    
+                    <li>
+                        <button class="stack-trace-item -all" role="stack-trace-item" data-index="0">
+                            <span class="left">
+                                
+                                <span class="app">elixir</span>
+                                
+
+                                <span class="filename">
+                                    lib/calendar/datetime.ex<span class="line">:1542</span>
+                                </span>
+                            </span>
+
+                            <span class="info">DateTime.diff/3</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="stack-trace-item -app" role="stack-trace-item" data-index="1">
+                            <span class="left">
+                                
+                                <span class="app">ace</span>
+                                
+
+                                <span class="filename">
+                                    lib/ace_web/live/dashboard_live.ex<span class="line">:1864</span>
+                                </span>
+                            </span>
+
+                            <span class="info">AceWeb.DashboardLive.time_ago/1</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="stack-trace-item -app" role="stack-trace-item" data-index="2">
+                            <span class="left">
+                                
+                                <span class="app">ace</span>
+                                
+
+                                <span class="filename">
+                                    lib/ace_web/live/dashboard_live.ex<span class="line">:1824</span>
+                                </span>
+                            </span>
+
+                            <span class="info">anonymous fn/1 in AceWeb.DashboardLive.load_recent_activities/0</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="stack-trace-item -all" role="stack-trace-item" data-index="3">
+                            <span class="left">
+                                
+                                <span class="app">elixir</span>
+                                
+
+                                <span class="filename">
+                                    lib/enum.ex<span class="line">:1714</span>
+                                </span>
+                            </span>
+
+                            <span class="info">Enum.&quot;-map/2-lists^map/1-1-&quot;/2</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="stack-trace-item -app" role="stack-trace-item" data-index="4">
+                            <span class="left">
+                                
+                                <span class="app">ace</span>
+                                
+
+                                <span class="filename">
+                                    lib/ace_web/live/dashboard_live.ex<span class="line">:1822</span>
+                                </span>
+                            </span>
+
+                            <span class="info">AceWeb.DashboardLive.load_recent_activities/0</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="stack-trace-item -app" role="stack-trace-item" data-index="5">
+                            <span class="left">
+                                
+                                <span class="app">ace</span>
+                                
+
+                                <span class="filename">
+                                    lib/ace_web/live/dashboard_live.ex<span class="line">:52</span>
+                                </span>
+                            </span>
+
+                            <span class="info">AceWeb.DashboardLive.mount/3</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="stack-trace-item -all" role="stack-trace-item" data-index="6">
+                            <span class="left">
+                                
+                                <span class="app">phoenix_live_view</span>
+                                
+
+                                <span class="filename">
+                                    lib/phoenix_live_view/utils.ex<span class="line">:343</span>
+                                </span>
+                            </span>
+
+                            <span class="info">anonymous fn/6 in Phoenix.LiveView.Utils.maybe_call_live_view_mount!/5</span>
+                        </button>
+                    </li>
+                    
+                    <li>
+                        <button class="stack-trace-item -all" role="stack-trace-item" data-index="7">
+                            <span class="left">
+                                
+                                <span class="app">telemetry</span>
+                                
+
+                                <span class="filename">
+                                    /Users/speed/ash_swarm/ace_standalone/deps/telemetry/src/telemetry.erl<span class="line">:324</span>
+                                </span>
+                            </span>
+
+                            <span class="info">:telemetry.span/3</span>
+                        </button>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="conn-info">
+        
+
+        <details class="conn-details">
+            <summary>Request info</summary>
+
+            <dl>
+                <dt>URI:</dt>
+                <dd class="code-quote">http://localhost:4000/</dd>
+            </dl>
+
+            <dl>
+                <dt>Query string:</dt>
+                <dd class="code-quote"></dd>
+            </dl>
+        </details>
+
+        <details class="conn-details">
+            <summary>Headers</summary>
+            
+            <dl>
+                <dt>accept</dt>
+                <dd class="code-quote">*/*</dd>
+            </dl>
+            
+            <dl>
+                <dt>host</dt>
+                <dd class="code-quote">localhost:4000</dd>
+            </dl>
+            
+            <dl>
+                <dt>user-agent</dt>
+                <dd class="code-quote">curl/8.7.1</dd>
+            </dl>
+            
+        </details>
+
+        
+    </div>
+
+    <script>(function () {
+        var $items = document.querySelectorAll('[role~="stack-trace-item"]')
+        var $toggle = document.querySelector('[role~="show-all-toggle"]')
+        var $list = document.querySelector('[role~="stack-trace-list"]')
+        var $copyBtn = document.querySelector('[role~="copy-to-markdown"]')
+        var $copyBtnText = document.querySelector('[role~="copy-to-markdown-text"]')
+        var $copy = document.querySelector('[role~="copy-contents"]')
+
+        each($items, function ($item) {
+            on($item, 'click', itemOnclick)
+        })
+
+        on($toggle, 'click', toggleOnclick)
+        on($copyBtn, 'click', copyToClipboard)
+
+        restoreToggle()
+
+        function copyToClipboard () {
+          if(navigator.clipboard) {
+            // For those working on localhost or HTTPS
+            navigator.clipboard.writeText($copy.textContent).then(copiedClipboard).catch(() => {})
+          } else {
+            // For those working on HTTP
+            $copy.select()
+            if (document.execCommand("copy")) copiedClipboard()
+          }
+        }
+
+        function copiedClipboard () {
+          $copyBtnText.innerText = "Copied!"
+          setTimeout(function () {
+            $copyBtnText.innerText = "Copy markdown"
+          }, 5000)
+        }
+
+        function toggleOnclick () {
+            localStorage.setItem('plugStackTrace', this.checked ? 'checked' : '');
+
+            if (this.checked) {
+                var $first = document.querySelector('[role~="stack-trace-item"].-app:first-of-type')
+                if ($first) itemOnclick.call($first)
+                removeClass($list, '-show-all')
+            } else {
+                addClass($list, '-show-all')
+            }
+        }
+
+        function restoreToggle () {
+            $toggle.checked = localStorage.getItem('plugStackTrace') === 'checked'
+            toggleOnclick.call($toggle)
+        }
+
+        function itemOnclick () {
+            var idx = this.getAttribute('data-index')
+
+            var $detail = document.querySelector('[role~="stack-trace-details"].-active')
+            if ($detail) removeClass($detail, '-active')
+
+            $detail = document.querySelector('[role~="stack-trace-details"][data-index="' + idx + '"]')
+            if ($detail) addClass($detail, '-active')
+
+            var $item = document.querySelector('[role~="stack-trace-item"].-active')
+            if ($item) removeClass($item, '-active')
+
+            $item = document.querySelector('[role~="stack-trace-item"][data-index="' + idx + '"]')
+            if ($item) addClass($item, '-active')
+        }
+
+        var $first = document.querySelector('[role~="stack-trace-item"]:first-of-type')
+        if ($first) itemOnclick.call($first)
+
+        /*
+         * Helpers
+         */
+
+        function each (list, fn) {
+            for (var i = 0, len = list.length; i < len; i++) {
+                var item = list[i]
+                fn(item)
+            }
+        }
+
+        function addClass (el, className) {
+            if (el.classList) {
+                el.classList.add(className)
+            } else {
+                el.className += ' ' + className
+            }
+        }
+
+        function removeClass (el, className) {
+            if (el.classList) {
+                el.classList.remove(className)
+            } else {
+                var expr = new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi')
+                el.className = el.className.replace(expr, ' ')
+            }
+        }
+
+        function on (el, event, handler) {
+            if (el.addEventListener) {
+                el.addEventListener(event, handler)
+            } else {
+                el.attachEvent('on' + event, function () {
+                    handler.call(el)
+                })
+            }
+        }
+    }())</script>
+<iframe hidden height="0" width="0" src="/phoenix/live_reload/frame"></iframe></body>
+</html>

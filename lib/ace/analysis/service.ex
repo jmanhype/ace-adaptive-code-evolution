@@ -641,16 +641,23 @@ defmodule Ace.Analysis.Service do
   end
 
   defp save_opportunities(analysis, opportunities) do
-    opportunities
+    # Extract items from tuple if needed
+    items = case opportunities do
+      {"items", items} when is_list(items) -> items
+      items when is_list(items) -> items
+      _ -> []
+    end
+    
+    items
     |> Enum.map(fn opp ->
       %Opportunity{}
       |> Opportunity.changeset(%{
-        location: opp.location,
-        type: opp.type,
-        description: opp.description,
-        severity: opp.severity,
-        rationale: Map.get(opp, :rationale),
-        suggested_change: Map.get(opp, :suggested_change),
+        location: Map.get(opp, "location"),
+        type: Map.get(opp, "type"),
+        description: Map.get(opp, "description"),
+        severity: Map.get(opp, "severity"),
+        rationale: Map.get(opp, "rationale"),
+        suggested_change: Map.get(opp, "suggested_change"),
         analysis_id: analysis.id
       })
       |> Ace.Repo.insert()

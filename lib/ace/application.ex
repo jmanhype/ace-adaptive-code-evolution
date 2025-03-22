@@ -17,6 +17,7 @@ defmodule Ace.Application do
       Ace.Analysis.Supervisor,
       Ace.Optimization.Supervisor,
       Ace.Evaluation.Supervisor,
+      Ace.Evolution.Supervisor,
       Ace.Telemetry.Supervisor,
       
       # Infrastructure

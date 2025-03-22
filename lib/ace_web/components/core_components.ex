@@ -165,4 +165,20 @@ defmodule AceWeb.CoreComponents do
     |> JS.show(to: "##{id}-bg", transition: {"transition-all transform ease-out duration-300", "opacity-0", "opacity-100"})
     |> JS.show(to: "##{id}-container", transition: {"transition-all transform ease-out duration-300", "opacity-0 translate-y-4", "opacity-100 translate-y-0"})
   end
+  
+  @doc """
+  Renders a custom styled link.
+  """
+  attr :href, :string, required: true
+  attr :class, :string, default: nil
+  attr :rest, :global, include: ~w(method data-confirm)
+  slot :inner_block, required: true
+
+  def custom_link(assigns) do
+    ~H"""
+    <a href={@href} class={@class} {@rest}>
+      <%= render_slot(@inner_block) %>
+    </a>
+    """
+  end
 end 

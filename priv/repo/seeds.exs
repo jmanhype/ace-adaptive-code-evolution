@@ -7,7 +7,9 @@ alias Ace.Core.Opportunity
 alias Ace.Core.Optimization
 alias Ace.Core.Evaluation
 alias Ace.Core.Experiment
-alias Ace.Core.AnalysisRelationship
+alias Ace.Core.Feedback
+alias Ace.Core.EvolutionHistory
+alias Ace.Core.EvolutionProposal
 
 # Create a demo project
 {:ok, project} = Repo.insert(%Project{
@@ -95,6 +97,107 @@ alias Ace.Core.AnalysisRelationship
     execution_times: [0.186, 0.188]
   },
   status: "completed"
+})
+
+# Add some feedback
+feedback_source = "demo_feature"
+
+# Add some negative feedback (scores 0-6)
+for _ <- 1..8 do
+  score = Enum.random(0..6)
+  comment = Enum.random([
+    "Too slow for my use case",
+    "This feature is frustrating to use",
+    "Could be improved significantly",
+    "Performance is not acceptable",
+    "Doesn't work well with large datasets"
+  ])
+  
+  {:ok, _} = Repo.insert(%Feedback{
+    score: score,
+    comment: comment,
+    source: feedback_source,
+    user_id: "user_#{Enum.random(1..100)}",
+    feature_id: "demo_module"
+  })
+end
+
+# Add some neutral feedback (scores 7-8)
+for _ <- 1..3 do
+  score = Enum.random(7..8)
+  comment = Enum.random([
+    "Works fine most of the time",
+    "Acceptable but could be better",
+    "Generally good but has some issues",
+    "Reasonable performance"
+  ])
+  
+  {:ok, _} = Repo.insert(%Feedback{
+    score: score,
+    comment: comment,
+    source: feedback_source,
+    user_id: "user_#{Enum.random(1..100)}",
+    feature_id: "demo_module"
+  })
+end
+
+# Add a few positive feedback (scores 9-10)
+for _ <- 1..2 do
+  score = Enum.random(9..10)
+  comment = Enum.random([
+    "Great feature",
+    "Works well for my needs", 
+    "Very satisfied with this"
+  ])
+  
+  {:ok, _} = Repo.insert(%Feedback{
+    score: score,
+    comment: comment,
+    source: feedback_source,
+    user_id: "user_#{Enum.random(1..100)}",
+    feature_id: "demo_module"
+  })
+end
+
+# Create an evolution history entry
+{:ok, _} = Repo.insert(%EvolutionHistory{
+  dsl_name: "Demo",
+  date: ~U[2025-02-14 10:00:00Z],
+  was_successful: false,
+  metrics: %{
+    "average_nps_before": 5.2
+  }
+})
+
+# Create a proposal
+{:ok, _} = Repo.insert(%EvolutionProposal{
+  dsl_name: "Demo",
+  proposed_code: """
+  defmodule Demo do
+    @moduledoc \"\"\"
+    Optimized demonstration module
+    \"\"\"
+    
+    @doc \"\"\"
+    Efficiently sums a list of numbers using built-in Enum.sum/1
+    
+    ## Examples
+        
+        iex> Demo.inefficient_sum([1, 2, 3, 4, 5])
+        15
+        
+    \"\"\"
+    def inefficient_sum(list) do
+      Enum.sum(list)
+    end
+    
+    @doc \"\"\"
+    Handles empty lists gracefully by returning 0
+    \"\"\"
+    def inefficient_sum([]), do: 0
+  end
+  """,
+  status: "pending_review"
 })
 
 IO.puts "Seed data inserted successfully!"

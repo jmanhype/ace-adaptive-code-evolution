@@ -1,0 +1,221 @@
+<div class="py-6">
+  <.header>
+    Evolution Dashboard
+    <:subtitle>User feedback analysis and code evolution</:subtitle>
+    <:actions>
+      <.button phx-click="refresh_evolution_data">
+        Refresh Data
+      </.button>
+    </:actions>
+  </.header>
+
+  <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <.card>
+      <div class="flex items-center">
+        <div class="flex-shrink-0 rounded-md bg-blue-500 p-3">
+          <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="truncate text-sm font-medium text-gray-500">Feedback Collected</dt>
+            <dd>
+              <div class="text-lg font-medium text-gray-900"><%= @feedback_count || 0 %></div>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </.card>
+
+    <.card>
+      <div class="flex items-center">
+        <div class="flex-shrink-0 rounded-md bg-green-500 p-3">
+          <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+          </svg>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="truncate text-sm font-medium text-gray-500">NPS Score</dt>
+            <dd>
+              <div class="text-lg font-medium text-gray-900"><%= @nps_score || "-" %></div>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </.card>
+
+    <.card>
+      <div class="flex items-center">
+        <div class="flex-shrink-0 rounded-md bg-purple-500 p-3">
+          <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+          </svg>
+        </div>
+        <div class="ml-5 w-0 flex-1">
+          <dl>
+            <dt class="truncate text-sm font-medium text-gray-500">Pending Proposals</dt>
+            <dd>
+              <div class="text-lg font-medium text-gray-900"><%= @proposal_count || 0 %></div>
+            </dd>
+          </dl>
+        </div>
+      </div>
+    </.card>
+  </div>
+
+  <!-- NPS Visualization -->
+  <div class="mt-8">
+    <h2 class="text-lg font-medium text-gray-900">NPS Distribution</h2>
+    <div class="mt-3 bg-white shadow overflow-hidden rounded-lg">
+      <div class="p-5">
+        <!-- NPS Chart - Simple Bar Visualization -->
+        <div class="grid grid-cols-10 h-6 rounded-full overflow-hidden">
+          <%= if @nps_distribution do %>
+            <div class="bg-red-500" style={"width: #{@nps_distribution.detractors.percentage}%"}></div>
+            <div class="bg-yellow-400" style={"width: #{@nps_distribution.passive.percentage}%"}></div>
+            <div class="bg-green-500" style={"width: #{@nps_distribution.promoters.percentage}%"}></div>
+          <% else %>
+            <div class="bg-gray-200 col-span-10"></div>
+          <% end %>
+        </div>
+        
+        <!-- Legend -->
+        <div class="flex justify-between mt-2 text-sm">
+          <div class="flex items-center">
+            <div class="h-3 w-3 bg-red-500 mr-1 rounded-sm"></div>
+            <span>Detractors (<%= (@nps_distribution && @nps_distribution.detractors.percentage) || 0 %>%)</span>
+          </div>
+          <div class="flex items-center">
+            <div class="h-3 w-3 bg-yellow-400 mr-1 rounded-sm"></div>
+            <span>Passives (<%= (@nps_distribution && @nps_distribution.passive.percentage) || 0 %>%)</span>
+          </div>
+          <div class="flex items-center">
+            <div class="h-3 w-3 bg-green-500 mr-1 rounded-sm"></div>
+            <span>Promoters (<%= (@nps_distribution && @nps_distribution.promoters.percentage) || 0 %>%)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Feedback -->
+  <div class="mt-8">
+    <div class="flex justify-between items-center">
+      <h2 class="text-lg font-medium text-gray-900">Recent Feedback</h2>
+      <a href="/evolution/proposals" target="_self" rel="nofollow" class="text-blue-600 hover:text-blue-800">
+        View Pending Proposals →
+      </a>
+    </div>
+    
+    <%= if @recent_feedback && length(@recent_feedback) > 0 do %>
+      <div class="mt-3 bg-white shadow overflow-hidden sm:rounded-md">
+        <ul role="list" class="divide-y divide-gray-200">
+          <%= for feedback <- @recent_feedback do %>
+            <li>
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center">
+                    <%= case feedback.score do %>
+                      <% score when score >= 9 -> %>
+                        <div class="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center mr-3">
+                          <span class="text-green-600 font-bold"><%= feedback.score %></span>
+                        </div>
+                      <% score when score >= 7 -> %>
+                        <div class="h-8 w-8 rounded-full bg-yellow-100 flex items-center justify-center mr-3">
+                          <span class="text-yellow-600 font-bold"><%= feedback.score %></span>
+                        </div>
+                      <% _ -> %>
+                        <div class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                          <span class="text-red-600 font-bold"><%= feedback.score %></span>
+                        </div>
+                    <% end %>
+                    <p class="text-sm font-medium text-gray-900 truncate">
+                      <%= feedback.comment %>
+                    </p>
+                  </div>
+                  <div class="ml-2 flex-shrink-0 flex">
+                    <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                      <%= feedback.source %>
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-2 sm:flex sm:justify-between">
+                  <div class="sm:flex">
+                    <p class="flex items-center text-sm text-gray-500">
+                      <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                      </svg>
+                      <%= feedback.user_id || "Anonymous" %>
+                    </p>
+                  </div>
+                  <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                    <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p>
+                      <%= Calendar.strftime(feedback.inserted_at, "%B %d, %Y") %>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% else %>
+      <div class="mt-3 bg-white shadow overflow-hidden sm:rounded-md p-6 text-center text-gray-500">
+        No feedback collected yet.
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Evolution History -->
+  <div class="mt-8">
+    <h2 class="text-lg font-medium text-gray-900">Evolution History</h2>
+    
+    <%= if @evolution_history && length(@evolution_history) > 0 do %>
+      <div class="mt-3 bg-white shadow overflow-hidden sm:rounded-md">
+        <ul role="list" class="divide-y divide-gray-200">
+          <%= for entry <- @evolution_history do %>
+            <li>
+              <div class="px-4 py-4 sm:px-6">
+                <div class="flex items-center justify-between">
+                  <div class="text-sm font-medium text-indigo-600 truncate">
+                    <%= entry.dsl_name %>
+                  </div>
+                  <div class="ml-2 flex-shrink-0 flex">
+                    <%= if entry.was_successful do %>
+                      <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                        Successful
+                      </p>
+                    <% else %>
+                      <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                        Unsuccessful
+                      </p>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="mt-2 sm:flex sm:justify-between">
+                  <div class="sm:flex">
+                    <p class="flex items-center text-sm text-gray-500">
+                      <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                      </svg>
+                      <%= entry.date |> Calendar.strftime("%B %d, %Y at %I:%M %p") %>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% else %>
+      <div class="mt-3 bg-white shadow overflow-hidden sm:rounded-md p-6 text-center text-gray-500">
+        No evolution history yet.
+      </div>
+    <% end %>
+  </div>
+</div>

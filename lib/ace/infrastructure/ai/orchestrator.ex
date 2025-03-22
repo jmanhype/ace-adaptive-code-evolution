@@ -2,6 +2,7 @@ defmodule Ace.Infrastructure.AI.Orchestrator do
   @moduledoc """
   Orchestrates AI operations and prompt management.
   Supports both single-file and multi-file code analysis and optimization.
+  Also provides support for self-evolving code based on feedback.
   """
   require Logger
   
@@ -393,5 +394,104 @@ defmodule Ace.Infrastructure.AI.Orchestrator do
       measurements,
       metadata
     )
+  end
+  
+  @doc """
+  Generates a structured response using the provided prompt and schema.
+  For evolution use cases that don't perfectly fit into the standard pattern.
+  
+  ## Parameters
+    
+    - `prompt`: The text prompt for the AI model
+    - `system_prompt`: System prompt that sets the context
+    - `schema`: JSON schema defining the expected response format
+    - `model`: Optional AI model name to use
+    - `options`: Additional options for the request
+  
+  ## Returns
+  
+    - `{:ok, result}`: The structured result matching the schema
+    - `{:error, reason}`: If the request fails
+  """
+  def generate_structured_response(prompt, system_prompt, schema, model \\ nil, options \\ %{}) do
+    provider = get_provider()
+    model = model || get_model()
+    
+    # Convert options to map if it's a keyword list
+    options_map = if is_map(options), do: options, else: Enum.into(options, %{})
+    
+    start_time = System.monotonic_time(:millisecond)
+    
+    result = 
+      with {:ok, structured_response} <- provider.generate_structured(
+              prompt,
+              system_prompt,
+              schema,
+              model,
+              options_map
+            ) do
+      
+        end_time = System.monotonic_time(:millisecond)
+        duration = end_time - start_time
+        
+        record_telemetry(:structured_response, %{duration: duration}, %{
+          prompt_size: byte_size(prompt),
+          model: model
+        })
+        
+        # Handle different response formats
+        response = normalize_structured_response(structured_response)  
+        {:ok, response}
+      else
+        {:error, _} = error ->
+          Logger.error("Failed to generate structured response", error: inspect(error))
+          error
+      end
+      
+    result
+  end
+  
+  # Normalize different formats of structured responses
+  defp normalize_structured_response(response) when is_map(response) do
+    cond do
+      # Directly usable format with atom keys
+      Map.has_key?(response, :optimized_code) && Map.has_key?(response, :explanation) ->
+        response
+      
+      # JSON response with string keys
+      Map.has_key?(response, "optimized_code") && Map.has_key?(response, "explanation") ->
+        %{
+          optimized_code: response["optimized_code"],
+          explanation: response["explanation"]
+        }
+        
+      # Nested under properties (some API responses)
+      Map.has_key?(response, "properties") && 
+      is_map(response["properties"]) ->
+        props = response["properties"]
+        %{
+          optimized_code: Map.get(props, "optimized_code", ""),
+          explanation: Map.get(props, "explanation", "No explanation provided")
+        }
+        
+      true ->
+        # Best effort extraction
+        %{
+          optimized_code: Map.get(response, :optimized_code) || 
+                          Map.get(response, "optimized_code") || 
+                          "# Unable to extract optimized code",
+          explanation: Map.get(response, :explanation) || 
+                       Map.get(response, "explanation") || 
+                       "No explanation provided"
+        }
+    end
+  end
+  
+  # Fallback for unexpected formats
+  defp normalize_structured_response(response) do
+    %{
+      optimized_code: "# Unexpected response format\n#{inspect(response)}",
+      explanation: "The response was not in the expected format"
+    }
   end
 end

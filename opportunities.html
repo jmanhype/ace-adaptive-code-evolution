@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="FCsFQHdREhJgQT9YDipfMlsxE3YkelgywYr8FcWJ8-m7HK-AnnQNQ76J">
+    <title>{if assigns[:page_title], do: "#{@page_title} · ACE", else: "ACE - Adaptive Code Evolution"}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body class="h-full">
+<div id="phx-GC8IrcfKhmcoERrB" data-phx-main data-phx-session="SFMyNTY.g2gDaAJhBXQAAAAIdwJpZG0AAAAUcGh4LUdDOElyY2ZLaG1jb0VSckJ3B3Nlc3Npb250AAAAAHcKcGFyZW50X3BpZHcDbmlsdwR2aWV3dxtFbGl4aXIuQWNlV2ViLkRhc2hib2FyZExpdmV3CHJvb3RfcGlkdwNuaWx3BnJvdXRlcncURWxpeGlyLkFjZVdlYi5Sb3V0ZXJ3DGxpdmVfc2Vzc2lvbmgCdwdkZWZhdWx0bggAuDbyrBMILxh3CXJvb3Rfdmlld3cbRWxpeGlyLkFjZVdlYi5EYXNoYm9hcmRMaXZlbgYAASNQvJUBYgABUYA.nc_1XNzexGxB9sr1ZTKxkZmQqUqKiI1eME-UvRN6vyo" data-phx-static="SFMyNTY.g2gDaAJhBXQAAAADdwJpZG0AAAAUcGh4LUdDOElyY2ZLaG1jb0VSckJ3BWZsYXNodAAAAAB3CmFzc2lnbl9uZXdqbgYAASNQvJUBYgABUYA.SJx6rINdKp9jOtaZvsqEnYJx2dlwM_N97wmEg8SYUNs"><div class="min-h-full" id="debugger-hook" phx-hook="Debugger">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-white text-xl font-bold">ACE</span>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="/" target="_self" rel="nofollow" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium">Overview</a>
+              
+              <a href="/files" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Files</a>
+              
+              <a href="/opportunities" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Opportunities</a>
+              
+              <a href="/optimizations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Optimizations</a>
+              
+              <a href="/evaluations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Evaluations</a>
+              
+              <a href="/projects" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Projects</a>
+              
+              <a href="/evolution" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Evolution</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+<div class="py-6">
+  <header class="flex items-center justify-between pb-4 border-b border-gray-200 ">
+  <div>
+    <h1 class="text-2xl font-semibold text-gray-900">
+      
+    ACE Dashboard
+    
+    </h1>
+    <p class="mt-1 text-sm text-gray-500">
+      AI-powered code optimization and analysis
+    </p>
+  </div>
+  <div class="flex items-center gap-2">
+    
+      
+        <div class="mr-4 flex items-center text-green-600">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Using Groq AI</span>
+        </div>
+      
+      <a href="/?analyze=1" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-white rounded inline-block ">
+        Start Analysis
+      </a>
+    
+  </div>
+</header>
+
+  
+      <div class="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white overflow-hidden shadow rounded-lg p-4 ">
+  
+          <div class="flex items-center">
+            <div class="flex-shrink-0 rounded-md bg-blue-500 p-3">
+              <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="truncate text-sm font-medium text-gray-500">Analyses</dt>
+                <dd>
+                  <div class="text-lg font-medium text-gray-900">0</div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        
+</div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg p-4 ">
+  
+          <div class="flex items-center">
+            <div class="flex-shrink-0 rounded-md bg-green-500 p-3">
+              <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="truncate text-sm font-medium text-gray-500">Opportunities</dt>
+                <dd>
+                  <div class="text-lg font-medium text-gray-900">25</div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        
+</div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg p-4 ">
+  
+          <div class="flex items-center">
+            <div class="flex-shrink-0 rounded-md bg-purple-500 p-3">
+              <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="truncate text-sm font-medium text-gray-500">Optimizations</dt>
+                <dd>
+                  <div class="text-lg font-medium text-gray-900">0</div>
+                </dd>
+              </dl>
+            </div>
+          </div>
+        
+</div>
+      </div>
+
+      <!-- Additional dashboard content -->
+      <div class="mt-6">
+        <h2 class="text-lg font-medium text-gray-900">Recent Activities</h2>
+        <div class="mt-3 overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-md">
+          <table class="min-w-full divide-y divide-gray-300">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Action</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Target</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Time</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200 bg-white">
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Analysis</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">user_controller.ex</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">2 hours ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Optimization</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Performance issue in sort algorithm</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">3 hours ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Evaluation</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">O(n²) to O(n log n) conversion</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">3 hours ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Applied</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Sort algorithm improvement</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">3 hours ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Analysis</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">auth_service.ex</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">1 day ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Optimization</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Memory usage in caching layer</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-red-600 font-medium">Failed</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">1 day ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Analysis</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">dashboard_live.ex</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">2 days ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Optimization</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Query optimization</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">2 days ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Evaluation</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Database query restructuring</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">2 days ago</td>
+                </tr>
+              
+                <tr>
+                  <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">Applied</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Query optimization</td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                    <span class="text-green-600 font-medium">Complete</span>
+                  </td>
+                  <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">2 days ago</td>
+                </tr>
+              
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    
+</div>
+    </div>
+  </main>
+</div></div>
+  <iframe hidden height="0" width="0" src="/phoenix/live_reload/frame"></iframe></body>
+</html>

@@ -1,4 +1,4 @@
-<div class="min-h-full">
+<div class="min-h-full" id="debugger-hook" phx-hook="Debugger">
   <nav class="bg-gray-800">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
       <div class="flex h-16 items-center justify-between">
@@ -8,17 +8,19 @@
           </div>
           <div class="hidden md:block">
             <div class="ml-10 flex items-baseline space-x-4">
-              <.link navigate="/" class={if assigns[:active_tab] == :overview, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Overview</.link>
+              <a href="/" target="_self" rel="nofollow" class={if assigns[:active_tab] == :overview, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Overview</a>
               
-              <.link navigate="/files" class={if assigns[:active_tab] == :files, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Files</.link>
+              <a href="/files" target="_self" rel="nofollow" class={if assigns[:active_tab] == :files, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Files</a>
               
-              <.link navigate="/opportunities" class={if assigns[:active_tab] == :opportunities, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Opportunities</.link>
+              <a href="/opportunities" target="_self" rel="nofollow" class={if assigns[:active_tab] == :opportunities, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Opportunities</a>
               
-              <.link navigate="/optimizations" class={if assigns[:active_tab] == :optimizations, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Optimizations</.link>
+              <a href="/optimizations" target="_self" rel="nofollow" class={if assigns[:active_tab] == :optimizations, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Optimizations</a>
               
-              <.link navigate="/evaluations" class={if assigns[:active_tab] == :evaluations, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Evaluations</.link>
+              <a href="/evaluations" target="_self" rel="nofollow" class={if assigns[:active_tab] == :evaluations, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Evaluations</a>
               
-              <.link navigate="/projects" class={if assigns[:active_tab] == :projects, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Projects</.link>
+              <a href="/projects" target="_self" rel="nofollow" class={if assigns[:active_tab] == :projects, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Projects</a>
+              
+              <a href="/evolution" target="_self" rel="nofollow" class={if assigns[:active_tab] in [:evolution, :evolution_proposals], do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Evolution</a>
             </div>
           </div>
         </div>

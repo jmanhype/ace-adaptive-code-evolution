@@ -28,7 +28,85 @@ import Chart from "chart.js/auto"
 import { Network, DataSet } from "vis-network"
 
 // Define hooks for LiveView
-let Hooks = {}
+let Hooks = {
+  // Debug hook for tracing LiveView lifecycle events
+  Debugger: {
+    mounted() {
+      console.log("Debugger hook mounted");
+      
+      this.handleEvent("debug", payload => {
+        console.log("LiveView Debug Event:", payload);
+      });
+    }
+  }
+}
+
+// Proposal management hooks
+Hooks.ProposalManager = {
+  mounted() {
+    // Toggle the proposal diff when the view button is clicked
+    this.handleEvent("toggle-proposal-diff", ({id}) => {
+      const diffContainer = document.getElementById(`proposal-diff-${id}`);
+      if (diffContainer) {
+        diffContainer.classList.toggle("hidden");
+      }
+    });
+
+    // Show rejection modal
+    this.handleEvent("show-rejection-modal", ({id}) => {
+      const modal = document.getElementById("rejection-modal");
+      const proposalIdInput = document.getElementById("rejection-proposal-id");
+
+      if (modal && proposalIdInput) {
+        proposalIdInput.value = id;
+        modal.classList.remove("hidden");
+      }
+      
+      const cancelButton = document.getElementById("rejection-cancel");
+      if (cancelButton) {
+        cancelButton.addEventListener("click", () => {
+          modal.classList.add("hidden");
+        });
+      }
+    });
+
+    // Show approval modal
+    this.handleEvent("show-approval-modal", ({id}) => {
+      const modal = document.getElementById("approval-modal");
+      const proposalIdInput = document.getElementById("approval-proposal-id");
+
+      if (modal && proposalIdInput) {
+        proposalIdInput.value = id;
+        modal.classList.remove("hidden");
+      }
+      
+      const cancelButton = document.getElementById("approval-cancel");
+      if (cancelButton) {
+        cancelButton.addEventListener("click", () => {
+          modal.classList.add("hidden");
+        });
+      }
+    });
+
+    // Show apply modal
+    this.handleEvent("show-apply-modal", ({id}) => {
+      const modal = document.getElementById("apply-modal");
+      const proposalIdInput = document.getElementById("apply-proposal-id");
+
+      if (modal && proposalIdInput) {
+        proposalIdInput.value = id;
+        modal.classList.remove("hidden");
+      }
+      
+      const cancelButton = document.getElementById("apply-cancel");
+      if (cancelButton) {
+        cancelButton.addEventListener("click", () => {
+          modal.classList.add("hidden");
+        });
+      }
+    });
+  }
+}
 
 // Code editor hook
 Hooks.CodeEditor = {
@@ -555,4 +633,104 @@ liveSocket.connect()
 // >> liveSocket.enableLatencySim(1000)  // enabled for duration of browser session
 // >> liveSocket.disableLatencySim()
 window.liveSocket = liveSocket
+
+// Fix navigation issues
+document.addEventListener("DOMContentLoaded", function() {
+  console.log("DOM loaded, adding navigation fix");
+  
+  // Add click handlers for all navigation links in the header
+  function fixNavigation() {
+    // Find all navigation links in the header
+    const mainNavLinks = document.querySelectorAll(".bg-gray-800 a");
+    
+    mainNavLinks.forEach(link => {
+      // Remove existing listeners first to avoid duplicates
+      link.removeEventListener("click", forceNavigate);
+      // Add new listener
+      link.addEventListener("click", forceNavigate);
+    });
+    
+    console.log("Fixed navigation for", mainNavLinks.length, "links in header");
+    
+    // Also fix evolution page links
+    const evolutionLinks = document.querySelectorAll(".flex-justify-between a");
+    evolutionLinks.forEach(link => {
+      // Remove existing listeners first
+      link.removeEventListener("click", forceNavigate);
+      // Add new listener
+      link.addEventListener("click", forceNavigate);
+    });
+  }
+  
+  // Force navigation handler
+  function forceNavigate(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log("Forcing navigation to:", this.href);
+    window.location = this.href;
+    return false;
+  }
+  
+  // Initial fix
+  fixNavigation();
+  
+  // Also fix after any LiveView updates
+  document.addEventListener("phx:update", function() {
+    console.log("LiveView updated, re-fixing navigation");
+    fixNavigation();
+  });
+  
+  // Hash-based navigation as a fallback
+  function setupHashNavigation() {
+    // Create a floating hash navigation bar
+    const hashNav = document.createElement('div');
+    hashNav.style.position = 'fixed';
+    hashNav.style.bottom = '10px';
+    hashNav.style.right = '10px';
+    hashNav.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+    hashNav.style.color = 'white';
+    hashNav.style.padding = '10px';
+    hashNav.style.borderRadius = '5px';
+    hashNav.style.zIndex = '1000';
+    hashNav.innerHTML = `
+      <div style="font-weight: bold; margin-bottom: 5px;">Hash Navigation:</div>
+      <a href="#/" style="color: white; margin-right: 5px;">Overview</a>
+      <a href="#/files" style="color: white; margin-right: 5px;">Files</a>
+      <a href="#/opportunities" style="color: white; margin-right: 5px;">Opportunities</a>
+      <a href="#/evolution" style="color: white;">Evolution</a>
+    `;
+    document.body.appendChild(hashNav);
+    
+    // Handle hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Initial load
+    handleHashChange();
+  }
+  
+  function handleHashChange() {
+    const hash = window.location.hash.replace('#', '') || '/';
+    console.log('Hash changed to:', hash);
+    
+    // Map hash to actual page URL
+    const routes = {
+      '/': '/',
+      '/files': '/files',
+      '/opportunities': '/opportunities',
+      '/optimizations': '/optimizations',
+      '/evaluations': '/evaluations',
+      '/projects': '/projects',
+      '/evolution': '/evolution',
+      '/evolution/proposals': '/evolution/proposals'
+    };
+    
+    if (routes[hash] && window.location.pathname !== routes[hash]) {
+      console.log('Navigating to:', routes[hash]);
+      window.location.pathname = routes[hash];
+    }
+  }
+  
+  // Initialize hash navigation
+  setTimeout(setupHashNavigation, 1000);
+});
 

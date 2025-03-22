@@ -81,7 +81,10 @@ defmodule AceWeb do
       
       # Core UI components and translation
       import AceWeb.CoreComponents
-
+      
+      # Import HTML link functions
+      import Phoenix.HTML.Link
+      
       # Shortcut for generating JS commands
       import Phoenix.LiveView.JS
 

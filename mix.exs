@@ -112,54 +112,30 @@ defmodule Ace.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # HTTP client
-      {:httpoison, "~> 2.1"},
-      
-      # JSON handling
-      {:jason, "~> 1.4"},
-      
-      # Database
-      {:ecto_sql, "~> 3.10"},
-      {:postgrex, "~> 0.17"},
-      
-      # Code parsing and manipulation
-      {:sourceror, "~> 1.0"},
-      
-      # GraphQL (added)
+      {:phoenix, "~> 1.7.10"},
+      {:phoenix_ecto, "~> 4.4.2"},
+      {:ecto_sql, "~> 3.10.2"},
+      {:postgrex, ">= 0.0.0"},
+      {:phoenix_html, "~> 3.3.3"},
+      {:phoenix_live_reload, "~> 1.2", only: :dev},
+      {:phoenix_live_view, "~> 0.20.1"},
+      {:floki, ">= 0.30.0", only: :test},
+      {:phoenix_live_dashboard, "~> 0.8.2"},
+      {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
+      {:swoosh, "~> 1.3"},
+      {:finch, "~> 0.13"},
+      {:telemetry_metrics, "~> 0.6"},
+      {:telemetry_poller, "~> 1.0"},
+      {:gettext, "~> 0.20"},
+      {:jason, "~> 1.2"},
+      {:dns_cluster, "~> 0.1.1"},
+      {:plug_cowboy, "~> 2.5"},
       {:absinthe, "~> 1.7"},
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_relay, "~> 1.5"},
-      
-      # Phoenix (added)
-      {:phoenix, "~> 1.7"},
-      {:phoenix_ecto, "~> 4.4"},
-      {:phoenix_html, "~> 3.3"},
-      {:phoenix_live_view, "~> 0.20"},
-      {:phoenix_live_dashboard, "~> 0.8"},
-      {:phoenix_live_reload, "~> 1.4"},
-      
-      # AI/LLM integration
-      # We'll implement without relying on instructor_ex since it's not available in the registry
-      
-      # Telemetry and monitoring
-      {:telemetry, "~> 1.2"},
-      {:telemetry_metrics, "~> 0.6"},
-      {:telemetry_poller, "~> 1.0"},
-      
-      # Web API
-      {:plug_cowboy, "~> 2.6"},
-      
-      # Testing
-      {:mox, "~> 1.0", only: :test},
-      {:stream_data, "~> 0.5", only: [:dev, :test]},
-      {:excoveralls, "~> 0.18", only: :test},
-      
-      # Documentation
-      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
-      
-      # Development tools
-      {:dialyxir, "~> 1.3", only: [:dev, :test], runtime: false},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
+      {:httpoison, "~> 2.0"},
+      {:timex, "~> 3.7.11"}
     ]
   end
 

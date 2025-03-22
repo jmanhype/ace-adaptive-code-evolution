@@ -60,6 +60,9 @@ defmodule AceWeb.Router do
     post "/analyses", AnalysesController, :create
     get "/analyses/:id", AnalysesController, :show
     get "/analyses", AnalysesController, :index
+    
+    # GitHub webhook endpoint
+    post "/webhooks/github", WebhookController, :github
   end
 
   # GraphQL endpoint

@@ -135,7 +135,8 @@ defmodule Ace.MixProject do
       {:absinthe_plug, "~> 1.5"},
       {:absinthe_relay, "~> 1.5"},
       {:httpoison, "~> 2.0"},
-      {:timex, "~> 3.7.11"}
+      {:timex, "~> 3.7.11"},
+      {:jose, "~> 1.11"}
     ]
   end
 

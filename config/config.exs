@@ -17,7 +17,16 @@ config :ace,
     #   feedback_source: "feature_dashboard",
     #   threshold: 7.0
     # }
-  ]
+  ],
+  # GitHub integration configuration
+  github_app_id: System.get_env("GITHUB_APP_ID"),
+  github_private_key: System.get_env("GITHUB_PRIVATE_KEY"),
+  github_webhook_secret: System.get_env("GITHUB_WEBHOOK_SECRET"),
+  github_integration_enabled: false,  # Set to true to enable GitHub integration
+  github_max_concurrent_analyses: 5,  # Maximum number of concurrent analyses
+  github_analysis_timeout: 300_000,   # Timeout for analysis in milliseconds (5 minutes)
+  github_allowed_organizations: [],   # Empty list allows all organizations
+  github_allowed_repositories: []     # Empty list allows all repositories
 
 config :ace, Ace.Repo,
   database: "ace_dev",

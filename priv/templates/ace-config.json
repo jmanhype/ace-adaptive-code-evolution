@@ -1,0 +1,26 @@
+{
+  "exclude_patterns": [
+    "^test/",
+    "^docs/",
+    "\\.md$",
+    "\\.txt$",
+    "\\.json$",
+    "\\.yaml$",
+    "\\.yml$"
+  ],
+  "severity_threshold": "suggestion",
+  "max_comments_per_file": 10,
+  "max_total_comments": 30,
+  "analysis_config": {
+    "performance": true,
+    "security": true,
+    "style": true,
+    "maintainability": true,
+    "bugs": true
+  },
+  "notification_settings": {
+    "notify_on_success": true,
+    "notify_on_failure": true,
+    "comment_on_empty_analysis": true
+  }
+} 

@@ -35,4 +35,26 @@ defmodule AceWeb.EvolutionController do
         |> redirect(to: "/evolution/proposals")
     end
   end
+
+  @doc """
+  Index page for evolution dashboard.
+  Redirects to the main evolution dashboard.
+  """
+  def index(conn, _params) do
+    redirect(conn, to: "/dashboard/evolution")
+  end
+
+  @doc """
+  Shows proposals page.
+  """
+  def proposals(conn, _params) do
+    redirect(conn, to: "/dashboard/evolution/proposals")
+  end
+
+  @doc """
+  Shows evolution history.
+  """
+  def history(conn, _params) do
+    redirect(conn, to: "/dashboard/evolution")
+  end
 end 

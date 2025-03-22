@@ -50,6 +50,7 @@ defmodule AceWeb.Router do
     get "/evolution", EvolutionController, :index
     get "/evolution/proposals", EvolutionController, :proposals
     get "/evolution/history", EvolutionController, :history
+    get "/evolution/generate", EvolutionController, :generate_proposal
   end
 
   # REST API endpoints

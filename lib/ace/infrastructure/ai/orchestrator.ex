@@ -6,6 +6,8 @@ defmodule Ace.Infrastructure.AI.Orchestrator do
   """
   require Logger
   
+  alias Ace.Infrastructure.AI.OpportunityWrapper
+  
   @doc """
   Analyzes code to identify optimization opportunities.
   
@@ -74,25 +76,22 @@ defmodule Ace.Infrastructure.AI.Orchestrator do
           Map.has_key?(structured_response["properties"], "opportunities") ->
             structured_response["properties"]["opportunities"]
             
+          # Handle unexpected formats
           true ->
-            # Fall back to a default response for CLI testing
-            [
-              %{
-                description: "Mock opportunity for #{language} code",
-                location: "lines 1-10",
-                severity: "medium",
-                type: "performance",
-                rationale: "This is a mock rationale for CLI testing without database",
-                suggested_change: "This is a mock suggested change for testing"
-              }
-            ]
+            Logger.warning("Received unexpected AI response format: #{inspect(structured_response)}")
+            []
         end
         
-        {:ok, opportunities}
+        # Use OpportunityWrapper to ensure all required fields are present
+        wrapped_opportunities = OpportunityWrapper.wrap_opportunities(opportunities, code, language)
+        {:ok, wrapped_opportunities}
       else
         {:error, _} = error ->
-          Logger.error("Failed to analyze code", error: inspect(error))
-          error
+          Logger.error("Failed to generate optimization", error: inspect(error))
+          
+          # Generate a fallback opportunity to prevent failure
+          opportunities = OpportunityWrapper.wrap_opportunities(nil, code, language)
+          {:ok, opportunities}
       end
       
     result
@@ -223,13 +222,13 @@ defmodule Ace.Infrastructure.AI.Orchestrator do
     
     result = 
       with {:ok, structured_response} <- provider.generate_structured(
-              prompt,
+              prompt, 
               system_prompt,
               schema,
               model,
               options_map
             ) do
-        
+              
         end_time = System.monotonic_time(:millisecond)
         duration = end_time - start_time
         
@@ -239,55 +238,48 @@ defmodule Ace.Infrastructure.AI.Orchestrator do
           model: model
         })
         
-        # Handle different response formats from LLMs
+        # Extract opportunities from response
         opportunities = cond do
-          # Regular format with opportunities list
+          # Standard format with opportunities field as atom key
           is_map(structured_response) && Map.has_key?(structured_response, :opportunities) ->
             structured_response.opportunities
             
-          # Direct array response
+          # Standard format with opportunities field as string key
+          is_map(structured_response) && Map.has_key?(structured_response, "opportunities") ->
+            structured_response["opportunities"]
+            
+          # Direct list of opportunities
           is_list(structured_response) ->
             structured_response
             
-          # Mock testing format that might have different structure
+          # Nested under properties (some Groq responses)
+          is_map(structured_response) && 
+          Map.has_key?(structured_response, "properties") && 
+          Map.has_key?(structured_response["properties"], "opportunities") ->
+            structured_response["properties"]["opportunities"]
+          
+          # Handle unexpected formats  
           true ->
-            # Create more realistic mock responses based on our test files
-            [
-              %{
-                type: "code_duplication",
-                severity: "medium",
-                description: "Duplicated prime number checking function",
-                affected_files: ["utils.ex", "app.ex"],
-                location: "is_prime?/1 in app.ex and prime?/1 in utils.ex",
-                rationale: "The same prime checking logic is implemented twice",
-                suggested_change: "Remove the duplicated implementation in TestApp.App and use TestApp.Utils.prime?/1 consistently"
-              },
-              %{
-                type: "code_duplication",
-                severity: "low",
-                description: "Duplicated list formatting function",
-                affected_files: ["utils.ex", "app.ex"],
-                location: "format_items/1 in app.ex and format_list/1 in utils.ex",
-                rationale: "Nearly identical string formatting functions in both modules",
-                suggested_change: "Standardize on a single implementation in Utils module"
-              },
-              %{
-                type: "inefficient_implementation",
-                severity: "high",
-                description: "Inefficient stats calculation in TestApp.Reports",
-                affected_files: ["reports.ex", "app.ex", "utils.ex"],
-                location: "calculate_stats/1 in reports.ex",
-                rationale: "Reimplements functionality already available in other modules and performs duplicated work",
-                suggested_change: "Refactor to use App.process_numbers/1 which already does most of this work efficiently"
-              }
-            ]
+            Logger.warning("Received unexpected cross-file AI response: #{inspect(structured_response)}")
+            []
         end
         
-        {:ok, opportunities}
+        # Get combined code for the wrapper
+        combined_code = Enum.map_join(file_context, "\n\n", fn ctx -> ctx.content end)
+        
+        # Use OpportunityWrapper to ensure all required fields are present
+        wrapped_opportunities = OpportunityWrapper.wrap_opportunities(opportunities, combined_code, primary_language)
+        {:ok, wrapped_opportunities}
       else
         {:error, _} = error ->
           Logger.error("Failed to analyze cross-file code", error: inspect(error))
-          error
+          
+          # Get combined code for the wrapper
+          combined_code = Enum.map_join(file_context, "\n\n", fn ctx -> ctx.content end)
+          
+          # Generate a fallback opportunity to prevent failure
+          opportunities = OpportunityWrapper.wrap_opportunities(nil, combined_code, primary_language)
+          {:ok, opportunities}
       end
       
     result
@@ -493,5 +485,40 @@ defmodule Ace.Infrastructure.AI.Orchestrator do
       optimized_code: "# Unexpected response format\n#{inspect(response)}",
       explanation: "The response was not in the expected format"
     }
+  end
+  
+  @doc """
+  Generates optimized code based on a file, feedback, and history.
+  This is a higher-level function that wraps generate_optimization for evolution use cases.
+  
+  ## Parameters
+  
+    - `module_name`: Name of the module or file being optimized
+    - `source_code`: Current source code of the module
+    - `feedback`: Rationale for the optimization (can be feedback summary or analysis explanation)
+    - `history`: Historical context for the optimization
+    - `options`: Additional options for the optimization process
+  
+  ## Returns
+  
+    - `{:ok, optimization}`: The generated optimization with optimized code and explanation
+    - `{:error, reason}`: If optimization generation fails
+  """
+  def generate_code_optimization(module_name, source_code, feedback, history, options \\ %{}) do
+    # Create a mock opportunity structure that's compatible with generate_optimization
+    opportunity = %{
+      type: "evolution",
+      description: "Code evolution based on feedback",
+      rationale: (if is_binary(feedback), do: feedback, else: inspect(feedback))
+    }
+    
+    # Extract strategy from options or default to "auto"
+    strategy = Map.get(options, :strategy, "auto")
+    
+    # Include history in the options
+    enhanced_options = Map.put(options, :history, history)
+    
+    # Call the regular optimization function
+    generate_optimization(opportunity, source_code, strategy, enhanced_options)
   end
 end

@@ -1,0 +1,228 @@
+<div>
+  <div class="flex items-center mb-4">
+    <a href="/github/pull_requests" class="text-blue-600 hover:text-blue-800 mr-2">
+      <.icon name="hero-arrow-left" class="h-4 w-4 inline" /> Back to Pull Requests
+    </a>
+  </div>
+
+  <.header>
+    <%= @selected_pr.repo_name %> #<%= @selected_pr.number %>: <%= @selected_pr.title %>
+    <:subtitle>
+      <div class="flex items-center space-x-4">
+        <span class={status_badge_class(@selected_pr.status)}>
+          <%= @selected_pr.status %>
+        </span>
+        <span class="text-gray-500">
+          <.icon name="hero-user" class="h-4 w-4 inline mr-1" /> <%= @selected_pr.user %>
+        </span>
+        <a href={@selected_pr.html_url} target="_blank" class="text-blue-600 hover:text-blue-800">
+          <.icon name="hero-link" class="h-4 w-4 inline mr-1" /> View on GitHub
+        </a>
+      </div>
+    </:subtitle>
+    <:actions>
+      <%= if @selected_pr.status in ["pending", "processing"] do %>
+        <.button phx-click="optimize_pr" phx-value-id={@selected_pr.id} class="bg-blue-600 hover:bg-blue-700 mr-2">
+          <.icon name="hero-sparkles" class="h-5 w-5 mr-1" /> Optimize
+        </.button>
+      <% else %>
+        <div class="flex space-x-2">
+          <.button disabled class="bg-gray-400 cursor-not-allowed">
+            <.icon name="hero-check" class="h-5 w-5 mr-1" /> Optimized
+          </.button>
+          
+          <.button 
+            phx-click="create_optimization_pr" 
+            phx-value-id={@selected_pr.id} 
+            class="bg-green-600 hover:bg-green-700"
+          >
+            <.icon name="hero-arrow-up-on-square" class="h-5 w-5 mr-1" /> Create PR with Optimizations
+          </.button>
+          
+          <%= if assigns[:pr_creation_url] do %>
+            <a href={@pr_creation_url} target="_blank" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+              <.icon name="hero-eye" class="h-5 w-5 mr-1" /> View Created PR
+            </a>
+          <% end %>
+        </div>
+      <% end %>
+    </:actions>
+  </.header>
+
+  <div class="my-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="md:col-span-1">
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Pull Request Details
+          </h3>
+        </div>
+        <div class="border-t border-gray-200">
+          <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Repository
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @selected_pr.repo_name %>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Number
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                #<%= @selected_pr.number %>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Status
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <span class={status_badge_class(@selected_pr.status)}>
+                  <%= @selected_pr.status %>
+                </span>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Created by
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= @selected_pr.user %>
+              </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Updated
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                <%= format_datetime(@selected_pr.updated_at) %>
+              </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+              <dt class="text-sm font-medium text-gray-500">
+                Head SHA
+              </dt>
+              <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 font-mono text-xs">
+                <%= @selected_pr.head_sha %>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <div class="md:col-span-2">
+      <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Files (<%= length(@selected_pr.files) %>)
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Files modified in this pull request.
+          </p>
+        </div>
+        <div class="border-t border-gray-200">
+          <%= if Enum.empty?(@selected_pr.files) do %>
+            <div class="px-4 py-5 text-center text-gray-500">
+              No files found. Files will appear after optimization is complete.
+            </div>
+          <% else %>
+            <ul class="divide-y divide-gray-200">
+              <%= for file <- @selected_pr.files do %>
+                <li class="px-4 py-4">
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center">
+                      <%= language_icon(file.language) %>
+                      <span class="ml-2 text-sm font-medium text-gray-900">
+                        <%= file.filename %>
+                      </span>
+                      <span class="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-800">
+                        +<%= file.additions %> -<%= file.deletions %>
+                      </span>
+                    </div>
+                    <div>
+                      <.button 
+                        phx-click="view_suggestions" 
+                        phx-value-id={file.id} 
+                        class="text-sm bg-blue-600 hover:bg-blue-700"
+                      >
+                        View Suggestions
+                      </.button>
+                    </div>
+                  </div>
+                </li>
+              <% end %>
+            </ul>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mt-6 bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">
+            Optimization Suggestions
+          </h3>
+          <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Suggestions for improving code quality.
+          </p>
+        </div>
+        <div class="border-t border-gray-200">
+          <%= if Enum.empty?(@suggestions) do %>
+            <div class="px-4 py-5 text-center text-gray-500">
+              Select a file to view its optimization suggestions.
+            </div>
+          <% else %>
+            <div class="divide-y divide-gray-200">
+              <%= for suggestion <- @suggestions do %>
+                <div class="px-4 py-5">
+                  <div class="flex items-center mb-2">
+                    <span class={severity_badge_class(suggestion.severity)}>
+                      <%= suggestion.severity %>
+                    </span>
+                    <span class="ml-2 text-sm font-medium text-gray-900">
+                      <%= suggestion.opportunity_type %>
+                    </span>
+                  </div>
+                  
+                  <p class="text-sm text-gray-600 mb-4">
+                    <%= suggestion.description %>
+                  </p>
+                  
+                  <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="border border-gray-200 rounded-md p-3">
+                      <div class="text-xs font-medium text-gray-500 mb-2">Original Code</div>
+                      <pre class="text-xs font-mono bg-gray-50 p-2 rounded overflow-x-auto"><code><%= suggestion.original_code %></code></pre>
+                    </div>
+                    <div class="border border-green-200 rounded-md p-3 bg-green-50">
+                      <div class="text-xs font-medium text-green-700 mb-2">Optimized Code</div>
+                      <pre class="text-xs font-mono bg-white p-2 rounded overflow-x-auto"><code><%= suggestion.optimized_code %></code></pre>
+                    </div>
+                  </div>
+                  
+                  <div class="mt-4">
+                    <div class="text-xs font-medium text-gray-500 mb-2">Explanation</div>
+                    <p class="text-sm text-gray-600">
+                      <%= suggestion.explanation %>
+                    </p>
+                  </div>
+                  
+                  <div class="mt-2 text-right">
+                    <span class="text-xs text-gray-500">
+                      Status: <%= suggestion.status %>
+                      <%= if suggestion.comment_id do %>
+                        | Comment ID: <%= suggestion.comment_id %>
+                      <% end %>
+                    </span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

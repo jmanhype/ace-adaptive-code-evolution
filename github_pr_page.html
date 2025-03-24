@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="GngHAwEzBnY2AD8iEFU1BUoSURMhFxk4p6soNkI8XfpCA6mmgh7eGzKm">
+    <title>{if assigns[:page_title], do: "#{@page_title} · ACE", else: "ACE - Adaptive Code Evolution"}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body class="h-full">
+<div id="phx-GC9cO06ijQOYDAci" data-phx-main data-phx-session="SFMyNTY.g2gDaAJhBXQAAAAIdwJpZG0AAAAUcGh4LUdDOWNPMDZpalFPWURBY2l3B3Nlc3Npb250AAAAAHcKcGFyZW50X3BpZHcDbmlsdwZyb3V0ZXJ3FEVsaXhpci5BY2VXZWIuUm91dGVydwR2aWV3dxhFbGl4aXIuQWNlV2ViLkdpdEh1YkxpdmV3DGxpdmVfc2Vzc2lvbmgCdwdkZWZhdWx0bggAd2jj4vdWLxh3CXJvb3Rfdmlld3cYRWxpeGlyLkFjZVdlYi5HaXRIdWJMaXZldwhyb290X3BpZHcDbmlsbgYAkevJwZUBYgABUYA.wwCvpP4h8i72DA6RsrawNxKXynu1DH06GCKwvaW8Vh4" data-phx-static="SFMyNTY.g2gDaAJhBXQAAAADdwJpZG0AAAAUcGh4LUdDOWNPMDZpalFPWURBY2l3BWZsYXNodAAAAAB3CmFzc2lnbl9uZXdqbgYAkevJwZUBYgABUYA.QGnkvJVqH97SXVdISq0wKnKt8SbPHYHLt6SeBO60C-o"><div class="min-h-full" id="debugger-hook" phx-hook="Debugger">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-white text-xl font-bold">ACE</span>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="/" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Overview</a>
+              
+              <a href="/files" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Files</a>
+              
+              <a href="/opportunities" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Opportunities</a>
+              
+              <a href="/optimizations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Optimizations</a>
+              
+              <a href="/evaluations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Evaluations</a>
+              
+              <a href="/projects" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Projects</a>
+              
+              <a href="/evolution" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Evolution</a>
+              
+              <a href="/github/pull_requests" target="_self" rel="nofollow" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu, show/hide based on menu state. -->
+  <div class="md:hidden" id="mobile-menu">
+    <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+      <a href="/" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Overview</a>
+              
+      <a href="/files" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Files</a>
+      
+      <a href="/opportunities" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Opportunities</a>
+      
+      <a href="/optimizations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Optimizations</a>
+      
+      <a href="/evaluations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Evaluations</a>
+      
+      <a href="/projects" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Projects</a>
+      
+      <a href="/evolution" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Evolution</a>
+      
+      <a href="/github/pull_requests" target="_self" rel="nofollow" class="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium">GitHub</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+<div class="container mx-auto px-4 py-8">
+  
+    <h1 class="text-3xl font-semibold text-gray-800 mb-6">GitHub Pull Requests</h1>
+    
+    <div class="mb-6 flex justify-between items-center">
+      <p class="text-gray-600">Manage and optimize GitHub pull requests</p>
+      <button phx-click="refresh_prs" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+        <span class="hero-arrow-path w-4 h-4 inline mr-1"></span>
+        Refresh
+      </button>
+    </div>
+    
+    
+      
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">PR</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Repository</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+              
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          <a href="https://github.com/acme/backend-service/pull/123" target="_blank" class="hover:underline">
+                            #123 Add user profile API
+                          </a>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          By johndoe
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">acme/backend-service</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      pending
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <a href="/github/pull_requests/a69ef326-abec-4faa-bae7-0e80023c13c5" class="text-indigo-600 hover:text-indigo-900">
+                        View
+                      </a>
+                      
+                        <button phx-click="optimize_pr" phx-value-id="a69ef326-abec-4faa-bae7-0e80023c13c5" class="text-green-600 hover:text-green-900">
+                          Optimize
+                        </button>
+                      
+                    </div>
+                  </td>
+                </tr>
+              
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          <a href="https://github.com/acme/web-client/pull/45" target="_blank" class="hover:underline">
+                            #45 Improve page load performance
+                          </a>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          By janedoe
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">acme/web-client</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      processing
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <a href="/github/pull_requests/075cbc4f-5929-45e0-9b76-c63ebd9037f5" class="text-indigo-600 hover:text-indigo-900">
+                        View
+                      </a>
+                      
+                    </div>
+                  </td>
+                </tr>
+              
+                <tr>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                      <div class="ml-4">
+                        <div class="text-sm font-medium text-gray-900">
+                          <a href="https://github.com/acme/data-processor/pull/78" target="_blank" class="hover:underline">
+                            #78 Refactor data pipeline for better throughput
+                          </a>
+                        </div>
+                        <div class="text-sm text-gray-500">
+                          By samsmith
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">acme/data-processor</div>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      optimized
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <div class="flex space-x-2">
+                      <a href="/github/pull_requests/9f6d59d4-d57e-444b-a739-1d8960d41554" class="text-indigo-600 hover:text-indigo-900">
+                        View
+                      </a>
+                      
+                    </div>
+                  </td>
+                </tr>
+              
+            </tbody>
+          </table>
+        </div>
+      
+    
+  
+</div>
+    </div>
+  </main>
+</div></div>
+  <iframe hidden height="0" width="0" src="/phoenix/live_reload/frame"></iframe></body>
+</html>

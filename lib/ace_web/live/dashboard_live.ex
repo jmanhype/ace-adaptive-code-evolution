@@ -32,9 +32,6 @@ defmodule AceWeb.DashboardLive do
       Phoenix.PubSub.subscribe(Ace.PubSub, "ace:evaluation_results")
       Phoenix.PubSub.subscribe(Ace.PubSub, "evolution:proposals")
       Phoenix.PubSub.subscribe(Ace.PubSub, "evolution:updates")
-      # Subscribe to proposals for real-time updates
-      Phoenix.PubSub.subscribe(Ace.PubSub, "proposals")
-      Process.send_after(self(), :refresh_evolutions, 1000)
     end
 
     # Load real data from the database using direct Repo queries
@@ -126,29 +123,26 @@ defmodule AceWeb.DashboardLive do
   end
   
   @impl true
-  def handle_params(params, uri, socket) do
-    # Set the active tab based on live_action
-    active_tab = case socket.assigns.live_action do
-      :evolution -> :evolution
-      :evolution_proposals -> :evolution_proposals
-      :index -> :overview
-      _ -> :overview
-    end
-    
-    socket = assign(socket, :active_tab, active_tab)
-    
-    # Handle specific page param loading
-    socket = case active_tab do
-      :evolution_proposals ->
-        status_filter = params["status"] || "all"
-        socket
-        |> assign(:status_filter, status_filter)
-        |> assign_filtered_proposals(status_filter, params)
-      
-      _ ->
-        socket
-    end
-    
+  def handle_params(params, _uri, socket) do
+    socket =
+      case params do
+        %{"analyze" => _} ->
+          start_analysis(socket)
+
+        %{"refresh" => _} when socket.assigns.live_action == :evolution ->
+          refresh_evolution_data(socket)
+          
+        %{"refresh" => _} when socket.assigns.live_action == :evolution_proposals ->
+          # Explicitly reload proposals data on refresh
+          pending_proposals = Ace.Core.EvolutionProposal.list_pending()
+          socket
+          |> assign(:pending_proposals, pending_proposals)
+          |> assign(:proposal_count, length(pending_proposals))
+
+        _ ->
+          socket
+      end
+
     {:noreply, socket}
   end
 
@@ -451,7 +445,7 @@ defmodule AceWeb.DashboardLive do
   
   @impl true
   def handle_event("refresh_proposals", _params, socket) do
-    {:noreply, assign_filtered_proposals(socket, socket.assigns.status_filter, %{})}
+    {:noreply, assign_proposal_data(socket)}
   end
   
   @impl true
@@ -471,32 +465,16 @@ defmodule AceWeb.DashboardLive do
   end
   
   @impl true
-  def handle_event("approve_proposal_modal", %{"id" => id}, socket) do
-    # Show the approval modal
-    {:noreply, 
-      socket 
-      |> push_event("show-approval-modal", %{id: id})}
-  end
-  
-  @impl true
-  def handle_event("apply_proposal_modal", %{"id" => id}, socket) do
-    # Show the apply modal
-    {:noreply, 
-      socket 
-      |> push_event("show-apply-modal", %{id: id})}
-  end
-  
-  @impl true
-  def handle_event("approve_proposal", %{"id" => id, "comments" => comments}, socket) do
+  def handle_event("approve_proposal", %{"id" => id}, socket) do
     reviewer_id = "admin" # In a real app, this would come from auth context
-    comments = if comments == "", do: "Approved via dashboard", else: comments
+    comments = "Approved via dashboard"
     
     case handle_proposal_approval(id, reviewer_id, comments) do
       {:ok, _proposal} ->
         {:noreply, 
           socket
           |> put_flash(:info, "Proposal approved successfully")
-          |> assign_filtered_proposals(socket.assigns.status_filter, %{})}
+          |> assign_proposal_data()}
         
       {:error, reason} ->
         {:noreply, 
@@ -514,7 +492,7 @@ defmodule AceWeb.DashboardLive do
         {:noreply, 
           socket
           |> put_flash(:info, "Proposal rejected successfully")
-          |> assign_filtered_proposals(socket.assigns.status_filter, %{})}
+          |> assign_proposal_data()}
         
       {:error, reason} ->
         {:noreply, 
@@ -526,11 +504,11 @@ defmodule AceWeb.DashboardLive do
   @impl true
   def handle_event("apply_proposal", %{"id" => id}, socket) do
     case handle_proposal_application(id) do
-      {:ok, version} ->
+      {:ok, _version} ->
         {:noreply, 
           socket
-          |> put_flash(:info, "Proposal applied successfully as version #{version}")
-          |> assign_filtered_proposals(socket.assigns.status_filter, %{})
+          |> put_flash(:info, "Proposal applied successfully")
+          |> assign_proposal_data()
           |> assign_evolution_data()}
         
       {:error, reason} ->
@@ -538,12 +516,6 @@ defmodule AceWeb.DashboardLive do
           socket
           |> put_flash(:error, "Failed to apply proposal: #{inspect(reason)}")}
     end
-  end
-
-  @impl true
-  def handle_event("filter_proposals", %{"status" => status}, socket) do
-    socket = assign(socket, :status_filter, status)
-    {:noreply, push_patch(socket, to: Routes.dashboard_path(socket, :evolution_proposals, status: status))}
   end
 
   # Group all handle_info functions together
@@ -804,25 +776,6 @@ defmodule AceWeb.DashboardLive do
     {:noreply, socket}
   end
 
-  @impl true
-  def handle_info({:proposal_updated, _proposal}, socket) do
-    # Refresh the proposals when we receive a pubsub notification about a proposal update
-    Logger.info("Received proposal update notification, refreshing proposals")
-    {:noreply, assign_filtered_proposals(socket, socket.assigns.status_filter, %{})}
-  end
-  
-  @impl true
-  def handle_info({:proposal_applied, _id, _version}, socket) do
-    # Refresh both proposals and evolution data when a proposal is applied
-    Logger.info("Received proposal applied notification, refreshing data")
-    socket = 
-      socket
-      |> assign_filtered_proposals(socket.assigns.status_filter, %{})
-      |> assign_evolution_data()
-    
-    {:noreply, socket}
-  end
-
   # Format API error messages for display
   defp format_api_error(error) do
     cond do
@@ -1056,84 +1009,32 @@ defmodule AceWeb.DashboardLive do
     |> assign(:proposal_count, proposal_count)
   end
   
-  defp assign_filtered_proposals(socket, status_filter, _params) do
-    # Get counts by status for the filter tabs
-    status_counts = Ace.Core.EvolutionProposal.count_by_status()
-    total_count = status_counts |> Map.values() |> Enum.sum()
-    
-    # Load proposals based on the selected filter
-    proposals = case status_filter do
-      "all" -> 
-        Ace.Core.EvolutionProposal.list_all()
-      status when status in ["pending_review", "approved", "rejected", "applied"] -> 
-        Ace.Core.EvolutionProposal.list_by_status(status)
-      _ -> 
-        Ace.Core.EvolutionProposal.list_all()
-    end
+  # Loads evolution proposal data for the proposals dashboard.
+  defp assign_proposal_data(socket) do
+    # Load pending proposals
+    pending_proposals = Ace.Core.EvolutionProposal.list_pending()
     
     # Log for debugging
-    IO.puts("Loading #{length(proposals)} proposals with filter: #{status_filter}")
+    IO.puts("Loading #{length(pending_proposals)} pending proposals")
     
     socket
-    |> assign(:proposals, proposals)
-    |> assign(:pending_proposals, Enum.filter(proposals, fn p -> p.status == "pending_review" end))
-    |> assign(:approved_proposals, Enum.filter(proposals, fn p -> p.status == "approved" end))
-    |> assign(:proposal_count, status_counts["pending_review"] || 0)
-    |> assign(:status_counts, status_counts)
-    |> assign(:total_proposal_count, total_count)
-  end
-  
-  defp assign_proposal_data(socket) do
-    # Use new filtered loading
-    assign_filtered_proposals(socket, socket.assigns.status_filter || "all", %{})
+    |> assign(:pending_proposals, pending_proposals)
+    |> assign(:proposal_count, length(pending_proposals))
   end
   
   # Handles approving a proposal.
-  def handle_proposal_approval(id, reviewer_id, comments) do
-    Logger.info("Approving proposal #{id} by #{reviewer_id} with comments: #{comments}")
-    
-    case Ace.Core.EvolutionProposal.approve(id, reviewer_id, comments) do
-      {:ok, proposal} = result ->
-        Logger.info("Proposal #{id} approved successfully")
-        Phoenix.PubSub.broadcast(Ace.PubSub, "proposals", {:proposal_updated, proposal})
-        result
-        
-      error ->
-        Logger.error("Failed to approve proposal #{id}: #{inspect(error)}")
-        error
-    end
+  def handle_proposal_approval(proposal_id, reviewer_id, comments) do
+    Ace.Core.EvolutionProposal.approve(proposal_id, reviewer_id, comments)
   end
   
   # Handles rejecting a proposal.
-  def handle_proposal_rejection(id, reviewer_id, reason) do
-    Logger.info("Rejecting proposal #{id} by #{reviewer_id} with reason: #{reason}")
-    
-    case Ace.Core.EvolutionProposal.reject(id, reviewer_id, reason) do
-      {:ok, proposal} = result ->
-        Logger.info("Proposal #{id} rejected successfully")
-        Phoenix.PubSub.broadcast(Ace.PubSub, "proposals", {:proposal_updated, proposal})
-        result
-        
-      error ->
-        Logger.error("Failed to reject proposal #{id}: #{inspect(error)}")
-        error
-    end
+  def handle_proposal_rejection(proposal_id, reviewer_id, comments) do
+    Ace.Core.EvolutionProposal.reject(proposal_id, reviewer_id, comments)
   end
   
   # Handles applying an approved proposal.
-  def handle_proposal_application(id) do
-    Logger.info("Applying proposal #{id}")
-    
-    case Ace.Evolution.Service.apply_proposal(id) do
-      {:ok, version} = result ->
-        Logger.info("Proposal #{id} applied successfully as version #{version}")
-        Phoenix.PubSub.broadcast(Ace.PubSub, "proposals", {:proposal_applied, id, version})
-        result
-        
-      error ->
-        Logger.error("Failed to apply proposal #{id}: #{inspect(error)}")
-        error
-    end
+  def handle_proposal_application(proposal_id) do
+    Ace.Core.EvolutionProposal.apply_proposal(proposal_id)
   end
   
   # Get all supported relationship types
@@ -1679,7 +1580,7 @@ defmodule AceWeb.DashboardLive do
                           <button phx-click="view_proposal" phx-value-id={proposal.id} class="text-indigo-600 hover:text-indigo-900">
                             View
                           </button>
-                          <button phx-click="approve_proposal_modal" phx-value-id={proposal.id} class="text-green-600 hover:text-green-900">
+                          <button phx-click="approve_proposal" phx-value-id={proposal.id} class="text-green-600 hover:text-green-900">
                             Approve
                           </button>
                           <button phx-click="reject_proposal_modal" phx-value-id={proposal.id} class="text-red-600 hover:text-red-900">

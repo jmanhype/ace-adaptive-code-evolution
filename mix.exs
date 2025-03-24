@@ -136,7 +136,15 @@ defmodule Ace.MixProject do
       {:absinthe_relay, "~> 1.5"},
       {:httpoison, "~> 2.0"},
       {:timex, "~> 3.7.11"},
-      {:jose, "~> 1.11"}
+      {:jose, "~> 1.11"},
+      
+      # GitHub integration dependencies
+      {:joken, "~> 2.6"},        # JWT token generation and validation
+      {:ex_doc, "~> 0.29", only: :dev, runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:mox, "~> 1.0", only: :test},
+      {:excoveralls, "~> 0.16", only: :test},
+      {:dialyxir, "~> 1.3", only: [:dev, :test], runtime: false}
     ]
   end
 

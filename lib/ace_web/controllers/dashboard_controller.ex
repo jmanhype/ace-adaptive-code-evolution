@@ -1,36 +1,43 @@
 defmodule AceWeb.DashboardController do
   use AceWeb, :controller
   
-  # Redirect to static pages since LiveView is having issues
   def index(conn, _params) do
-    redirect(conn, to: "/pages/overview")
+    # Render the overview template directly
+    render(conn, :overview)
   end
   
   def files(conn, _params) do
-    redirect(conn, to: "/pages/files")
+    # Render the files template directly
+    render(conn, :files)
   end
   
   def opportunities(conn, _params) do
-    redirect(conn, to: "/pages/opportunities")
+    # Render the opportunities template directly
+    render(conn, :opportunities)
   end
   
   def optimizations(conn, _params) do
-    redirect(conn, to: "/pages/optimizations")
+    # Render the optimizations template directly
+    render(conn, :optimizations)
   end
   
   def evaluations(conn, _params) do
-    redirect(conn, to: "/pages/evaluations")
+    # Render the evaluations template directly
+    render(conn, :evaluations)
   end
   
   def projects(conn, _params) do
-    redirect(conn, to: "/pages/projects")
+    # Render the projects template directly
+    render(conn, :projects)
   end
   
   def evolution(conn, _params) do
-    redirect(conn, to: "/pages/evolution")
+    # Render the evolution template directly
+    render(conn, :evolution)
   end
   
   def evolution_proposals(conn, _params) do
-    redirect(conn, to: "/pages/evolution-proposals")
+    # Render the evolution proposals template directly
+    render(conn, :evolution_proposals)
   end
 end

@@ -6,358 +6,121 @@
       <a href="/evolution" target="_self" rel="nofollow" class="mr-2 text-sm text-blue-600 hover:text-blue-800">
         ← Back to Evolution Dashboard
       </a>
-      <a href="/evolution/proposals?refresh=1" class="bg-indigo-600 hover:bg-indigo-700 px-4 py-2 text-white rounded inline-block">
+      <.button phx-click="refresh_proposals">
         Refresh Proposals
-      </a>
+      </.button>
     </:actions>
   </.header>
 
   <div class="mt-8">
-    <!-- Filter tabs -->
-    <div class="px-4 sm:px-6 lg:px-8 mt-4">
-      <div class="border-b border-gray-200">
-        <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-          <%= for {status, label} <- [{"all", "All"}, {"pending_review", "Pending"}, {"approved", "Approved"}, {"applied", "Applied"}, {"rejected", "Rejected"}] do %>
-            <button 
-              phx-click="filter_proposals" 
-              phx-value-status={status}
-              class={[
-                "whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm",
-                if @status_filter == status do 
-                  "border-indigo-500 text-indigo-600" 
-                else 
-                  "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                end
-              ]}
-            >
-              <%= label %> 
-              <span class="ml-1 bg-gray-100 text-gray-700 py-1 px-2 rounded-full text-xs">
-                <%= @proposal_counts_by_status[status] || 0 %>
-              </span>
-            </button>
-          <% end %>
-        </nav>
-      </div>
-    </div>
-
-    <div class="px-4 sm:px-6 lg:px-8 mt-4">
-      <div class="mt-2 flex flex-col">
-        <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
-            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
-              <table class="min-w-full divide-y divide-gray-300">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Module</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
-                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Reviewer</th>
-                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                      <span class="sr-only">Actions</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-200 bg-white">
-                  <%= if Enum.empty?(@pending_proposals) && Enum.empty?(@approved_proposals) && Enum.empty?(@applied_proposals) && Enum.empty?(@rejected_proposals) do %>
-                    <tr>
-                      <td colspan="5" class="px-3 py-4 text-sm text-gray-500 text-center">
-                        No proposals found with the current filter.
-                      </td>
-                    </tr>
-                  <% else %>
-                    <%= for proposal <- @pending_proposals do %>
-                      <tr id={"proposal-row-#{proposal.id}"}>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                          <%= proposal.module_name %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                            Pending Review
-                          </span>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          -
-                        </td>
-                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <div class="inline-flex items-center space-x-2">
-                            <button phx-click="view_proposal" phx-value-id={proposal.id} class="text-blue-600 hover:text-blue-900">
-                              View
-                            </button>
-                            <button phx-click="approve_proposal_modal" phx-value-id={proposal.id} class="text-green-600 hover:text-green-900">
-                              Approve
-                            </button>
-                            <button phx-click="reject_proposal_modal" phx-value-id={proposal.id} class="text-red-600 hover:text-red-900">
-                              Reject
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <!-- Proposal diff container (hidden by default) -->
-                      <tr id={"proposal-diff-#{proposal.id}"} class="hidden">
-                        <td colspan="5" class="px-4 py-3 text-sm text-gray-800">
-                          <div class="bg-gray-50 p-4 rounded-md">
-                            <div class="mb-4">
-                              <h4 class="text-lg font-medium text-gray-900">Proposal Details</h4>
-                              <p class="text-sm text-gray-500">
-                                <strong>ID:</strong> <%= proposal.id %><br/>
-                                <strong>Status:</strong> <%= proposal.status %><br/>
-                                <strong>Created:</strong> <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %>
-                              </p>
-                            </div>
-                            <h4 class="text-md font-medium text-gray-900 mb-2">Proposed Implementation:</h4>
-                            <pre class="text-xs bg-gray-100 p-3 rounded overflow-x-auto"><code><%= proposal.content %></code></pre>
-                          </div>
-                        </td>
-                      </tr>
-                    <% end %>
-                    
-                    <%= for proposal <- @approved_proposals do %>
-                      <tr id={"proposal-row-#{proposal.id}"}>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                          <%= proposal.module_name %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            Approved
-                          </span>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <%= proposal.reviewer_id || "-" %>
-                        </td>
-                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <div class="inline-flex items-center space-x-2">
-                            <button phx-click="view_proposal" phx-value-id={proposal.id} class="text-blue-600 hover:text-blue-900">
-                              View
-                            </button>
-                            <button phx-click="apply_proposal_modal" phx-value-id={proposal.id} class="text-indigo-600 hover:text-indigo-900">
-                              Apply
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                      <!-- Proposal diff container (hidden by default) -->
-                      <tr id={"proposal-diff-#{proposal.id}"} class="hidden">
-                        <td colspan="5" class="px-4 py-3 text-sm text-gray-800">
-                          <div class="bg-gray-50 p-4 rounded-md">
-                            <div class="mb-4">
-                              <h4 class="text-lg font-medium text-gray-900">Proposal Details</h4>
-                              <p class="text-sm text-gray-500">
-                                <strong>ID:</strong> <%= proposal.id %><br/>
-                                <strong>Status:</strong> <%= proposal.status %><br/>
-                                <strong>Created:</strong> <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %><br/>
-                                <strong>Approved:</strong> <%= if proposal.reviewed_at, do: Calendar.strftime(proposal.reviewed_at, "%Y-%m-%d %H:%M:%S"), else: "-" %><br/>
-                                <strong>Reviewer:</strong> <%= proposal.reviewer_id || "-" %><br/>
-                                <strong>Comments:</strong> <%= proposal.reviewer_comments || "-" %>
-                              </p>
-                            </div>
-                            <h4 class="text-md font-medium text-gray-900 mb-2">Proposed Implementation:</h4>
-                            <pre class="text-xs bg-gray-100 p-3 rounded overflow-x-auto"><code><%= proposal.content %></code></pre>
-                          </div>
-                        </td>
-                      </tr>
-                    <% end %>
-                    
-                    <%= for proposal <- @applied_proposals do %>
-                      <tr id={"proposal-row-#{proposal.id}"}>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                          <%= proposal.module_name %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                            Applied
-                          </span>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <%= proposal.reviewer_id || "-" %>
-                        </td>
-                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <button phx-click="view_proposal" phx-value-id={proposal.id} class="text-blue-600 hover:text-blue-900">
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                      <!-- Proposal diff container (hidden by default) -->
-                      <tr id={"proposal-diff-#{proposal.id}"} class="hidden">
-                        <td colspan="5" class="px-4 py-3 text-sm text-gray-800">
-                          <div class="bg-gray-50 p-4 rounded-md">
-                            <div class="mb-4">
-                              <h4 class="text-lg font-medium text-gray-900">Proposal Details</h4>
-                              <p class="text-sm text-gray-500">
-                                <strong>ID:</strong> <%= proposal.id %><br/>
-                                <strong>Status:</strong> <%= proposal.status %><br/>
-                                <strong>Created:</strong> <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %><br/>
-                                <strong>Approved:</strong> <%= if proposal.reviewed_at, do: Calendar.strftime(proposal.reviewed_at, "%Y-%m-%d %H:%M:%S"), else: "-" %><br/>
-                                <strong>Applied:</strong> <%= if proposal.applied_at, do: Calendar.strftime(proposal.applied_at, "%Y-%m-%d %H:%M:%S"), else: "-" %><br/>
-                                <strong>Reviewer:</strong> <%= proposal.reviewer_id || "-" %><br/>
-                                <strong>Version:</strong> <%= proposal.version || "-" %><br/>
-                                <strong>Comments:</strong> <%= proposal.reviewer_comments || "-" %>
-                              </p>
-                            </div>
-                            <h4 class="text-md font-medium text-gray-900 mb-2">Applied Implementation:</h4>
-                            <pre class="text-xs bg-gray-100 p-3 rounded overflow-x-auto"><code><%= proposal.content %></code></pre>
-                          </div>
-                        </td>
-                      </tr>
-                    <% end %>
-                    
-                    <%= for proposal <- @rejected_proposals do %>
-                      <tr id={"proposal-row-#{proposal.id}"}>
-                        <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
-                          <%= proposal.module_name %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm">
-                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                            Rejected
-                          </span>
-                        </td>
-                        <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                          <%= proposal.reviewer_id || "-" %>
-                        </td>
-                        <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                          <button phx-click="view_proposal" phx-value-id={proposal.id} class="text-blue-600 hover:text-blue-900">
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                      <!-- Proposal diff container (hidden by default) -->
-                      <tr id={"proposal-diff-#{proposal.id}"} class="hidden">
-                        <td colspan="5" class="px-4 py-3 text-sm text-gray-800">
-                          <div class="bg-gray-50 p-4 rounded-md">
-                            <div class="mb-4">
-                              <h4 class="text-lg font-medium text-gray-900">Proposal Details</h4>
-                              <p class="text-sm text-gray-500">
-                                <strong>ID:</strong> <%= proposal.id %><br/>
-                                <strong>Status:</strong> <%= proposal.status %><br/>
-                                <strong>Created:</strong> <%= Calendar.strftime(proposal.inserted_at, "%Y-%m-%d %H:%M:%S") %><br/>
-                                <strong>Rejected:</strong> <%= if proposal.reviewed_at, do: Calendar.strftime(proposal.reviewed_at, "%Y-%m-%d %H:%M:%S"), else: "-" %><br/>
-                                <strong>Reviewer:</strong> <%= proposal.reviewer_id || "-" %><br/>
-                                <strong>Reason:</strong> <%= proposal.reviewer_comments || "-" %>
-                              </p>
-                            </div>
-                            <h4 class="text-md font-medium text-gray-900 mb-2">Rejected Implementation:</h4>
-                            <pre class="text-xs bg-gray-100 p-3 rounded overflow-x-auto"><code><%= proposal.content %></code></pre>
-                          </div>
-                        </td>
-                      </tr>
-                    <% end %>
+    <h2 class="text-lg font-medium text-gray-900">Pending Proposals</h2>
+    
+    <%= if @pending_proposals && length(@pending_proposals) > 0 do %>
+      <div class="mt-3 overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+        <table class="min-w-full divide-y divide-gray-300">
+          <thead class="bg-gray-50">
+            <tr>
+              <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Module</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Created</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+              <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 bg-white">
+            <%= for proposal <- @pending_proposals do %>
+              <tr id={"proposal-#{proposal.id}"}>
+                <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">
+                  <%= proposal.dsl_name %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <%= format_datetime(proposal.inserted_at) %>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <span class={"inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium #{status_badge_class(proposal.status)}"}>
+                    <%= humanize_status(proposal.status) %>
+                  </span>
+                </td>
+                <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                  <div class="flex space-x-2">
+                    <button phx-click="view_proposal" phx-value-id={proposal.id} class="text-indigo-600 hover:text-indigo-900">
+                      View
+                    </button>
+                    <button phx-click="approve_proposal" phx-value-id={proposal.id} class="text-green-600 hover:text-green-900">
+                      Approve
+                    </button>
+                    <button phx-click="reject_proposal_modal" phx-value-id={proposal.id} class="text-red-600 hover:text-red-900">
+                      Reject
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Code diff section for each proposal - Hidden by default, shown when "View" is clicked -->
+              <tr id={"proposal-diff-#{proposal.id}"} class="hidden bg-gray-50">
+                <td colspan="4" class="p-4">
+                  <div class="mb-2 font-medium">Proposed Implementation:</div>
+                  <pre class="bg-gray-900 text-white p-4 overflow-x-auto rounded"><code><%= proposal.proposed_code %></code></pre>
+                  
+                  <%= if proposal.status == "approved" do %>
+                    <div class="mt-4 flex justify-end">
+                      <button phx-click="apply_proposal" phx-value-id={proposal.id} class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Apply Now
+                      </button>
+                    </div>
                   <% end %>
-                </tbody>
-              </table>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="mt-3 bg-white shadow overflow-hidden sm:rounded-md p-6 text-center text-gray-500">
+        No pending proposals.
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- Rejection Modal (hidden by default) -->
+<div id="rejection-modal" class="hidden fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+    
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-red-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+              Reject Proposal
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">
+                Please provide a reason for rejecting this proposal. This will be stored for future reference.
+              </p>
+              <form id="rejection-form" phx-submit="reject_proposal">
+                <input type="hidden" name="id" id="proposal-id-input" />
+                <div class="mt-3">
+                  <textarea name="reason" id="rejection-reason" rows="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Enter rejection reason"></textarea>
+                </div>
+              </form>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Rejection Modal -->
-<div id="rejection-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg p-8 max-w-md w-full">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Reject Proposal</h3>
-    <form phx-submit="reject_proposal">
-      <input type="hidden" id="rejection-proposal-id" name="id" value="" />
-      <div class="mb-4">
-        <label for="reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for rejection:</label>
-        <textarea 
-          id="rejection-reason" 
-          name="reason" 
-          rows="3" 
-          class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-          placeholder="Please provide a reason for rejecting this proposal"
-          required
-        ></textarea>
-      </div>
-      <div class="flex justify-end space-x-3">
-        <button 
-          type="button" 
-          id="rejection-cancel" 
-          class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Cancel
-        </button>
-        <button 
-          type="submit" 
-          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-        >
+      <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="submit" form="rejection-form" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm">
           Reject
         </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Approval Modal -->
-<div id="approval-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg p-8 max-w-md w-full">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Approve Proposal</h3>
-    <form phx-submit="approve_proposal">
-      <input type="hidden" id="approval-proposal-id" name="id" value="" />
-      <div class="mb-4">
-        <label for="comments" class="block text-sm font-medium text-gray-700 mb-2">Comments (optional):</label>
-        <textarea 
-          id="approval-comments" 
-          name="comments" 
-          rows="3" 
-          class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
-          placeholder="Optional comments about this approval"
-        ></textarea>
-      </div>
-      <div class="flex justify-end space-x-3">
-        <button 
-          type="button" 
-          id="approval-cancel" 
-          class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
+        <button type="button" id="cancel-rejection" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
           Cancel
         </button>
-        <button 
-          type="submit" 
-          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-        >
-          Approve
-        </button>
       </div>
-    </form>
-  </div>
-</div>
-
-<!-- Apply Modal -->
-<div id="apply-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-  <div class="bg-white rounded-lg p-8 max-w-md w-full">
-    <h3 class="text-lg font-medium text-gray-900 mb-4">Apply Proposal</h3>
-    <form phx-submit="apply_proposal">
-      <input type="hidden" id="apply-proposal-id" name="id" value="" />
-      <p class="mb-4 text-gray-700">
-        Are you sure you want to apply this proposal? This action will update the codebase with the proposed changes.
-      </p>
-      <div class="flex justify-end space-x-3">
-        <button 
-          type="button" 
-          id="apply-cancel" 
-          class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          Cancel
-        </button>
-        <button 
-          type="submit" 
-          class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          Apply Changes
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
 </div>

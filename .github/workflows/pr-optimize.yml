@@ -1,0 +1,233 @@
+name: ACE Code Optimization
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  optimize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Need full history to analyze changes
+          
+      - name: Find PR in ACE system or register it
+        id: find_pr
+        run: |
+          echo "Finding PR in ACE system..."
+          PR_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.ACE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.ACE_API_URL }}/api/github/pull_requests" | \
+            jq -r '.data[] | select(.pr_id == ${{ github.event.pull_request.number }}) | .id')
+          
+          if [ -z "$PR_ID" ]; then
+            echo "PR not found in ACE system, registering now..."
+            
+            # Register PR with the ACE system via webhook endpoint
+            # This is more robust than using the API directly since it will handle all the PR details
+            REGISTER_RESPONSE=$(curl -s -X POST \
+              -H "Authorization: Bearer ${{ secrets.ACE_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              -H "X-GitHub-Event: pull_request" \
+              -H "X-GitHub-Delivery: $(uuidgen)" \
+              -d '{
+                "action": "opened",
+                "pull_request": {
+                  "id": ${{ github.event.pull_request.id }},
+                  "number": ${{ github.event.pull_request.number }},
+                  "title": "${{ github.event.pull_request.title }}",
+                  "html_url": "${{ github.event.pull_request.html_url }}",
+                  "head": {"sha": "${{ github.event.pull_request.head.sha }}"},
+                  "base": {"sha": "${{ github.event.pull_request.base.sha }}"},
+                  "user": {"login": "${{ github.event.pull_request.user.login }}"}
+                },
+                "repository": {
+                  "full_name": "${{ github.repository }}"
+                }
+              }' \
+              "${{ secrets.ACE_API_URL }}/webhooks/github")
+            
+            echo "Registration response: $REGISTER_RESPONSE"
+            
+            # Fetch the PR ID again
+            sleep 2  # Give the system time to process
+            PR_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.ACE_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              "${{ secrets.ACE_API_URL }}/api/github/pull_requests" | \
+              jq -r '.data[] | select(.pr_id == ${{ github.event.pull_request.number }}) | .id')
+          fi
+          
+          if [ -z "$PR_ID" ]; then
+            echo "::error::Failed to register PR with ACE system"
+            exit 1
+          fi
+          
+          echo "PR_ID=$PR_ID" >> $GITHUB_OUTPUT
+          echo "Found PR in ACE system with ID: $PR_ID"
+      
+      - name: Trigger Optimization and Set Status Check
+        id: optimize
+        run: |
+          # Create the GitHub status check - pending
+          curl -s -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            -d '{
+              "state": "pending",
+              "target_url": "${{ secrets.ACE_API_URL }}/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }}",
+              "description": "ACE is analyzing your code for optimization opportunities...",
+              "context": "ACE Code Optimization"
+            }' \
+            "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}"
+          
+          # Trigger the optimization
+          echo "Triggering optimization for PR #${{ github.event.pull_request.number }} (ACE ID: ${{ steps.find_pr.outputs.PR_ID }})"
+          
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: Bearer ${{ secrets.ACE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            "${{ secrets.ACE_API_URL }}/api/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }}/optimize")
+            
+          echo "Response: $RESPONSE"
+          
+          # Check if optimization was triggered successfully
+          if echo "$RESPONSE" | grep -q "processing"; then
+            echo "Optimization started successfully"
+            echo "SUCCESS=true" >> $GITHUB_OUTPUT
+          else
+            echo "::warning::Failed to start optimization"
+            echo "SUCCESS=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Wait for optimization to complete and post results
+        if: steps.optimize.outputs.SUCCESS == 'true'
+        run: |
+          MAX_WAIT=300  # Maximum wait time in seconds
+          INTERVAL=10   # Check interval in seconds
+          ELAPSED=0
+          
+          echo "Waiting for optimization to complete..."
+          
+          while [ $ELAPSED -lt $MAX_WAIT ]; do
+            # Get PR status
+            PR_DATA=$(curl -s -H "Authorization: Bearer ${{ secrets.ACE_API_TOKEN }}" \
+              -H "Content-Type: application/json" \
+              "${{ secrets.ACE_API_URL }}/api/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }}")
+              
+            PR_STATUS=$(echo $PR_DATA | jq -r '.data.status')
+            
+            if [ "$PR_STATUS" = "optimized" ]; then
+              echo "Optimization completed successfully!"
+              break
+            elif [ "$PR_STATUS" = "error" ]; then
+              echo "::error::Optimization failed"
+              break
+            fi
+            
+            echo "Current status: $PR_STATUS - Waiting..."
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $MAX_WAIT ]; then
+            echo "::warning::Timed out waiting for optimization to complete"
+            # Update the GitHub status check
+            curl -s -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{
+                "state": "error",
+                "target_url": "${{ secrets.ACE_API_URL }}/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }}",
+                "description": "ACE optimization timed out, please check the ACE dashboard",
+                "context": "ACE Code Optimization"
+              }' \
+              "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}"
+            exit 1
+          fi
+          
+          # Get PR data with formatted comment
+          PR_DATA=$(curl -s -H "Authorization: Bearer ${{ secrets.ACE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            "${{ secrets.ACE_API_URL }}/api/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }}")
+          
+          # Extract suggestions and formatted comment
+          SUGGESTIONS=$(echo "$PR_DATA" | jq -r '.data.suggestions')
+          FORMATTED_COMMENT=$(echo "$PR_DATA" | jq -r '.data.formatted_comment')
+          SUGGESTION_COUNT=$(echo "$SUGGESTIONS" | jq 'length')
+          
+          if [ "$SUGGESTION_COUNT" = "0" ] || [ "$SUGGESTION_COUNT" = "" ]; then
+            echo "No optimization suggestions found"
+            
+            # Update the GitHub status check - success but nothing to optimize
+            curl -s -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{
+                "state": "success",
+                "target_url": "${{ secrets.ACE_API_URL }}/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }}",
+                "description": "No optimization opportunities found. Your code looks good!",
+                "context": "ACE Code Optimization"
+              }' \
+              "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}"
+              
+            # Post a comment with the summary
+            if [ -z "$FORMATTED_COMMENT" ]; then
+              # Fallback if formatted comment is not available
+              gh pr comment ${{ github.event.pull_request.number }} --body "## ✨ ACE Code Optimization Results\n\nYour code looks well-optimized! No performance issues detected.\n\n[View full report](${{ secrets.ACE_API_URL }}/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }})"
+            else
+              gh pr comment ${{ github.event.pull_request.number }} --body "$FORMATTED_COMMENT"
+            fi
+          else
+            echo "Found $SUGGESTION_COUNT optimization suggestions"
+            
+            # Update the GitHub status check - needs improvement
+            curl -s -X POST \
+              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github.v3+json" \
+              -d '{
+                "state": "success",
+                "target_url": "${{ secrets.ACE_API_URL }}/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }}",
+                "description": "Found '"$SUGGESTION_COUNT"' optimization opportunities to improve code performance",
+                "context": "ACE Code Optimization"
+              }' \
+              "https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }}"
+              
+            # Post the formatted comment if available
+            if [ -z "$FORMATTED_COMMENT" ]; then
+              # Fallback to manually building the comment if formatted_comment is not available
+              COMMENT="## 🚀 ACE Code Optimization Results\n\nFound $SUGGESTION_COUNT performance optimization opportunities:\n\n"
+              
+              # Process each suggestion for the comment (limit to top 5 for readability)
+              TOP_SUGGESTIONS=$(echo "$SUGGESTIONS" | jq -r '[.[] | select(.severity == "high" or .severity == "medium")] | sort_by(.severity) | reverse | .[0:5]')
+              
+              for i in $(seq 0 $(echo "$TOP_SUGGESTIONS" | jq -r 'length - 1')); do
+                SUGGESTION=$(echo "$TOP_SUGGESTIONS" | jq -r ".[$i]")
+                
+                FILE=$(echo "$SUGGESTION" | jq -r '.file.filename // "unknown file"')
+                TYPE=$(echo "$SUGGESTION" | jq -r '.opportunity_type')
+                DESC=$(echo "$SUGGESTION" | jq -r '.description')
+                SEVERITY=$(echo "$SUGGESTION" | jq -r '.severity')
+                
+                # Create severity indicator
+                if [ "$SEVERITY" = "high" ]; then
+                  SEV_INDICATOR="🔴"
+                elif [ "$SEVERITY" = "medium" ]; then
+                  SEV_INDICATOR="🟠"
+                else
+                  SEV_INDICATOR="🔵"
+                fi
+                
+                COMMENT="${COMMENT}${SEV_INDICATOR} **$TYPE** in \`$FILE\`: $DESC\n\n"
+              done
+              
+              # Add link to the full report
+              COMMENT="${COMMENT}[View full report and apply optimizations](${{ secrets.ACE_API_URL }}/github/pull_requests/${{ steps.find_pr.outputs.PR_ID }})"
+              
+              gh pr comment ${{ github.event.pull_request.number }} --body "$COMMENT"
+            else
+              gh pr comment ${{ github.event.pull_request.number }} --body "$FORMATTED_COMMENT"
+            fi
+          fi 

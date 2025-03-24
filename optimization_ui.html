@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Optimization Suggestions</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #2c3e50;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 10px;
+    }
+    .file-section {
+      margin-bottom: 30px;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .file-header {
+      background-color: #f6f8fa;
+      padding: 10px 15px;
+      border-bottom: 1px solid #e1e4e8;
+      font-weight: bold;
+      display: flex;
+      justify-content: space-between;
+    }
+    .suggestion {
+      padding: 15px;
+      border-bottom: 1px solid #e1e4e8;
+    }
+    .suggestion:last-child {
+      border-bottom: none;
+    }
+    .suggestion-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .suggestion-type {
+      font-weight: bold;
+    }
+    .suggestion-location {
+      color: #586069;
+    }
+    .suggestion-severity {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .severity-high {
+      background-color: #ffebe9;
+      color: #cf222e;
+    }
+    .severity-medium {
+      background-color: #fff8c5;
+      color: #9a6700;
+    }
+    .severity-low {
+      background-color: #ddf4ff;
+      color: #0969da;
+    }
+    .code-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 15px;
+    }
+    .code-block {
+      background-color: #f6f8fa;
+      border-radius: 6px;
+      padding: 10px;
+      overflow-x: auto;
+    }
+    .code-block pre {
+      margin: 0;
+      white-space: pre-wrap;
+    }
+    .code-header {
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #586069;
+    }
+    .explanation {
+      background-color: #f1f8ff;
+      border-left: 4px solid #0366d6;
+      padding: 10px 15px;
+      margin-top: 15px;
+      border-radius: 0 6px 6px 0;
+    }
+    .language-badge {
+      background-color: #e1e4e8;
+      color: #24292e;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Code Optimization Suggestions</h1>
+  
+  <div class="file-section">
+  <div class="file-header">
+    <span>demo_code/synaflow_api.js</span>
+    <span class="language-badge">javascript</span>
+  </div>
+  <div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">security: Inconsistent use of URL encoding</div>
+    <div>
+      <span class="suggestion-location">lines 50-65</span>
+      <span class="suggestion-severity severity-high">high</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>      // Don't use encodeURIComponent consistently
+      if (key === 'question') {
+        queryString += key + '=' + encodeURIComponent(params[key]) + '&';
+      } else {
+        // Directly concatenate unencoded values (potentially unsafe)
+        queryString += key + '=' + params[key] + '&';
+      }
+    }
+    
+    // Always add API key to query string even if using headers
+    queryString += 'api_key=' + this.apiKey;
+    
+    // Complete URL
+    const requestUrl = url + queryString;
+    
+    // Inefficient request tracking</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>// Use URLSearchParams for proper encoding of all parameters
+const params = new URLSearchParams();
+Object.entries(params).forEach(([key, value]) => {
+  params.append(key, value);
+});</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Used URLSearchParams to ensure all parameters are properly encoded, preventing potential security issues.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">security: Inconsistent use of URL encoding</div>
+    <div>
+      <span class="suggestion-location">lines 50-65</span>
+      <span class="suggestion-severity severity-high">high</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>      // Don't use encodeURIComponent consistently
+      if (key === 'question') {
+        queryString += key + '=' + encodeURIComponent(params[key]) + '&';
+      } else {
+        // Directly concatenate unencoded values (potentially unsafe)
+        queryString += key + '=' + params[key] + '&';
+      }
+    }
+    
+    // Always add API key to query string even if using headers
+    queryString += 'api_key=' + this.apiKey;
+    
+    // Complete URL
+    const requestUrl = url + queryString;
+    
+    // Inefficient request tracking</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>// Use URLSearchParams for proper encoding of all parameters
+const params = new URLSearchParams();
+Object.entries(params).forEach(([key, value]) => {
+  params.append(key, value);
+});</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Used URLSearchParams to ensure all parameters are properly encoded, preventing potential security issues.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">security: Inconsistent use of URL encoding</div>
+    <div>
+      <span class="suggestion-location">lines 50-65</span>
+      <span class="suggestion-severity severity-high">high</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>      // Don't use encodeURIComponent consistently
+      if (key === 'question') {
+        queryString += key + '=' + encodeURIComponent(params[key]) + '&';
+      } else {
+        // Directly concatenate unencoded values (potentially unsafe)
+        queryString += key + '=' + params[key] + '&';
+      }
+    }
+    
+    // Always add API key to query string even if using headers
+    queryString += 'api_key=' + this.apiKey;
+    
+    // Complete URL
+    const requestUrl = url + queryString;
+    
+    // Inefficient request tracking</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>// Use URLSearchParams for proper encoding of all parameters
+const params = new URLSearchParams();
+Object.entries(params).forEach(([key, value]) => {
+  params.append(key, value);
+});</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Used URLSearchParams to ensure all parameters are properly encoded, preventing potential security issues.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Inefficient URL construction</div>
+    <div>
+      <span class="suggestion-location">lines 30-45</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    this.pendingRequests = new Array(1000).fill(null);
+    this.pendingRequests = []; // Immediately overwrite, making the above wasteful
+  }
+  
+  /**
+   * Make an API request with inefficient error handling and retries
+   * @param {string} endpoint - API endpoint to call
+   * @param {Object} params - Query parameters
+   * @returns {Promise<Object>} - API response
+   */
+  async makeRequest(endpoint, params = {}) {
+    // Inefficient URL construction
+    let url = this.baseUrl;
+    url = url + '/v1';
+    url = url + '/api';
+    url = url + '/' + endpoint;</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>const url = `${this.baseUrl}/v1/api/${endpoint}`;
+
+// Build query string efficiently
+const params = new URLSearchParams();
+Object.entries(params).forEach(([key, value]) => {
+  params.append(key, value);
+});
+params.append('api_key', this.apiKey);
+
+// Complete URL
+const requestUrl = `${url}?${params.toString()}`;</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Used template literals and URLSearchParams for more efficient and safer URL construction.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Inefficient URL construction</div>
+    <div>
+      <span class="suggestion-location">lines 30-45</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    this.pendingRequests = new Array(1000).fill(null);
+    this.pendingRequests = []; // Immediately overwrite, making the above wasteful
+  }
+  
+  /**
+   * Make an API request with inefficient error handling and retries
+   * @param {string} endpoint - API endpoint to call
+   * @param {Object} params - Query parameters
+   * @returns {Promise<Object>} - API response
+   */
+  async makeRequest(endpoint, params = {}) {
+    // Inefficient URL construction
+    let url = this.baseUrl;
+    url = url + '/v1';
+    url = url + '/api';
+    url = url + '/' + endpoint;</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>const url = `${this.baseUrl}/v1/api/${endpoint}`;
+
+// Build query string efficiently
+const params = new URLSearchParams();
+Object.entries(params).forEach(([key, value]) => {
+  params.append(key, value);
+});
+params.append('api_key', this.apiKey);
+
+// Complete URL
+const requestUrl = `${url}?${params.toString()}`;</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Used template literals and URLSearchParams for more efficient and safer URL construction.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Inefficient URL construction</div>
+    <div>
+      <span class="suggestion-location">lines 30-45</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    this.pendingRequests = new Array(1000).fill(null);
+    this.pendingRequests = []; // Immediately overwrite, making the above wasteful
+  }
+  
+  /**
+   * Make an API request with inefficient error handling and retries
+   * @param {string} endpoint - API endpoint to call
+   * @param {Object} params - Query parameters
+   * @returns {Promise<Object>} - API response
+   */
+  async makeRequest(endpoint, params = {}) {
+    // Inefficient URL construction
+    let url = this.baseUrl;
+    url = url + '/v1';
+    url = url + '/api';
+    url = url + '/' + endpoint;</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>const url = `${this.baseUrl}/v1/api/${endpoint}`;
+
+// Build query string efficiently
+const params = new URLSearchParams();
+Object.entries(params).forEach(([key, value]) => {
+  params.append(key, value);
+});
+params.append('api_key', this.apiKey);
+
+// Complete URL
+const requestUrl = `${url}?${params.toString()}`;</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Used template literals and URLSearchParams for more efficient and safer URL construction.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">maintainability: Redundant storage of the same information</div>
+    <div>
+      <span class="suggestion-location">lines 15-25</span>
+      <span class="suggestion-severity severity-low">low</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    // Inefficient storage of duplicated information
+    this.baseUrl = apiUrl;
+    this.apiUrlWithBase = apiUrl + '/v1';
+    this.apiUrlWithBaseAndVersion = apiUrl + '/v1/api';
+    
+    // Should use a single property
+    this.key = apiKey;
+    this.apiKey = apiKey;
+    this.authKey = apiKey;
+    
+    // Inefficient cache with no size limit</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>this.apiUrl = apiUrl;
+this.apiKey = apiKey;
+
+// Use computed properties instead of storing duplicates
+get apiUrlWithBase() {
+  return `${this.apiUrl}/v1`;
+}
+
+get apiUrlWithBaseAndVersion() {
+  return `${this.apiUrl}/v1/api`;
+}</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Replaced redundant properties with computed getters to avoid data duplication.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">maintainability: Redundant storage of the same information</div>
+    <div>
+      <span class="suggestion-location">lines 15-25</span>
+      <span class="suggestion-severity severity-low">low</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    // Inefficient storage of duplicated information
+    this.baseUrl = apiUrl;
+    this.apiUrlWithBase = apiUrl + '/v1';
+    this.apiUrlWithBaseAndVersion = apiUrl + '/v1/api';
+    
+    // Should use a single property
+    this.key = apiKey;
+    this.apiKey = apiKey;
+    this.authKey = apiKey;
+    
+    // Inefficient cache with no size limit</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>this.apiUrl = apiUrl;
+this.apiKey = apiKey;
+
+// Use computed properties instead of storing duplicates
+get apiUrlWithBase() {
+  return `${this.apiUrl}/v1`;
+}
+
+get apiUrlWithBaseAndVersion() {
+  return `${this.apiUrl}/v1/api`;
+}</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Replaced redundant properties with computed getters to avoid data duplication.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">maintainability: Redundant storage of the same information</div>
+    <div>
+      <span class="suggestion-location">lines 15-25</span>
+      <span class="suggestion-severity severity-low">low</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    // Inefficient storage of duplicated information
+    this.baseUrl = apiUrl;
+    this.apiUrlWithBase = apiUrl + '/v1';
+    this.apiUrlWithBaseAndVersion = apiUrl + '/v1/api';
+    
+    // Should use a single property
+    this.key = apiKey;
+    this.apiKey = apiKey;
+    this.authKey = apiKey;
+    
+    // Inefficient cache with no size limit</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>this.apiUrl = apiUrl;
+this.apiKey = apiKey;
+
+// Use computed properties instead of storing duplicates
+get apiUrlWithBase() {
+  return `${this.apiUrl}/v1`;
+}
+
+get apiUrlWithBaseAndVersion() {
+  return `${this.apiUrl}/v1/api`;
+}</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Replaced redundant properties with computed getters to avoid data duplication.
+  </div>
+</div>
+
+</div>
+
+<div class="file-section">
+  <div class="file-header">
+    <span>demo_code/scientific_qa.py</span>
+    <span class="language-badge">python</span>
+  </div>
+  <div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Inefficient list building with repeated concatenation</div>
+    <div>
+      <span class="suggestion-location">lines 25-40</span>
+      <span class="suggestion-severity severity-high">high</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>        self.knowledge_base = []
+        self.citations = []
+        
+        # Inefficient loading - reads entire file multiple times
+        if os.path.exists(model_path):
+            with open(model_path, 'r') as f:
+                content = f.read()
+            
+            try:
+                # Inefficient JSON parsing
+                model_data = json.loads(content)
+                self.load_model(model_data)
+            except json.JSONDecodeError:
+                print("Invalid model file")
+                self.create_empty_model()
+        else:</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>knowledge_base = []
+if "knowledge_items" in model_data:
+    # Use list comprehension instead of inefficient loop
+    self.knowledge_base = [item for item in model_data["knowledge_items"]]</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Replaced inefficient string building and parsing with direct list comprehension. This reduces time complexity from O(n²) to O(n).
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Inefficient list building with repeated concatenation</div>
+    <div>
+      <span class="suggestion-location">lines 25-40</span>
+      <span class="suggestion-severity severity-high">high</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>        self.knowledge_base = []
+        self.citations = []
+        
+        # Inefficient loading - reads entire file multiple times
+        if os.path.exists(model_path):
+            with open(model_path, 'r') as f:
+                content = f.read()
+            
+            try:
+                # Inefficient JSON parsing
+                model_data = json.loads(content)
+                self.load_model(model_data)
+            except json.JSONDecodeError:
+                print("Invalid model file")
+                self.create_empty_model()
+        else:</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>knowledge_base = []
+if "knowledge_items" in model_data:
+    # Use list comprehension instead of inefficient loop
+    self.knowledge_base = [item for item in model_data["knowledge_items"]]</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Replaced inefficient string building and parsing with direct list comprehension. This reduces time complexity from O(n²) to O(n).
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Inefficient list building with repeated concatenation</div>
+    <div>
+      <span class="suggestion-location">lines 25-40</span>
+      <span class="suggestion-severity severity-high">high</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>        self.knowledge_base = []
+        self.citations = []
+        
+        # Inefficient loading - reads entire file multiple times
+        if os.path.exists(model_path):
+            with open(model_path, 'r') as f:
+                content = f.read()
+            
+            try:
+                # Inefficient JSON parsing
+                model_data = json.loads(content)
+                self.load_model(model_data)
+            except json.JSONDecodeError:
+                print("Invalid model file")
+                self.create_empty_model()
+        else:</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>knowledge_base = []
+if "knowledge_items" in model_data:
+    # Use list comprehension instead of inefficient loop
+    self.knowledge_base = [item for item in model_data["knowledge_items"]]</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Replaced inefficient string building and parsing with direct list comprehension. This reduces time complexity from O(n²) to O(n).
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Redundant data structure creation and immediate clearing</div>
+    <div>
+      <span class="suggestion-location">lines 45-55</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>        """Creates an empty model with basic structure."""
+        # Inefficient data structure setup with redundant operations
+        self.knowledge_base = []
+        for i in range(100):
+            self.knowledge_base.append({
+                "id": str(i),
+                "content": "",
+                "topics": [],
+                "keywords": []
+            })
+        </pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>self.citations = []
+# Skip the unnecessary creation and clearing of data</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Removed unnecessary loop that creates empty citations list only to clear it immediately after.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">memory: Unbounded cache with potential memory leak</div>
+    <div>
+      <span class="suggestion-location">lines 10-15</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    """
+    An inefficient implementation of a scientific question answering system.
+    This class deliberately contains inefficient code patterns for testing optimization.
+    """
+    
+    def __init__(self, model_path: str = "models/qa_model.json", threshold: float = 0.75):</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>self.cache = LRUCache(maxsize=100)  # Limit cache size to prevent memory issues</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Added size limit to cache to prevent unbounded memory growth.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">memory: Unbounded cache with potential memory leak</div>
+    <div>
+      <span class="suggestion-location">lines 10-15</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    """
+    An inefficient implementation of a scientific question answering system.
+    This class deliberately contains inefficient code patterns for testing optimization.
+    """
+    
+    def __init__(self, model_path: str = "models/qa_model.json", threshold: float = 0.75):</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>self.cache = LRUCache(maxsize=100)  # Limit cache size to prevent memory issues</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Added size limit to cache to prevent unbounded memory growth.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Redundant data structure creation and immediate clearing</div>
+    <div>
+      <span class="suggestion-location">lines 45-55</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>        """Creates an empty model with basic structure."""
+        # Inefficient data structure setup with redundant operations
+        self.knowledge_base = []
+        for i in range(100):
+            self.knowledge_base.append({
+                "id": str(i),
+                "content": "",
+                "topics": [],
+                "keywords": []
+            })
+        </pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>self.citations = []
+# Skip the unnecessary creation and clearing of data</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Removed unnecessary loop that creates empty citations list only to clear it immediately after.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">performance: Redundant data structure creation and immediate clearing</div>
+    <div>
+      <span class="suggestion-location">lines 45-55</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>        """Creates an empty model with basic structure."""
+        # Inefficient data structure setup with redundant operations
+        self.knowledge_base = []
+        for i in range(100):
+            self.knowledge_base.append({
+                "id": str(i),
+                "content": "",
+                "topics": [],
+                "keywords": []
+            })
+        </pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>self.citations = []
+# Skip the unnecessary creation and clearing of data</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Removed unnecessary loop that creates empty citations list only to clear it immediately after.
+  </div>
+</div>
+
+<div class="suggestion">
+  <div class="suggestion-header">
+    <div class="suggestion-type">memory: Unbounded cache with potential memory leak</div>
+    <div>
+      <span class="suggestion-location">lines 10-15</span>
+      <span class="suggestion-severity severity-medium">medium</span>
+    </div>
+  </div>
+  
+  <div class="code-section">
+    <div>
+      <div class="code-header">Original Code:</div>
+      <div class="code-block">
+        <pre>    """
+    An inefficient implementation of a scientific question answering system.
+    This class deliberately contains inefficient code patterns for testing optimization.
+    """
+    
+    def __init__(self, model_path: str = "models/qa_model.json", threshold: float = 0.75):</pre>
+      </div>
+    </div>
+    <div>
+      <div class="code-header">Optimized Code:</div>
+      <div class="code-block">
+        <pre>self.cache = LRUCache(maxsize=100)  # Limit cache size to prevent memory issues</pre>
+      </div>
+    </div>
+  </div>
+  
+  <div class="explanation">
+    <strong>Explanation:</strong> Added size limit to cache to prevent unbounded memory growth.
+  </div>
+</div>
+
+</div>
+
+<iframe hidden height="0" width="0" src="/phoenix/live_reload/frame"></iframe></body>
+</html>

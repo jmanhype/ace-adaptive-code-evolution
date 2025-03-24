@@ -41,3 +41,9 @@ config :ace, Ace.Repo,
   pool_size: 10
 
 config :logger, :console, format: "[$level] $message\n"
+
+# Configure GitHub token for dev environment
+config :ace, :github_token, System.get_env("GITHUB_TOKEN") || "your-test-token-here"
+
+# Configure environment for dev
+config :ace, :env, :prod

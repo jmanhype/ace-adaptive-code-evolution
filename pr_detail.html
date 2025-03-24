@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="NjEPGEc9dhsUdxETUj0vAz17IH0cLyB_pB8tvD2bc9EbaKnGrCw6xcg7">
+    <title>{if assigns[:page_title], do: "#{@page_title} · ACE", else: "ACE - Adaptive Code Evolution"}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  </head>
+  <body class="h-full">
+<div id="phx-GC9c9o-NkSXFzAWk" data-phx-main data-phx-session="SFMyNTY.g2gDaAJhBXQAAAAIdwJpZG0AAAAUcGh4LUdDOWM5by1Oa1NYRnpBV2t3B3Nlc3Npb250AAAAAHcGcm91dGVydxRFbGl4aXIuQWNlV2ViLlJvdXRlcncEdmlld3cYRWxpeGlyLkFjZVdlYi5HaXRIdWJMaXZldwpwYXJlbnRfcGlkdwNuaWx3CXJvb3Rfdmlld3cYRWxpeGlyLkFjZVdlYi5HaXRIdWJMaXZldwxsaXZlX3Nlc3Npb25oAncHZGVmYXVsdG4IAIDhBwzuXC8Ydwhyb290X3BpZHcDbmlsbgYAKDHWwZUBYgABUYA._iztG4n8HIYDpEj6iuajPG8J1KOESkqlnkb3L1IMvfE" data-phx-static="SFMyNTY.g2gDaAJhBXQAAAADdwJpZG0AAAAUcGh4LUdDOWM5by1Oa1NYRnpBV2t3BWZsYXNodAAAAAB3CmFzc2lnbl9uZXdqbgYAKDHWwZUBYgABUYA.qluzEA01raOYrxIQ-6G-Br6PXAfRVIXEeABEVeuYMck"><div class="min-h-full" id="debugger-hook" phx-hook="Debugger">
+  <nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <span class="text-white text-xl font-bold">ACE</span>
+          </div>
+          <div class="hidden md:block">
+            <div class="ml-10 flex items-baseline space-x-4">
+              <a href="/" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Overview</a>
+              
+              <a href="/files" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Files</a>
+              
+              <a href="/opportunities" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Opportunities</a>
+              
+              <a href="/optimizations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Optimizations</a>
+              
+              <a href="/evaluations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Evaluations</a>
+              
+              <a href="/projects" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Projects</a>
+              
+              <a href="/evolution" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Evolution</a>
+              
+              <a href="/github/pull_requests" target="_self" rel="nofollow" class="bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium">GitHub</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile menu, show/hide based on menu state. -->
+  <div class="md:hidden" id="mobile-menu">
+    <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+      <a href="/" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Overview</a>
+              
+      <a href="/files" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Files</a>
+      
+      <a href="/opportunities" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Opportunities</a>
+      
+      <a href="/optimizations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Optimizations</a>
+      
+      <a href="/evaluations" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Evaluations</a>
+      
+      <a href="/projects" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Projects</a>
+      
+      <a href="/evolution" target="_self" rel="nofollow" class="text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium">Evolution</a>
+      
+      <a href="/github/pull_requests" target="_self" rel="nofollow" class="bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium">GitHub</a>
+    </div>
+  </div>
+
+  <main>
+    <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
+<div class="container mx-auto px-4 py-8">
+  
+    
+      <div class="mb-4">
+        <a href="/github/pull_requests" class="text-blue-500 hover:underline flex items-center">
+          <span class="hero-arrow-left w-4 h-4 mr-1"></span>
+          Back to all pull requests
+        </a>
+      </div>
+      
+      <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900">
+              <a href="https://github.com/acme/backend-service/pull/123" target="_blank" class="hover:underline">
+                acme/backend-service #123
+              </a>
+            </h1>
+            <h2 class="text-xl font-semibold text-gray-700 mt-1">Add user profile API</h2>
+            <div class="mt-2 flex items-center">
+              <span class="text-gray-600 text-sm mr-4">By johndoe</span>
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                optimized
+              </span>
+            </div>
+          </div>
+          
+          
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white shadow-md rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Files (2)</h3>
+          
+          
+            <div class="space-y-3">
+              
+                <div class="border rounded-lg p-3 hover:bg-gray-50">
+                  <button phx-click="view_suggestions" phx-value-id="778c705c-1cb2-4ae8-9300-a574b0c3928f" class="w-full text-left">
+                    <div class="flex items-center">
+                      <div class="mr-2">
+                        <span class="text-gray-500"><.icon name="hero-code-bracket-square" class="w-5 h-5" /></span>
+                      </div>
+                      <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-900 truncate">
+                          lib/api/user_profile.ex
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          +10 -0 (elixir)
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              
+                <div class="border rounded-lg p-3 hover:bg-gray-50">
+                  <button phx-click="view_suggestions" phx-value-id="40b6d968-566a-4ffe-9177-ee72a5cfe1f2" class="w-full text-left">
+                    <div class="flex items-center">
+                      <div class="mr-2">
+                        <span class="text-gray-500"><.icon name="hero-code-bracket-square" class="w-5 h-5" /></span>
+                      </div>
+                      <div class="flex-1">
+                        <div class="text-sm font-medium text-gray-900 truncate">
+                          test/api/user_profile_test.ex
+                        </div>
+                        <div class="text-xs text-gray-500">
+                          +15 -0 (elixir)
+                        </div>
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              
+            </div>
+          
+        </div>
+        
+        <div class="bg-white shadow-md rounded-lg p-6">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">Optimization Suggestions</h3>
+          
+          
+            <div class="text-gray-500 text-center py-4">
+              Select a file to view suggestions.
+            </div>
+          
+        </div>
+      </div>
+    
+  
+</div>
+    </div>
+  </main>
+</div></div>
+  <iframe hidden height="0" width="0" src="/phoenix/live_reload/frame"></iframe></body>
+</html>

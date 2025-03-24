@@ -21,12 +21,35 @@
               <a href="/projects" target="_self" rel="nofollow" class={if assigns[:active_tab] == :projects, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Projects</a>
               
               <a href="/evolution" target="_self" rel="nofollow" class={if assigns[:active_tab] in [:evolution, :evolution_proposals], do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>Evolution</a>
+              
+              <a href="/github/pull_requests" target="_self" rel="nofollow" class={if assigns[:active_tab] == :github, do: "bg-gray-900 text-white rounded-md px-3 py-2 text-sm font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"}>GitHub</a>
             </div>
           </div>
         </div>
       </div>
     </div>
   </nav>
+
+  <!-- Mobile menu, show/hide based on menu state. -->
+  <div class="md:hidden" id="mobile-menu">
+    <div class="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+      <a href="/" target="_self" rel="nofollow" class={if assigns[:active_tab] == :overview, do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>Overview</a>
+              
+      <a href="/files" target="_self" rel="nofollow" class={if assigns[:active_tab] == :files, do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>Files</a>
+      
+      <a href="/opportunities" target="_self" rel="nofollow" class={if assigns[:active_tab] == :opportunities, do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>Opportunities</a>
+      
+      <a href="/optimizations" target="_self" rel="nofollow" class={if assigns[:active_tab] == :optimizations, do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>Optimizations</a>
+      
+      <a href="/evaluations" target="_self" rel="nofollow" class={if assigns[:active_tab] == :evaluations, do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>Evaluations</a>
+      
+      <a href="/projects" target="_self" rel="nofollow" class={if assigns[:active_tab] == :projects, do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>Projects</a>
+      
+      <a href="/evolution" target="_self" rel="nofollow" class={if assigns[:active_tab] in [:evolution, :evolution_proposals], do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>Evolution</a>
+      
+      <a href="/github/pull_requests" target="_self" rel="nofollow" class={if assigns[:active_tab] == :github, do: "bg-gray-900 text-white block rounded-md px-3 py-2 text-base font-medium", else: "text-gray-300 hover:bg-gray-700 hover:text-white block rounded-md px-3 py-2 text-base font-medium"}>GitHub</a>
+    </div>
+  </div>
 
   <main>
     <div class="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">

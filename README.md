@@ -13,6 +13,7 @@ ACE is an AI-powered code optimization system that automatically identifies opti
 - **AI-Powered Optimization**: Generate optimized implementations using LLM models (Groq, OpenAI, Anthropic)
 - **Automated Evaluation**: Verify optimizations through compilation, testing, and benchmarking
 - **Safe Application**: Apply optimizations to your codebase with confidence
+- **GitHub Integration**: Automatically analyze and optimize pull requests with GitHub App integration
 - **Multiple Languages**: Support for Elixir, JavaScript, Python, Ruby, and Go (with varying levels of support)
 - **Multi-file Analysis**: Identify optimization opportunities across file boundaries with relationship visualization
 - **Web Dashboard**: Visualize and manage optimization opportunities through a web interface
@@ -198,6 +199,89 @@ end
   auto_apply: false
 )
 ```
+
+## GitHub App Integration
+
+### Automatic Pull Request Optimization
+
+ACE can automatically analyze and optimize your pull requests, similar to how CodeFlash works:
+
+1. **Install the GitHub App**
+   
+   Install the ACE GitHub App on your repositories to grant necessary permissions:
+   - Read/write access to code and pull requests
+   - Read access to repository metadata
+   - Receive webhook events for pull requests
+
+2. **Automatic PR Analysis**
+   
+   When a new pull request is opened or updated:
+   - ACE automatically detects the changes
+   - Analyzes the modified code for optimization opportunities
+   - Generates optimization suggestions
+   - Posts detailed comments with improvement recommendations
+
+3. **Optimization Application**
+   
+   For identified optimizations, ACE can:
+   - Create optimization suggestions as comments
+   - Generate a follow-up PR with applied optimizations
+   - Provide before/after performance metrics when available
+
+4. **Setup GitHub Actions Workflow**
+
+   Add the ACE workflow to your repository:
+
+   ```yaml
+   # .github/workflows/ace-optimize.yml
+   name: ACE Code Optimization
+
+   on:
+     pull_request:
+       types: [opened, reopened, synchronize]
+
+   jobs:
+     optimize:
+       runs-on: ubuntu-latest
+       steps:
+         - name: Checkout code
+           uses: actions/checkout@v3
+           with:
+             fetch-depth: 0
+
+         - name: Run ACE Optimization
+           uses: ace-ai/optimize-action@v1
+           with:
+             api-key: ${{ secrets.ACE_API_KEY }}
+             focus-areas: performance,maintainability
+           # Optional configuration
+           # strategy: comprehensive
+           # max-suggestions: 5
+   ```
+
+5. **Configuration Options**
+
+   Configure optimization behavior in your project root:
+
+   ```json
+   // ace.config.json
+   {
+     "github": {
+       "auto_optimize_prs": true,
+       "focus_areas": ["performance", "maintainability"],
+       "max_suggestions_per_pr": 10,
+       "ignore_paths": ["vendor/**", "node_modules/**"],
+       "strategy": "balanced"
+     }
+   }
+   ```
+
+### Benefits
+
+- **Continuous Code Quality**: Every PR gets automatically analyzed for potential optimizations
+- **Zero Developer Effort**: No manual triggers needed after initial setup
+- **Actionable Feedback**: Specific, contextual optimization suggestions
+- **Educational Value**: Developers learn optimization patterns from AI suggestions
 
 ## Custom Analyzers and Strategies
 

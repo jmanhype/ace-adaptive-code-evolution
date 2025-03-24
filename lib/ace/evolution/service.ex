@@ -203,6 +203,110 @@ defmodule Ace.Evolution.Service do
     |> Ace.Repo.aggregate(:count, :id)
   end
   
+  @doc """
+  Generates an optimization for a piece of code based on feedback or analysis.
+  
+  ## Parameters
+  
+    - `module_name`: Name of the module or file being optimized
+    - `source_code`: Current source code of the module
+    - `feedback`: Rationale for the optimization (can be feedback summary or analysis explanation)
+    - `history`: Historical context for the optimization
+    - `options`: Additional options for the optimization process
+  
+  ## Returns
+  
+    - `{:ok, optimization_data}`: The generated optimization with optimized code and explanation
+    - `{:error, reason}`: If optimization generation fails
+  """
+  @spec generate_optimization(String.t(), String.t(), String.t() | map(), map(), map()) :: 
+    {:ok, %{optimized_code: String.t(), explanation: String.t()}} | 
+    {:error, any()}
+  def generate_optimization(module_name, source_code, feedback, history, options) do
+    if Mix.env() == :dev do
+      # Generate mock optimization in development mode
+      language = detect_language(module_name)
+      optimized_code = generate_mock_optimization(source_code, language)
+      
+      {:ok, %{
+        optimized_code: optimized_code,
+        explanation: "This is a mock optimization generated in development mode. " <>
+                     "The original issue was: #{feedback}"
+      }}
+    else
+      # In production, delegate to AI orchestrator
+      Orchestrator.generate_code_optimization(
+        module_name,
+        source_code,
+        feedback,
+        history,
+        options
+      )
+    end
+  end
+  
+  # Detects language from file name or content
+  defp detect_language(file_name) do
+    ext = Path.extname(file_name)
+    case ext do
+      ".ex" -> "elixir"
+      ".exs" -> "elixir"
+      ".erl" -> "erlang"
+      ".rb" -> "ruby"
+      ".py" -> "python"
+      ".js" -> "javascript"
+      ".ts" -> "typescript"
+      ".go" -> "go"
+      ".rs" -> "rust"
+      ".java" -> "java"
+      ".kt" -> "kotlin"
+      ".swift" -> "swift"
+      ".cs" -> "csharp"
+      ".cpp" -> "cpp"
+      ".c" -> "c"
+      ".php" -> "php"
+      _ -> "unknown"
+    end
+  end
+  
+  # Generates a mock optimization for development mode
+  defp generate_mock_optimization(source_code, language) do
+    case language do
+      "elixir" ->
+        if String.contains?(source_code, "# Implementation") do
+          # Replace comment with actual implementation
+          String.replace(source_code, 
+            "# Implementation", 
+            "# Mock implementation for development mode\n    {:ok, :implemented}")
+        else
+          # Add documentation and typing
+          source_code
+          |> String.replace(
+            "@moduledoc \"\"\"", 
+            "@moduledoc \"\"\"\n  Improved documentation for development mode testing.\n  ")
+          |> String.replace(
+            "def sample_function", 
+            "@spec sample_function() :: {:ok, atom()}\ndef sample_function")
+        end
+        
+      "javascript" ->
+        if String.contains?(source_code, "// Implementation") do
+          String.replace(source_code, 
+            "// Implementation", 
+            "// Mock implementation for development mode\n  return { success: true, message: 'Implemented' };")
+        else
+          source_code
+          |> String.replace(
+            "function", 
+            "/**\n * Improved function with JSDoc\n * @returns {Object} Result object\n */\nfunction")
+        end
+        
+      _ ->
+        # For other languages, just add a comment
+        source_code <> "\n\n# This code was optimized in development mode."
+    end
+  end
+  
   defp get_feedback_summary(feedback_source) do
     # Get NPS distribution
     nps = Feedback.nps_distribution(source: feedback_source)
@@ -258,19 +362,6 @@ defmodule Ace.Evolution.Service do
     else
       {:error, :file_not_found}
     end
-  end
-  
-  defp generate_optimization(module_name, source_code, feedback, history, options) do
-    # Use our simplified AI service for evolution
-    alias Ace.Evolution.SimpleAIService
-    
-    # For debugging
-    history_str = format_history(history)
-    Logger.debug("Generating optimization for #{module_name} with NPS score: #{feedback.nps_score}")
-    Logger.debug("History: #{history_str}")
-    
-    # Call the SimpleAIService
-    SimpleAIService.generate_optimization(source_code, feedback)
   end
   
   defp format_comments(comments) do

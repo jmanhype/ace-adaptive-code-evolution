@@ -1,0 +1,7 @@
+tunnel: a8e9e016-a2aa-4eb2-9fc5-afc7c11b459f
+credentials-file: /Users/speed/.cloudflared/a8e9e016-a2aa-4eb2-9fc5-afc7c11b459f.json
+
+ingress:
+  - hostname: ace-github-app.quickcolbert.com
+    service: http://localhost:4000
+  - service: http_status:404 

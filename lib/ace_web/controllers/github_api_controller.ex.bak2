@@ -1,0 +1,670 @@
+defmodule AceWeb.GitHubAPIController do
+  @moduledoc """
+  Controller for REST API endpoints related to GitHub integrations.
+  Provides endpoints for listing pull requests, viewing details, and triggering optimizations.
+  """
+  use AceWeb, :controller
+
+  alias Ace.GitHub.Models.PullRequest
+  alias Ace.GitHub.Models.PRFile
+  alias Ace.GitHub.Models.OptimizationSuggestion
+  alias Ace.GitHub.Service
+  alias Ace.GitHub.PRCreator
+  alias Ace.Repo
+  
+  require Logger
+
+  import Ecto.Query
+
+  @doc """
+  List pull requests with optional filtering.
+  
+  Query parameters:
+  - status: filter by status (pending, processing, optimized, etc.)
+  - repo: filter by repository name
+  - limit: limit the number of results (default: 20)
+  """
+  @spec index(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def index(conn, params) do
+    # Extract query parameters
+    status = Map.get(params, "status")
+    repo = Map.get(params, "repo")
+    limit = Map.get(params, "limit", "20") |> String.to_integer()
+    
+    # Build query with filters
+    query = from p in PullRequest
+    
+    # Apply filters if provided
+    query = if status, do: from(p in query, where: p.status == ^status), else: query
+    query = if repo, do: from(p in query, where: p.repo_name == ^repo), else: query
+    
+    # Apply limit and ordering
+    query = from p in query,
+              limit: ^limit,
+              order_by: [desc: p.updated_at]
+    
+    # Execute query
+    pull_requests = Repo.all(query)
+    
+    # Return JSON response
+    json(conn, %{
+      data: Enum.map(pull_requests, &format_pull_request/1)
+    })
+  end
+
+  @doc """
+  Shows details of a specific pull request.
+  
+  ## Path Parameters
+    - id: ID of the pull request to retrieve
+  """
+  @spec show(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def show(conn, %{"id" => id}) do
+    case Repo.get(PullRequest, id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Pull request not found"})
+        
+      pr ->
+        # Load files
+        files = Repo.all(from f in PRFile, where: f.pr_id == ^pr.id)
+        
+        # Load optimization suggestions with preloaded file data
+        suggestions_query = from s in OptimizationSuggestion,
+          where: s.pr_id == ^pr.id,
+          order_by: [asc: fragment("CASE WHEN ? = 'high' THEN 1 WHEN ? = 'medium' THEN 2 WHEN ? = 'low' THEN 3 ELSE 4 END", s.severity, s.severity, s.severity),
+                     desc: s.inserted_at]
+        
+        suggestions = Repo.all(suggestions_query) |> Repo.preload(:file)
+        
+        # Format suggestions for PR comment
+        formatted_comment = format_suggestions_for_pr_comment(suggestions, pr)
+        
+        # Return JSON response with nested data
+        json(conn, %{
+          data: Map.merge(
+            format_pull_request(pr),
+            %{
+              files: Enum.map(files, &format_file/1),
+              suggestions: Enum.map(suggestions, &format_suggestion_with_file/1),
+              formatted_comment: formatted_comment
+            }
+          )
+        })
+    end
+  end
+
+  @doc """
+  Triggers optimization for a pull request.
+  
+  ## Path Parameters
+    - id: ID of the pull request to optimize
+  """
+  @spec optimize(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def optimize(conn, %{"id" => id}) do
+    case Repo.get(PullRequest, id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Pull request not found"})
+        
+      pr ->
+        # Start optimization in background
+        Task.start(fn -> 
+          Logger.info("API triggered optimization for PR ##{pr.number}")
+          Service.optimize_pull_request(pr)
+        end)
+        
+        conn
+        |> put_status(:accepted)
+        |> json(%{
+          status: "processing",
+          message: "Optimization started for PR ##{pr.number}",
+          pr_id: pr.id
+        })
+    end
+  end
+
+  @doc """
+  Creates a pull request with all optimizations applied.
+  
+  ## Path Parameters
+    - id: ID of the original pull request to create optimizations PR for
+  """
+  @spec create_optimization_pr(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def create_optimization_pr(conn, %{"id" => id}) do
+    case Repo.get(PullRequest, id) do
+      nil ->
+        conn
+        |> put_status(:not_found)
+        |> json(%{error: "Pull request not found"})
+        
+      pr ->
+        # Trigger optimization PR creation
+        case PRCreator.create_optimization_pr(pr.id) do
+          {:ok, pr_number, pr_url} ->
+            conn
+            |> put_status(:created)
+            |> json(%{
+              message: "Optimization PR created successfully",
+              pr_number: pr_number,
+              pr_url: pr_url
+            })
+            
+          {:error, reason} ->
+            conn
+            |> put_status(:unprocessable_entity)
+            |> json(%{
+              error: "Failed to create optimization PR",
+              details: reason
+            })
+        end
+    end
+  end
+
+  @doc """
+  Get optimization suggestions for a PR.
+  
+  Returns a list of optimization suggestions for a specific pull request,
+  grouped by file.
+  """
+  @spec get_optimization_suggestions(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def get_optimization_suggestions(conn, %{"pr_id" => pr_id}) do
+    require Logger
+    Logger.info("Getting optimization suggestions for PR: #{pr_id}")
+    
+    try do
+      # Get suggestions with preloaded file data
+      suggestions_query = from s in OptimizationSuggestion,
+        where: s.pr_id == ^pr_id,
+        order_by: [asc: fragment("CASE WHEN ? = 'high' THEN 1 WHEN ? = 'medium' THEN 2 WHEN ? = 'low' THEN 3 ELSE 4 END", s.severity, s.severity, s.severity),
+                   desc: s.inserted_at]
+      
+      suggestions = Repo.all(suggestions_query) |> Repo.preload(:file)
+      Logger.info("Found #{length(suggestions)} suggestions")
+      
+      # Get all files for this PR to ensure we have complete file data
+      files = PRFile.get_files_for_pr(pr_id)
+      files_by_id = Enum.reduce(files, %{}, fn file, acc -> 
+        Map.put(acc, file.id, file) 
+      end)
+      
+      # Group suggestions by file_id
+      suggestions_by_file = suggestions
+      |> Enum.group_by(fn s -> s.file_id end)
+      |> Enum.map(fn {file_id, file_suggestions} ->
+        # Get the file data
+        file = Map.get(files_by_id, file_id)
+        
+        if file do
+          Logger.info("Processing suggestions for file: #{file.filename}, language: #{inspect(file.language)}")
+          
+          %{
+            filename: file.filename,
+            suggestions: Enum.map(file_suggestions, fn s -> 
+              # Convert suggestion to map with necessary fields
+              %{
+                id: s.id,
+                description: s.description,
+                location: s.location,
+                severity: s.severity,
+                type: s.opportunity_type,
+                explanation: s.explanation,
+                original_code: s.original_code,
+                optimized_code: s.optimized_code,
+                status: s.status
+              }
+            end),
+            language: file.language
+          }
+        else
+          Logger.warning("File not found for file_id: #{file_id}")
+          nil
+        end
+      end)
+      |> Enum.reject(&is_nil/1)
+      
+      Logger.info("Returning #{length(suggestions_by_file)} file groups")
+      conn
+      |> json(%{success: true, data: suggestions_by_file})
+    rescue
+      e ->
+        Logger.error("Error getting optimization suggestions: #{inspect(e)}")
+        Logger.error("Stacktrace: #{Exception.format_stacktrace(__STACKTRACE__)}")
+        conn
+        |> put_status(500)
+        |> json(%{success: false, error: "Internal server error"})
+    end
+  end
+
+  @doc """
+  Renders an HTML page for displaying optimization suggestions for a pull request.
+  """
+  @spec render_optimization_ui(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def render_optimization_ui(conn, %{"pr_id" => pr_id}) do
+    require Logger
+    Logger.info("Rendering optimization UI for PR: #{pr_id}")
+    
+    try do
+      suggestions = OptimizationSuggestion.get_by_id(pr_id)
+      Logger.info("Found #{length(suggestions)} suggestions")
+      
+      # Group suggestions by filename
+      suggestions_by_file = suggestions
+      |> Enum.group_by(fn s -> s.filename end)
+      |> Enum.map(fn {filename, file_suggestions} ->
+        # Get the language from the first suggestion
+        language = if length(file_suggestions) > 0 do
+          pr_file = PRFile.get_by_pr_and_filename(pr_id, filename)
+          lang = pr_file && pr_file.language
+          Logger.info("Language for #{filename}: #{inspect(lang)}")
+          lang
+        else
+          nil
+        end
+        
+        %{
+          filename: filename,
+          suggestions: file_suggestions,
+          language: language
+        }
+      end)
+      
+      # Generate HTML content
+      file_sections = if Enum.empty?(suggestions_by_file) do
+        "<p>No optimization suggestions found for this pull request.</p>"
+      else
+        suggestions_by_file
+        |> Enum.map(fn file_data ->
+          suggestions_html = file_data.suggestions
+          |> Enum.map(fn suggestion ->
+            severity_class = case suggestion.severity do
+              "high" -> "severity-high"
+              "medium" -> "severity-medium"
+              _ -> "severity-low"
+            end
+            
+            """
+            <div class="suggestion">
+              <div class="suggestion-header">
+                <div class="suggestion-type">#{suggestion.type}: #{suggestion.description}</div>
+                <div>
+                  <span class="suggestion-location">#{suggestion.location}</span>
+                  <span class="suggestion-severity #{severity_class}">#{suggestion.severity}</span>
+                </div>
+              </div>
+              
+              <div class="code-section">
+                <div>
+                  <div class="code-header">Original Code:</div>
+                  <div class="code-block">
+                    <pre>#{suggestion.original_code}</pre>
+                  </div>
+                </div>
+                <div>
+                  <div class="code-header">Optimized Code:</div>
+                  <div class="code-block">
+                    <pre>#{suggestion.optimized_code}</pre>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="explanation">
+                <strong>Explanation:</strong> #{suggestion.explanation}
+              </div>
+            </div>
+            """
+          end)
+          |> Enum.join("\n")
+          
+          language_badge = if file_data.language do
+            "<span class=\"language-badge\">#{file_data.language}</span>"
+          else
+            "<span class=\"language-badge\">unknown</span>"
+          end
+          
+          """
+          <div class="file-section">
+            <div class="file-header">
+              <span>#{file_data.filename}</span>
+              #{language_badge}
+            </div>
+            #{suggestions_html}
+          </div>
+          """
+        end)
+        |> Enum.join("\n")
+      end
+      
+      html = """
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Code Optimization Suggestions</title>
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 10px;
+          }
+          .file-section {
+            margin-bottom: 30px;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            overflow: hidden;
+          }
+          .file-header {
+            background-color: #f6f8fa;
+            padding: 10px 15px;
+            border-bottom: 1px solid #e1e4e8;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+          }
+          .suggestion {
+            padding: 15px;
+            border-bottom: 1px solid #e1e4e8;
+          }
+          .suggestion:last-child {
+            border-bottom: none;
+          }
+          .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+          }
+          .suggestion-type {
+            font-weight: bold;
+          }
+          .suggestion-location {
+            color: #586069;
+          }
+          .suggestion-severity {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+          }
+          .severity-high {
+            background-color: #ffebe9;
+            color: #cf222e;
+          }
+          .severity-medium {
+            background-color: #fff8c5;
+            color: #9a6700;
+          }
+          .severity-low {
+            background-color: #ddf4ff;
+            color: #0969da;
+          }
+          .code-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 15px;
+          }
+          .code-block {
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 10px;
+            overflow-x: auto;
+          }
+          .code-block pre {
+            margin: 0;
+            white-space: pre-wrap;
+          }
+          .code-header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #586069;
+          }
+          .explanation {
+            background-color: #f1f8ff;
+            border-left: 4px solid #0366d6;
+            padding: 10px 15px;
+            margin-top: 15px;
+            border-radius: 0 6px 6px 0;
+          }
+          .language-badge {
+            background-color: #e1e4e8;
+            color: #24292e;
+            padding: 3px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Code Optimization Suggestions</h1>
+        
+        #{file_sections}
+      </body>
+      </html>
+      """
+      
+      conn
+      |> put_resp_content_type("text/html")
+      |> send_resp(200, html)
+    rescue
+      e ->
+        Logger.error("Error rendering optimization UI: #{inspect(e)}")
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(500, """
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Error</title>
+        </head>
+        <body>
+          <h1>Error: #{inspect(e)}</h1>
+          <p>An error occurred while processing your request.</p>
+        </body>
+        </html>
+        """)
+    end
+  end
+
+  # Format pull request for JSON response
+  defp format_pull_request(pr) do
+    %{
+      id: pr.id,
+      pr_id: pr.pr_id,
+      number: pr.number,
+      title: pr.title,
+      repo_name: pr.repo_name,
+      user: pr.user,
+      html_url: pr.html_url,
+      status: pr.status,
+      inserted_at: pr.inserted_at,
+      updated_at: pr.updated_at
+    }
+  end
+  
+  # Format file for JSON response
+  defp format_file(file) do
+    %{
+      id: file.id,
+      filename: file.filename,
+      status: file.status,
+      language: file.language,
+      additions: file.additions,
+      deletions: file.deletions,
+      changes: file.changes,
+      has_content: file.content != nil && file.content != ""
+    }
+  end
+  
+  # Format suggestion for JSON response
+  defp format_suggestion(suggestion) do
+    %{
+      id: suggestion.id,
+      description: suggestion.description,
+      location: suggestion.location,
+      severity: suggestion.severity,
+      type: suggestion.opportunity_type,
+      explanation: suggestion.explanation,
+      original_code: suggestion.original_code,
+      optimized_code: suggestion.optimized_code,
+      status: suggestion.status
+    }
+  end
+
+  defp format_suggestion_with_file(suggestion) do
+    %{
+      id: suggestion.id,
+      opportunity_type: suggestion.opportunity_type,
+      location: suggestion.location,
+      description: suggestion.description,
+      severity: suggestion.severity,
+      status: suggestion.status,
+      original_code: suggestion.original_code,
+      optimized_code: suggestion.optimized_code,
+      explanation: suggestion.explanation,
+      comment_id: suggestion.comment_id,
+      metrics: suggestion.metrics,
+      inserted_at: suggestion.inserted_at,
+      updated_at: suggestion.updated_at,
+      file: format_file(suggestion.file)
+    }
+  end
+
+  # Format suggestions for GitHub PR comment
+  defp format_suggestions_for_pr_comment(suggestions, pr) do
+    if Enum.empty?(suggestions) do
+      """
+      ## ACE Code Optimization Report
+      
+      ✅ No optimization opportunities found for this pull request.
+      
+      [View in ACE dashboard](#{AceWeb.Endpoint.url()}/github/pull_requests/#{pr.id})
+      """
+    else
+      total_count = length(suggestions)
+      
+      # Count suggestions by severity
+      severity_counts = Enum.reduce(suggestions, %{"high" => 0, "medium" => 0, "low" => 0}, fn suggestion, acc ->
+        Map.update(acc, suggestion.severity || "low", 1, &(&1 + 1))
+      end)
+      
+      # Format the top 5 suggestions
+      top_suggestions = 
+        suggestions
+        |> Enum.take(5)
+        |> Enum.map(fn suggestion ->
+          icon = severity_icon(suggestion.severity)
+          file_path = suggestion.file && suggestion.file.filename || "unknown file"
+          location = suggestion.location || "unspecified location"
+          
+          """
+          #{icon} **#{suggestion.opportunity_type}** in `#{file_path}` at #{location}
+          #{suggestion.description}
+          
+          ```diff
+          - #{suggestion.original_code |> String.split("\n") |> Enum.join("\n- ")}
+          + #{suggestion.optimized_code |> String.split("\n") |> Enum.join("\n+ ")}
+          ```
+          """
+        end)
+        |> Enum.join("\n\n")
+      
+      """
+      ## ACE Code Optimization Report
+      
+      Found **#{total_count}** optimization opportunities:
+      - 🔴 High: #{severity_counts["high"]}
+      - 🟠 Medium: #{severity_counts["medium"]}
+      - 🔵 Low: #{severity_counts["low"]}
+      
+      ### Top Recommendations
+      
+      #{top_suggestions}
+      
+      [View full report in ACE dashboard](#{AceWeb.Endpoint.url()}/github/pull_requests/#{pr.id})
+      """
+    end
+  end
+  
+  # Get severity icon for suggestion
+  defp severity_icon(severity) do
+    case severity do
+      "high" -> "🔴"
+      "medium" -> "🟠"
+      "low" -> "🔵"
+      _ -> "⚪"
+    end
+  end
+
+  def post_suggestion_comment(conn, %{"pr_id" => pr_id, "suggestion_id" => suggestion_id}) do
+    # Get the pull request
+    pr = Ace.GitHub.Models.PullRequest.get(pr_id)
+    
+    if pr == nil do
+      conn
+      |> put_status(:not_found)
+      |> json(%{error: "Pull request not found"})
+    else
+      # Get the suggestion
+      suggestion = Ace.GitHub.Models.OptimizationSuggestion.get_by_id(suggestion_id)
+      
+      cond do
+        suggestion == nil ->
+          conn
+          |> put_status(:not_found)
+          |> json(%{error: "Suggestion not found"})
+          
+        suggestion.pr_id != pr_id ->
+          conn
+          |> put_status(:bad_request)
+          |> json(%{error: "Suggestion does not belong to this pull request"})
+          
+        true ->
+          # Get the file
+          file = Ace.GitHub.Models.PRFile.get_file(suggestion.file_id)
+          
+          if file == nil do
+            conn
+            |> put_status(:internal_server_error)
+            |> json(%{error: "File not found for suggestion"})
+          else
+            # Format the comment
+            comment_body = format_suggestion_comment(suggestion, file)
+            
+            # Submit the comment
+            case Ace.GitHub.Service.submit_comment_for_suggestion(pr, suggestion, comment_body) do
+              {:ok, result} ->
+                conn
+                |> put_status(:ok)
+                |> json(%{
+                  comment_id: result.comment_id,
+                  suggestion_id: suggestion_id,
+                  status: result.suggestion.status
+                })
+                
+              {:error, reason} ->
+                Ace.Logger.error("Failed to submit comment for suggestion", 
+                  error: inspect(reason),
+                  pr_id: pr_id,
+                  suggestion_id: suggestion_id
+                )
+                
+                conn
+                |> put_status(:internal_server_error)
+                |> json(%{error: "Failed to submit comment"})
+            end
+          end
+      end
+    end
+  end
+end 

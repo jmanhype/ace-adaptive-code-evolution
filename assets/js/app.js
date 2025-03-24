@@ -44,65 +44,32 @@ let Hooks = {
 // Proposal management hooks
 Hooks.ProposalManager = {
   mounted() {
-    // Toggle the proposal diff when the view button is clicked
     this.handleEvent("toggle-proposal-diff", ({id}) => {
-      const diffContainer = document.getElementById(`proposal-diff-${id}`);
-      if (diffContainer) {
-        diffContainer.classList.toggle("hidden");
+      const diffRow = document.getElementById(`proposal-diff-${id}`);
+      if (diffRow) {
+        if (diffRow.classList.contains("hidden")) {
+          diffRow.classList.remove("hidden");
+        } else {
+          diffRow.classList.add("hidden");
+        }
       }
     });
-
-    // Show rejection modal
+    
     this.handleEvent("show-rejection-modal", ({id}) => {
       const modal = document.getElementById("rejection-modal");
-      const proposalIdInput = document.getElementById("rejection-proposal-id");
-
+      const proposalIdInput = document.getElementById("proposal-id-input");
+      
       if (modal && proposalIdInput) {
         proposalIdInput.value = id;
         modal.classList.remove("hidden");
-      }
-      
-      const cancelButton = document.getElementById("rejection-cancel");
-      if (cancelButton) {
-        cancelButton.addEventListener("click", () => {
-          modal.classList.add("hidden");
-        });
-      }
-    });
-
-    // Show approval modal
-    this.handleEvent("show-approval-modal", ({id}) => {
-      const modal = document.getElementById("approval-modal");
-      const proposalIdInput = document.getElementById("approval-proposal-id");
-
-      if (modal && proposalIdInput) {
-        proposalIdInput.value = id;
-        modal.classList.remove("hidden");
-      }
-      
-      const cancelButton = document.getElementById("approval-cancel");
-      if (cancelButton) {
-        cancelButton.addEventListener("click", () => {
-          modal.classList.add("hidden");
-        });
-      }
-    });
-
-    // Show apply modal
-    this.handleEvent("show-apply-modal", ({id}) => {
-      const modal = document.getElementById("apply-modal");
-      const proposalIdInput = document.getElementById("apply-proposal-id");
-
-      if (modal && proposalIdInput) {
-        proposalIdInput.value = id;
-        modal.classList.remove("hidden");
-      }
-      
-      const cancelButton = document.getElementById("apply-cancel");
-      if (cancelButton) {
-        cancelButton.addEventListener("click", () => {
-          modal.classList.add("hidden");
-        });
+        
+        // Setup event listener for the cancel button
+        const cancelButton = document.getElementById("cancel-rejection");
+        if (cancelButton) {
+          cancelButton.onclick = () => {
+            modal.classList.add("hidden");
+          };
+        }
       }
     });
   }

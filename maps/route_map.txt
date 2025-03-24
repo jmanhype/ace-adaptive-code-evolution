@@ -1,0 +1,7 @@
+lib/ace_web/router.ex:  scope "/", AceWeb, host: "static.localhost" do
+lib/ace_web/router.ex:  scope "/", AceWeb do
+lib/ace_web/router.ex:  scope "/api", AceWeb do
+lib/ace_web/router.ex:  scope "/webhooks", AceWeb do
+lib/ace_web/router.ex:  scope "/api" do
+lib/ace_web/router.ex:  scope "/", AceWeb do
+lib/ace_web/router.ex:    scope "/" do

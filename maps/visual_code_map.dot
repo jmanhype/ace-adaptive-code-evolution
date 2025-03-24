@@ -1,0 +1,47 @@
+digraph CodeMap {
+  // Main modules
+  "ace/config" [shape=box, style=filled, fillcolor=lightblue];
+  "ace/application" [shape=box, style=filled, fillcolor=lightblue];
+  "ace/cli" [shape=box, style=filled, fillcolor=lightblue];
+  "ace/repo" [shape=box, style=filled, fillcolor=lightblue];
+  "ace/pub_sub" [shape=box, style=filled, fillcolor=lightblue];
+  // Module relationships
+  "Ace" -> "Analysis";
+  "Ace.Analysis.Models" -> "Opportunity";
+  "Ace.Analysis" -> "Service";
+  "Ace.Core" -> "AnalysisRelationship";
+  "Ace.Core" -> "EvolutionProposal";
+  "Ace.Core" -> "Optimization";
+  "Ace.Core" -> "VersionControl";
+  "Ace.Core" -> "{";
+  "Ace.Core" -> "{Analysis,"; Opportunity, Project, AnalysisRelationship}
+  "Ace.Core" -> "{Analysis,"; Opportunity}
+  "Ace.Core" -> "{Evaluation,"; Experiment}
+  "Ace.Core" -> "{Opportunity,"; Optimization}
+  "Ace.Core" -> "{Optimization,"; Evaluation, Experiment}
+  "Ace" -> "Evaluation";
+  "Ace.Evaluation" -> "Service";
+  "Ace.Evolution" -> "Notification";
+  "Ace.Evolution" -> "Service";
+  "Ace.GitHub" -> "AppAuth";
+  "Ace.GitHub" -> "GitHubAPI";
+  "Ace.GitHub.Models" -> "OptimizationSuggestion";
+  "Ace.GitHub.Models" -> "PRFile";
+  "Ace.GitHub.Models" -> "PullRequest";
+  "Ace.GitHub.Models" -> "{OptimizationSuggestion,"; PullRequest, PRFile}
+  "Ace.GitHub.Models" -> "{PullRequest,"; OptimizationSuggestion}
+  "Ace.GitHub.Models" -> "{PullRequest,"; PRFile, OptimizationSuggestion}
+  "Ace.GitHub.Models" -> "{PullRequest,"; PRFile}
+  "Ace.GitHub" -> "PRCreator";
+  "Ace.GitHub" -> "Service";
+  "Ace.GraphQL" -> "Resolvers";
+  "Ace.Infrastructure.AI" -> "CodeOptimizer";
+  "Ace.Infrastructure.AI.Helpers" -> "InstructorHelper";
+  "Ace.Infrastructure.AI" -> "OpportunityWrapper";
+  "Ace.Infrastructure.AI" -> "Orchestrator";
+  "Ace" -> "Optimization";
+  "Ace.Optimization" -> "Service";
+  "Ace" -> "Repo";
+  "Phoenix.LiveView" -> "JS";
+  "Phoenix" -> "PubSub";
+}

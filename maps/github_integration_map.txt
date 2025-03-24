@@ -1,0 +1,190 @@
+lib/ace_web/router.ex:  # GitHub webhook pipeline - doesn't need CSRF protection
+lib/ace_web/router.ex:    # GitHub PR visualization
+lib/ace_web/router.ex:    live "/github/pull_requests", GitHubLive, :pull_requests
+lib/ace_web/router.ex:    live "/github/pull_requests/:id", GitHubLive, :show_pull_request
+lib/ace_web/router.ex:    # GitHub API endpoints
+lib/ace_web/router.ex:    get "/github/pull_requests", GitHubAPIController, :index
+lib/ace_web/router.ex:    post "/github/pull_requests", GitHubAPIController, :create
+lib/ace_web/router.ex:    get "/github/pull_requests/:id", GitHubAPIController, :show
+lib/ace_web/router.ex:    post "/github/pull_requests/:id/optimize", GitHubAPIController, :optimize
+lib/ace_web/router.ex:    post "/github/pull_requests/:id/create_optimization_pr", GitHubAPIController, :create_optimization_pr
+lib/ace_web/router.ex:    get "/github/pull_requests/:pr_id/suggestions", GitHubAPIController, :get_optimization_suggestions
+lib/ace_web/router.ex:    get "/github/pull_requests/:pr_id/ui", GitHubAPIController, :render_optimization_ui
+lib/ace_web/router.ex:    post "/github/pull_requests/:pr_id/suggestions/:suggestion_id/comment", GitHubAPIController, :post_suggestion_comment
+lib/ace_web/router.ex:    get "/github/branches/:repo_name", GitHubAPIController, :list_branches
+lib/ace_web/router.ex:    post "/github/branches", GitHubAPIController, :create_branch
+lib/ace_web/router.ex:    get "/github/repos/:repo_name/pull_requests", GitHubAPIController, :list_repo_pull_requests
+lib/ace_web/router.ex:    post "/github/optimize", GitHubAPIController, :optimize_pull_request
+lib/ace_web/router.ex:  # GitHub webhook endpoint
+lib/ace_web/router.ex:    get "/optimize/:pr_id", GitHubAPIController, :render_optimization_ui
+lib/ace_web/plugs/raw_body_plug.ex:  This is needed for validating GitHub webhook signatures.
+lib/ace_web/live/github_live.ex:defmodule AceWeb.GitHubLive do
+lib/ace_web/live/github_live.ex:  LiveView for GitHub integration features.
+lib/ace_web/live/github_live.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/live/github_live.ex:  alias Ace.GitHub.Models.PRFile
+lib/ace_web/live/github_live.ex:  alias Ace.GitHub.Models.OptimizationSuggestion
+lib/ace_web/live/github_live.ex:     |> assign(:page_title, "GitHub Pull Requests")
+lib/ace_web/live/github_live.ex:     |> assign(:page_title, "GitHub Pull Requests")}
+lib/ace_web/live/github_live.ex:    Ace.GitHub.Models.PullRequest.list_all()
+lib/ace_web/live/github_live.ex:    case Ace.GitHub.Models.PullRequest.get_with_files_and_suggestions(id) do
+lib/ace_web/live/github_live.ex:    Ace.GitHub.Models.PullRequest.update_status(id, status)
+lib/ace_web/live/github_live.ex:    Ace.GitHub.Models.OptimizationSuggestion.list_by_file(file_id)
+lib/ace_web/live/github_live.ex:        <h1 class="text-3xl font-semibold text-gray-800 mb-6">GitHub Pull Requests</h1>
+lib/ace_web/live/github_live.ex:          <p class="text-gray-600">Manage and optimize GitHub pull requests</p>
+lib/ace_web/live/github_live.ex:              <p class="mt-1 text-sm text-gray-500">Pull requests will appear here when received from GitHub webhooks.</p>
+lib/ace_web/controllers/pr_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/controllers/pr_controller.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/controllers/github_api_controller.ex:defmodule AceWeb.GitHubAPIController do
+lib/ace_web/controllers/github_api_controller.ex:  Controller for REST API endpoints related to GitHub integrations.
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Models.PRFile
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Models.OptimizationSuggestion
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.PRCreator
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.GitHubAPI
+lib/ace_web/controllers/github_api_controller.ex:  Creates a new pull request on GitHub or simulates creation if in mock mode.
+lib/ace_web/controllers/github_api_controller.ex:    - pr_id: GitHub's internal PR ID (required in mock mode)
+lib/ace_web/controllers/github_api_controller.ex:    - html_url: URL to the pull request on GitHub (required in mock mode)
+lib/ace_web/controllers/github_api_controller.ex:    - user: GitHub username of the PR author
+lib/ace_web/controllers/github_api_controller.ex:    - force_personal_token: Boolean to force using personal token instead of GitHub App (default: false)
+lib/ace_web/controllers/github_api_controller.ex:      Logger.info("Using GitHub App authentication for PR creation")
+lib/ace_web/controllers/github_api_controller.ex:    case GitHubAPI.create_pull_request(repo_name, title, body, head, base) do
+lib/ace_web/controllers/github_api_controller.ex:          message: "GitHub pull request created successfully",
+lib/ace_web/controllers/github_api_controller.ex:        # Try to parse the GitHub API error response if it exists
+lib/ace_web/controllers/github_api_controller.ex:        Logger.error("Failed to create GitHub pull request: #{inspect(message)}")
+lib/ace_web/controllers/github_api_controller.ex:          message: "Failed to create GitHub pull request",
+lib/ace_web/controllers/github_api_controller.ex:            # PR not found in our database, fetch it from GitHub
+lib/ace_web/controllers/github_api_controller.ex:            Logger.info("PR not found in database, fetching from GitHub")
+lib/ace_web/controllers/github_api_controller.ex:            case GitHubAPI.get_pull_request(repo_name, pr_number) do
+lib/ace_web/controllers/github_api_controller.ex:                # Create PR record with the GitHub data
+lib/ace_web/controllers/github_api_controller.ex:                Logger.error("Error fetching PR from GitHub: #{error_message}, GitHub API response: #{inspect(decoded_error)}")
+lib/ace_web/controllers/github_api_controller.ex:                  error: "Failed to fetch PR from GitHub: #{error_message}",
+lib/ace_web/controllers/github_api_controller.ex:    pr = Ace.GitHub.Models.PullRequest.get(pr_id)
+lib/ace_web/controllers/github_api_controller.ex:      suggestion = Ace.GitHub.Models.OptimizationSuggestion.get_by_id(suggestion_id)
+lib/ace_web/controllers/github_api_controller.ex:          file = Ace.GitHub.Models.PRFile.get_file(suggestion.file_id)
+lib/ace_web/controllers/github_api_controller.ex:            case Ace.GitHub.Service.submit_comment_for_suggestion(pr, suggestion, comment_body) do
+lib/ace_web/controllers/github_api_controller.ex:  # Format suggestions for GitHub PR comment
+lib/ace_web/controllers/github_api_controller.ex:  Lists branches in a GitHub repository
+lib/ace_web/controllers/github_api_controller.ex:    case GitHubAPI.list_branches(repo_name) do
+lib/ace_web/controllers/github_api_controller.ex:        Logger.error("Error listing branches: #{error_message}, GitHub API response: #{inspect(decoded_error)}")
+lib/ace_web/controllers/github_api_controller.ex:  Creates a new branch in a GitHub repository.
+lib/ace_web/controllers/github_api_controller.ex:    case GitHubAPI.create_branch(repo_name, branch_name, sha) do
+lib/ace_web/controllers/github_api_controller.ex:        Logger.error("Error creating branch: #{error_message}, GitHub API response: #{inspect(decoded_error)}")
+lib/ace_web/controllers/github_api_controller.ex:  Lists pull requests in a GitHub repository.
+lib/ace_web/controllers/github_api_controller.ex:    case GitHubAPI.list_pull_requests(repo_name, state) do
+lib/ace_web/controllers/github_api_controller.ex:        Logger.error("Error listing pull requests: #{error_message}, GitHub API response: #{inspect(decoded_error)}")
+lib/ace_web/controllers/github_api_controller.ex:  Creates or updates a file in a GitHub repository.
+lib/ace_web/controllers/github_api_controller.ex:        case GitHubAPI.create_or_update_file(repo_name, path, message, content, branch, sha) do
+lib/ace_web/controllers/github_api_controller.ex:            # Try to parse the GitHub API error response if it exists
+lib/ace_web/controllers/webhook_controller.ex:  Controller for handling GitHub webhook events.
+lib/ace_web/controllers/webhook_controller.ex:  Processes incoming webhook requests from GitHub App.
+lib/ace_web/controllers/webhook_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/controllers/webhook_controller.ex:  Handles GitHub webhook POST requests.
+lib/ace_web/controllers/webhook_controller.ex:  # Verify the webhook signature from GitHub
+lib/ace_web/controllers/webhook_controller.ex:  # Handle different GitHub event types
+lib/ace_web/controllers/webhook_controller.ex:    # Check if this is a comment on a pull request (issues and PRs share the comment system in GitHub)
+lib/ace_web/controllers/webhook_controller.ex:    Logger.info("Received unsupported GitHub event: #{event_type}")
+lib/ace_web/controllers/github_webhook_controller.ex:defmodule AceWeb.GitHubWebhookController do
+lib/ace_web/controllers/github_webhook_controller.ex:  Controller that handles webhook events from GitHub.
+lib/ace_web/controllers/github_webhook_controller.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/controllers/github_webhook_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/controllers/github_webhook_controller.ex:  Handles incoming webhook events from GitHub.
+lib/ace_web/controllers/github_webhook_controller.ex:    # Verify GitHub signature
+lib/ace_web/controllers/github_webhook_controller.ex:        Logger.info("Received GitHub webhook: #{event_type}, delivery ID: #{delivery_id}")
+lib/ace_web/controllers/github_webhook_controller.ex:        Logger.error("GitHub webhook signature verification failed: #{reason}")
+lib/ace_web/controllers/github_webhook_controller.ex:    Logger.info("Received ping event from GitHub")
+lib/ace_web/controllers/github_webhook_controller.ex:    Logger.info("Received unsupported GitHub event: #{event_type}")
+lib/ace_web/controllers/github_webhook_controller.ex:  # Verify the GitHub webhook signature
+lib/ace/github/app_auth.ex:defmodule Ace.GitHub.AppAuth do
+lib/ace/github/app_auth.ex:  Handles GitHub authentication and token generation.
+lib/ace/github/app_auth.ex:  Supports both GitHub App authentication and personal access tokens.
+lib/ace/github/app_auth.ex:  Will try to use GitHub App authentication if configured, otherwise falls back to token-based auth.
+lib/ace/github/app_auth.ex:  Gets an authentication token for GitHub API requests.
+lib/ace/github/app_auth.ex:    1. GitHub App installation token (if app_id and installation_id are configured)
+lib/ace/github/app_auth.ex:    # Try GitHub App authentication first
+lib/ace/github/app_auth.ex:          Logger.error("Failed to generate GitHub App token: #{reason}")
+lib/ace/github/app_auth.ex:  Generates an installation access token for GitHub API authentication.
+lib/ace/github/app_auth.ex:      {:error, "GitHub App not properly configured"}
+lib/ace/github/app_auth.ex:      # Generate a JWT for GitHub App
+lib/ace/github/app_auth.ex:          Logger.warning("No GitHub token configured, using mock token for development")
+lib/ace/github/app_auth.ex:          {:error, "No GitHub token configured"}
+lib/ace/github/app_auth.ex:  Checks if GitHub App authentication is configured.
+lib/ace/github/app_auth.ex:    * true - If GitHub App is properly configured
+lib/ace/github/app_auth.ex:  Generates a JWT token for GitHub App authentication.
+lib/ace/github/app_auth.ex:  Gets an installation token for GitHub App authentication.
+lib/ace/github/app_auth.ex:  # Generate a JWT for GitHub App authentication
+lib/ace/github/github_api.ex:defmodule Ace.GitHub.GitHubAPI do
+lib/ace/github/github_api.ex:  Provides API access to GitHub using GitHub App authentication.
+lib/ace/github/github_api.ex:  This module handles all communications with GitHub's REST API.
+lib/ace/github/github_api.ex:  alias Ace.GitHub.AppAuth
+lib/ace/github/github_api.ex:      Logger.info("Posting comment to GitHub PR ##{pr_number} in #{repo}")
+lib/ace/github/pr_creator.ex:defmodule Ace.GitHub.PRCreator do
+lib/ace/github/pr_creator.ex:  Module responsible for creating GitHub pull requests with optimized code.
+lib/ace/github/pr_creator.ex:  alias Ace.GitHub.GitHubAPI
+lib/ace/github/pr_creator.ex:  alias Ace.GitHub.Models.{PullRequest, OptimizationSuggestion}
+lib/ace/github/pr_creator.ex:         {:ok, _} <- GitHubAPI.create_branch(repo, branch_name, head_sha) do
+lib/ace/github/pr_creator.ex:    case GitHubAPI.get_pull_request(repo, pr_number) do
+lib/ace/github/pr_creator.ex:    with {:ok, content} <- GitHubAPI.get_file_content(repo, optimization.file.filename, branch_name),
+lib/ace/github/pr_creator.ex:         {:ok, _} <- GitHubAPI.create_or_update_file(repo, optimization.file.filename, commit_message, new_content, branch_name) do
+lib/ace/github/pr_creator.ex:    GitHubAPI.create_pull_request(repo, @optimization_pr_title, @optimization_pr_body, branch_name, base_branch)
+lib/ace/github/service.ex:defmodule Ace.GitHub.Service do
+lib/ace/github/service.ex:  Service module for GitHub integrations.
+lib/ace/github/service.ex:  Handles interactions with the GitHub API and processes pull requests for optimization.
+lib/ace/github/service.ex:  alias Ace.GitHub.GitHubAPI
+lib/ace/github/service.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace/github/service.ex:  alias Ace.GitHub.Models.PRFile
+lib/ace/github/service.ex:  alias Ace.GitHub.Models.OptimizationSuggestion
+lib/ace/github/service.ex:  Gets a pull request by GitHub PR ID.
+lib/ace/github/service.ex:    * github_id - The GitHub PR ID
+lib/ace/github/service.ex:    * number - The GitHub PR number
+lib/ace/github/service.ex:    - pr_id: The GitHub pull request ID
+lib/ace/github/service.ex:    - html_url: The URL to the pull request on GitHub
+lib/ace/github/service.ex:    - user: The GitHub username of the pull request author
+lib/ace/github/service.ex:      # Production mode always fetches from GitHub
+lib/ace/github/service.ex:  # Private helper to fetch files via GitHub API
+lib/ace/github/service.ex:    case GitHubAPI.get_pr_files(pr.repo_name, pr.number) do
+lib/ace/github/service.ex:            case GitHubAPI.get_file_content(pr.repo_name, filename, pr.head_sha) do
+lib/ace/github/service.ex:          Logger.warning("Using #{length(existing_files)} cached files for PR ##{pr.number} due to GitHub API error")
+lib/ace/github/service.ex:  Retrieves files from a pull request via the GitHub API.
+lib/ace/github/service.ex:      # Use the GitHub API module for real API calls
+lib/ace/github/service.ex:      GitHubAPI.get_pr_files(repo_name, pr_number)
+lib/ace/github/service.ex:  Retrieves file content from GitHub.
+lib/ace/github/service.ex:      # Use the GitHub API module for real API calls
+lib/ace/github/service.ex:      GitHubAPI.get_file_content(repo_name, path, ref)
+lib/ace/github/service.ex:    # In a real implementation, this would call the GitHub API
+lib/ace/github/service.ex:      # Use the GitHub API module to get the branch reference
+lib/ace/github/service.ex:      GitHubAPI.get_branch_reference(repo_name, branch)
+lib/ace/github/service.ex:      # Use the GitHub API module
+lib/ace/github/service.ex:      GitHubAPI.create_branch(repo_name, branch_name, base_sha)
+lib/ace/github/service.ex:            # Use GitHubAPI to commit the file
+lib/ace/github/service.ex:            case GitHubAPI.create_or_update_file(repo_name, filename, message, updated_content, branch_name) do
+lib/ace/github/service.ex:      # Use GitHubAPI to create the PR
+lib/ace/github/service.ex:      GitHubAPI.create_pull_request(source_pr.repo_name, title, body, branch_name, source_pr.base_ref)
+lib/ace/github/service.ex:  Submits optimization suggestions as comments on the GitHub pull request.
+lib/ace/github/service.ex:    # Format and send comment to GitHub
+lib/ace/github/service.ex:        case Ace.GitHub.OptimizationAdapter.optimize_pr_file(file.content, file.language, file.filename) do
+lib/ace/github/service.ex:    # Use GitHubAPI with app authentication
+lib/ace/github/service.ex:    case GitHubAPI.create_comment(pr.repo_name, pr.number, comment_body) do
+lib/ace/github/service.ex:    case GitHubAPI.create_comment(pr.repo_name, pr.number, comment_body) do
+lib/ace/github/service.ex:        case Ace.GitHub.Models.OptimizationSuggestion.update_status(suggestion.id, "commented", comment_id) do
+lib/ace/github/models/pr_file.ex:defmodule Ace.GitHub.Models.PRFile do
+lib/ace/github/models/pr_file.ex:  Schema for a file in a GitHub pull request.
+lib/ace/github/models/pr_file.ex:  alias Ace.GitHub.Models.{PullRequest, PRFile}
+lib/ace/github/models/pull_request.ex:defmodule Ace.GitHub.Models.PullRequest do
+lib/ace/github/models/pull_request.ex:  Schema and functions for GitHub pull requests.
+lib/ace/github/models/pull_request.ex:  This module manages pull request data received from GitHub webhooks.
+lib/ace/github/models/pull_request.ex:  alias Ace.GitHub.Models.{PullRequest, PRFile, OptimizationSuggestion}
+lib/ace/github/models/pull_request.ex:  Creates a changeset for a GitHub pull request.
+lib/ace/github/models/pull_request.ex:    - pr_id: The GitHub pull request ID
+lib/ace/github/models/pull_request.ex:  Gets a pull request by its GitHub PR ID.
+lib/ace/github/models/pull_request.ex:    - github_id: The GitHub pull request ID
+lib/ace/github/models/optimization_suggestion.ex:defmodule Ace.GitHub.Models.OptimizationSuggestion do
+lib/ace/github/models/optimization_suggestion.ex:  alias Ace.GitHub.Models.{OptimizationSuggestion, PullRequest, PRFile}
+lib/ace/github/models/optimization_suggestion.ex:    - comment_id: Optional GitHub comment ID
+lib/ace/github/optimization_adapter.ex:defmodule Ace.GitHub.OptimizationAdapter do
+lib/ace/github/optimization_adapter.ex:  Adapter module that bridges between GitHub PR optimization and the different optimization services.
+lib/ace/github/optimization_adapter.ex:            # Transform to match CodeOptimizer output format expected by GitHub service
+lib/ace/github/optimization_adapter.ex:          # Return results in the format expected by GitHub service
+lib/ace/github/debug_github_api.ex:defmodule Ace.GitHub.DebugGitHubAPI do
+lib/ace/github/debug_github_api.ex:  Debug wrapper around the GitHubAPI module for troubleshooting.
+lib/ace/github/debug_github_api.ex:  # Delegate all other function calls to the actual GitHubAPI module

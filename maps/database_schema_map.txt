@@ -1,0 +1,15 @@
+priv/repo/migrations/20250313000001_create_core_tables.exs:    create table(:projects, primary_key: false) do
+priv/repo/migrations/20250313000001_create_core_tables.exs:    create table(:analyses, primary_key: false) do
+priv/repo/migrations/20250313000001_create_core_tables.exs:    create table(:opportunities, primary_key: false) do
+priv/repo/migrations/20250313000001_create_core_tables.exs:    create table(:optimizations, primary_key: false) do
+priv/repo/migrations/20250313000001_create_core_tables.exs:    create table(:evaluations, primary_key: false) do
+priv/repo/migrations/20250313000001_create_core_tables.exs:    create table(:experiments, primary_key: false) do
+priv/repo/migrations/20250313000001_create_core_tables.exs:    create table(:analysis_relationships, primary_key: false) do
+priv/repo/migrations/20250322151440_create_github_tables.exs:    create table(:github_pull_requests, primary_key: false) do
+priv/repo/migrations/20250322151440_create_github_tables.exs:    create table(:github_pr_files, primary_key: false) do
+priv/repo/migrations/20250322151440_create_github_tables.exs:    create table(:github_optimization_suggestions, primary_key: false) do
+priv/repo/migrations/20250315000001_create_feedback_tables.exs:    create table(:feedback, primary_key: false) do
+priv/repo/migrations/20250315000001_create_feedback_tables.exs:    create table(:evolution_history, primary_key: false) do
+priv/repo/migrations/20250315000001_create_feedback_tables.exs:    create table(:evolution_proposals, primary_key: false) do
+priv/repo/migrations/20250322060148_create_evolution_tables.exs:      create table(:evolution_proposals, primary_key: false) do
+priv/repo/migrations/20250322060148_create_evolution_tables.exs:      create table(:evolution_history, primary_key: false) do

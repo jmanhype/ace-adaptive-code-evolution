@@ -1,0 +1,427 @@
+lib/ace.ex:      optimized_code: "# This is a mock optimized implementation\ndef optimized_function() do\n  # Optimized based on #{strategy} strategy\n  :improved\nend",
+lib/ace.ex:  def analyze_code(content, language, options \\ []) do
+lib/ace.ex:  def analyze_file(file_path, options \\ []) do
+lib/ace.ex:  def apply_optimization(optimization_id, options \\ []) do
+lib/ace.ex:  def evaluate_optimization(optimization_id, options \\ []) do
+lib/ace.ex:  def list_opportunities(options \\ []) do
+lib/ace.ex:  def optimize(opportunity_id, strategy \\ "auto", options \\ []) do
+lib/ace.ex:  def run_pipeline(file_path, options \\ []) do
+lib/ace/analysis/service.ex:  def create_or_get_project(params) when is_map(params) do
+lib/ace/analysis/service.ex:  def init_analyzers_table do
+lib/ace/analysis/service.ex:  def register_analyzer(name, options \\ [], function) when is_atom(name) and is_function(function, 2) do
+lib/ace/analysis/supervisor.ex:  def init(_init_arg) do
+lib/ace/analysis/supervisor.ex:  def start_link(init_arg) do
+lib/ace/application.ex:  def start(_type, _args) do
+lib/ace/cli.ex:  def main(args) do
+lib/ace/config.ex:  def get(key, default \\ nil) do
+lib/ace/config.ex:  def get_all do
+lib/ace/config.ex:  def load_for_path(path) do
+lib/ace/config.ex:  def reload do
+lib/ace/core/models/analysis.ex:  def changeset(analysis, attrs) do
+lib/ace/core/models/analysis_relationship.ex:  def changeset(relationship, attrs) do
+lib/ace/core/models/analysis_relationship.ex:  def relationship_types, do: @relationship_types
+lib/ace/core/models/evaluation.ex:  def changeset(evaluation, attrs) do
+lib/ace/core/models/evolution_history.ex:  def changeset(history, attrs) do
+lib/ace/core/models/evolution_history.ex:  def create!(attrs) do
+lib/ace/core/models/evolution_history.ex:  def create(attrs) do
+lib/ace/core/models/evolution_history.ex:  def get_evolution_context(dsl_name) when is_atom(dsl_name) do
+lib/ace/core/models/evolution_history.ex:  def get_evolution_context(dsl_name) when is_binary(dsl_name) do
+lib/ace/core/models/evolution_history.ex:  def record_attempt(dsl_name, was_successful, optimization_id \\ nil, metrics \\ %{}) do
+lib/ace/core/models/evolution_history.ex:  def success_rate(dsl_name \\ nil) do
+lib/ace/core/models/evolution_proposal.ex:  def apply_proposal(id) do
+lib/ace/core/models/evolution_proposal.ex:  def approve(id, reviewer_id, comments \\ "") do
+lib/ace/core/models/evolution_proposal.ex:  def changeset(proposal, attrs) do
+lib/ace/core/models/evolution_proposal.ex:  def count_pending() do
+lib/ace/core/models/evolution_proposal.ex:  def create(attrs) do
+lib/ace/core/models/evolution_proposal.ex:  def get_proposal(id) do
+lib/ace/core/models/evolution_proposal.ex:  def list_pending() do
+lib/ace/core/models/evolution_proposal.ex:  def reject(id, reviewer_id, comments) do
+lib/ace/core/models/experiment.ex:  def changeset(experiment, attrs) do
+lib/ace/core/models/feedback.ex:  def average_score(opts \\ []) do
+lib/ace/core/models/feedback.ex:  def changeset(feedback, attrs) do
+lib/ace/core/models/feedback.ex:  def create!(attrs) do
+lib/ace/core/models/feedback.ex:  def create(attrs) do
+lib/ace/core/models/feedback.ex:  def list(opts \\ []) do
+lib/ace/core/models/feedback.ex:  def nps_distribution(opts \\ []) do
+lib/ace/core/models/opportunity.ex:  def changeset(opportunity, attrs) do
+lib/ace/core/models/optimization.ex:  def changeset(optimization, attrs) do
+lib/ace/core/models/project.ex:  def absolute_path(project, relative_path) do
+lib/ace/core/models/project.ex:  def changeset(project, attrs) do
+lib/ace/core/models/project.ex:  def relative_path(project, full_path) do
+lib/ace/core/supervisor.ex:  def init(_init_arg) do
+lib/ace/core/supervisor.ex:  def start_link(init_arg) do
+lib/ace/core/version_control.ex:  def apply_version(module_name, version, file_path \\ nil) when is_atom(module_name) do
+lib/ace/core/version_control.ex:  def get_version(module_name, version) when is_atom(module_name) do
+lib/ace/core/version_control.ex:  def list_versions(module_name) when is_atom(module_name) do
+lib/ace/core/version_control.ex:  def save_new_version(module_name, code) when is_atom(module_name) do
+lib/ace/evaluation/experiment_factory.ex:      def generate_args(0), do: []
+lib/ace/evaluation/experiment_factory.ex:      def generate_args(arity) do
+lib/ace/evaluation/experiment_factory.ex:      def generate_random_value do
+lib/ace/evaluation/experiment_factory.ex:    def generate_fixed_args(0), do: []
+lib/ace/evaluation/experiment_factory.ex:    def generate_fixed_args(arity) do
+lib/ace/evaluation/experiment_factory.ex:    def generate_fixed_value(value_type):
+lib/ace/evaluation/experiment_factory.ex:    def generate_test_value(param_type):
+lib/ace/evaluation/experiment_factory.ex:    def test_function_equivalence(func_name):
+lib/ace/evaluation/experiment_factory.ex:  def create(language, original_code, optimized_code) do
+lib/ace/evaluation/experiment_factory.ex:  def create_experiment(_original_code, _optimized_code) do
+lib/ace/evaluation/experiment_factory.ex:  def create_experiment(_original_code, _optimized_code) do
+lib/ace/evaluation/experiment_factory.ex:  def create_experiment(original_code, optimized_code) do
+lib/ace/evaluation/experiment_factory.ex:  def create_experiment(original_code, optimized_code) do
+lib/ace/evaluation/experiment_factory.ex:  def create_experiment(original_code, optimized_code) do
+lib/ace/evaluation/experiment_factory.ex:  def create_experiment(original_code, optimized_code) do
+lib/ace/evaluation/experiment_runner.ex:  def run(experiment) do
+lib/ace/evaluation/supervisor.ex:  def init(_init_arg) do
+lib/ace/evaluation/supervisor.ex:  def start_link(init_arg) do
+lib/ace/evolution/notification.ex:  def notify_about_pr(pr_url) do
+lib/ace/evolution/notification.ex:  def notify_about_proposal(proposal_id) do
+lib/ace/evolution/notification.ex:  def notify_team(message) do
+lib/ace/evolution/scheduler.ex:  def cancel_scheduled_check() do
+lib/ace/evolution/scheduler.ex:  def handle_cast(:cancel_check, state) do
+lib/ace/evolution/scheduler.ex:  def handle_cast(:process_pending_proposals, state) do
+lib/ace/evolution/scheduler.ex:  def handle_cast({:schedule_check, modules_config, delay}, state) do
+lib/ace/evolution/scheduler.ex:  def handle_cast({:schedule_check, modules_config}, state) do
+lib/ace/evolution/scheduler.ex:  def handle_info(:check_evolution, state) do
+lib/ace/evolution/scheduler.ex:  def init(opts) do
+lib/ace/evolution/scheduler.ex:  def process_pending_proposals() do
+lib/ace/evolution/scheduler.ex:  def schedule_evolution_check(modules_config) do
+lib/ace/evolution/scheduler.ex:  def schedule_evolution_check(modules_config, delay) when is_integer(delay) do
+lib/ace/evolution/scheduler.ex:  def start_link(opts \\ []) do
+lib/ace/evolution/service.ex:            "@spec sample_function() :: {:ok, atom()}\ndef sample_function")
+lib/ace/evolution/service.ex:            "def sample_function", 
+lib/ace/evolution/service.ex:  def auto_apply_proposal(proposal_id, options \\ []) do
+lib/ace/evolution/service.ex:  def auto_evolve(modules, options \\ []) do
+lib/ace/evolution/service.ex:  def evolve(module_name, source_code, feedback_source, options \\ []) do
+lib/ace/evolution/service.ex:  def generate_optimization(module_name, source_code, feedback, history, options) do
+lib/ace/evolution/service.ex:  def should_evolve?(module_name, feedback_source, threshold \\ 7.0) do
+lib/ace/evolution/simple_ai_service.ex:          def inefficient_sum(list) do
+lib/ace/evolution/simple_ai_service.ex:  def generate_optimization(source_code, feedback) do
+lib/ace/evolution/supervisor.ex:  def init(_args) do
+lib/ace/evolution/supervisor.ex:  def start_link(args) do
+lib/ace/github/app_auth.ex:  def generate_installation_token do
+lib/ace/github/app_auth.ex:  def generate_jwt_token do
+lib/ace/github/app_auth.ex:  def get_installation_token do
+lib/ace/github/app_auth.ex:  def get_personal_token do
+lib/ace/github/app_auth.ex:  def get_token do
+lib/ace/github/app_auth.ex:  def github_app_configured? do
+lib/ace/github/debug_github_api.ex:  def create_branch(repo_full_name, branch_name, sha) do
+lib/ace/github/debug_github_api.ex:  def create_or_update_file(repo_full_name, path, message, content, branch, _sha \\ nil) do
+lib/ace/github/debug_github_api.ex:  def create_pull_request(repo_full_name, title, body, head, base) do
+lib/ace/github/debug_github_api.ex:  def get_file_content(_repo_full_name, path, ref \\ nil) do
+lib/ace/github/github_api.ex:  def create_branch(repo_full_name, branch_name, sha) do
+lib/ace/github/github_api.ex:  def create_comment(repo, pr_number, body) do
+lib/ace/github/github_api.ex:  def create_commit_status(repo_full_name, sha, state, description, context, target_url \\ nil) do
+lib/ace/github/github_api.ex:  def create_or_update_file(repo_full_name, path, message, content, branch, sha \\ nil) do
+lib/ace/github/github_api.ex:  def create_pull_request(repo_full_name, title, body, head, base) do
+lib/ace/github/github_api.ex:  def get_file_content(repo_full_name, path, ref \\ nil) do
+lib/ace/github/github_api.ex:  def get_pr_files(repo_full_name, pr_number) do
+lib/ace/github/github_api.ex:  def get_pull_request(repo_full_name, pr_number) do
+lib/ace/github/github_api.ex:  def list_branches(repo_full_name) do
+lib/ace/github/github_api.ex:  def list_pull_requests(repo_full_name, state \\ "open") do
+lib/ace/github/models/optimization_suggestion.ex:  def changeset(suggestion, attrs) do
+lib/ace/github/models/optimization_suggestion.ex:  def create(attrs) do
+lib/ace/github/models/optimization_suggestion.ex:  def get_by_id(id) do
+lib/ace/github/models/optimization_suggestion.ex:  def get_by_pr_id(pr_id) do
+lib/ace/github/models/optimization_suggestion.ex:  def get_by_status(status) do
+lib/ace/github/models/optimization_suggestion.ex:  def get_for_file(file_id) do
+lib/ace/github/models/optimization_suggestion.ex:  def get_for_pr(pr_id) do
+lib/ace/github/models/optimization_suggestion.ex:  def list_by_file(file_id) do
+lib/ace/github/models/optimization_suggestion.ex:  def update_status(id, status, comment_id \\ nil) do
+lib/ace/github/models/pr_file.ex:  def changeset(file, attrs) do
+lib/ace/github/models/pr_file.ex:  def create(attrs) do
+lib/ace/github/models/pr_file.ex:  def get_by_pr_and_filename(pr_id, filename) do
+lib/ace/github/models/pr_file.ex:  def get_file(id) do
+lib/ace/github/models/pr_file.ex:  def get_files_for_pr(pr_id) do
+lib/ace/github/models/pr_file.ex:  def update(id, attrs) do
+lib/ace/github/models/pr_file.ex:  def upsert(attrs) do
+lib/ace/github/models/pull_request.ex:  def changeset(pr, attrs) do
+lib/ace/github/models/pull_request.ex:  def get(id) do
+lib/ace/github/models/pull_request.ex:  def get_by_github_id(github_id) do
+lib/ace/github/models/pull_request.ex:  def get_by_pr_id_and_repo(pr_id, repo_name) do
+lib/ace/github/models/pull_request.ex:  def get_with_files_and_suggestions(id) do
+lib/ace/github/models/pull_request.ex:  def list_all do
+lib/ace/github/models/pull_request.ex:  def list_by_status(status) do
+lib/ace/github/models/pull_request.ex:  def update(%__MODULE__{} = pull_request, attrs) do
+lib/ace/github/models/pull_request.ex:  def update_status(id, status) do
+lib/ace/github/models/pull_request.ex:  def upsert(attrs) do
+lib/ace/github/optimization_adapter.ex:          String.contains?(line, "def ") || 
+lib/ace/github/optimization_adapter.ex:  def optimize_pr_file(code, language, filename, optimization_type \\ nil) do
+lib/ace/github/pr_creator.ex:  def create_optimization_pr(pr_id) do
+lib/ace/github/service.ex:  def analyze_pr_files(pr) do
+lib/ace/github/service.ex:  def apply_optimizations(repo_name, suggestions, branch_name) do
+lib/ace/github/service.ex:  def create_github_pr(source_pr, branch_name, modified_files) do
+lib/ace/github/service.ex:  def create_optimization_branch(repo_name, branch_name, base_sha) do
+lib/ace/github/service.ex:  def create_optimization_pr(pr_id, options \\ %{}) do
+lib/ace/github/service.ex:  def create_optimization_suggestion(params) do
+lib/ace/github/service.ex:  def create_or_update_pull_request(attrs) do
+lib/ace/github/service.ex:  def fetch_pr_files(pr) do
+lib/ace/github/service.ex:  def generate_optimization_suggestions(pr) do
+lib/ace/github/service.ex:  def get_branch_sha(repo_name, branch) do
+lib/ace/github/service.ex:  def get_file_content(repo_name, path, ref \\ nil) do
+lib/ace/github/service.ex:  def get_pr_files(repo_name, pr_number) do
+lib/ace/github/service.ex:  def get_pull_request(id) do
+lib/ace/github/service.ex:  def get_pull_request_by_github_id(github_id) do
+lib/ace/github/service.ex:  def get_pull_request_by_number(number, repo_name) do
+lib/ace/github/service.ex:  def list_pull_requests do
+lib/ace/github/service.ex:  def optimize_pull_request(pr) when is_struct(pr, PullRequest) do
+lib/ace/github/service.ex:  def optimize_pull_request(pr_id) do
+lib/ace/github/service.ex:  def submit_comment_for_suggestion(pr, suggestion, comment_body) do
+lib/ace/github/service.ex:  def submit_suggestions_as_comments(pr) do
+lib/ace/github/service.ex:  def update_pull_request(id, attrs) do
+lib/ace/graphql/resolvers/analysis.ex:  def analyze_code(_, %{input: input}, _) do
+lib/ace/graphql/resolvers/analysis.ex:  def get_analysis(_, %{id: id}, _) do
+lib/ace/graphql/resolvers/analysis.ex:  def get_opportunity(_, %{id: id}, _) do
+lib/ace/graphql/resolvers/analysis.ex:  def list_analyses(_, args, _) do
+lib/ace/graphql/resolvers/analysis.ex:  def list_opportunities(_, args, _) do
+lib/ace/graphql/resolvers/evaluation.ex:  def evaluate(_, %{input: input}, _) do
+lib/ace/graphql/resolvers/evaluation.ex:  def get_evaluation(_, %{id: id}, _) do
+lib/ace/graphql/resolvers/evaluation.ex:  def get_experiment(_, %{id: id}, _) do
+lib/ace/graphql/resolvers/evaluation.ex:  def list_evaluations(_, args, _) do
+lib/ace/graphql/resolvers/evaluation.ex:  def run_pipeline(_, %{input: input}, _) do
+lib/ace/graphql/resolvers/optimization.ex:  def apply_optimization(_, %{input: input}, _) do
+lib/ace/graphql/resolvers/optimization.ex:  def get_optimization(_, %{id: id}, _) do
+lib/ace/graphql/resolvers/optimization.ex:  def list_optimizations(_, args, _) do
+lib/ace/graphql/resolvers/optimization.ex:  def optimize(_, %{input: input}, _) do
+lib/ace/infrastructure/ai/code_optimizer.ex:  def optimize_code(code, options) do
+lib/ace/infrastructure/ai/helpers/instructor_helper.ex:        def process_data(list) do
+lib/ace/infrastructure/ai/helpers/instructor_helper.ex:  def api_keys_present? do
+lib/ace/infrastructure/ai/helpers/instructor_helper.ex:  def gen(response_model, sys_msg, user_msg, model \\ nil) do
+lib/ace/infrastructure/ai/helpers/instructor_helper.ex:  def groq_api_key_present? do
+lib/ace/infrastructure/ai/opportunity_wrapper.ex:  def wrap_opportunities(nil, code, language) do
+lib/ace/infrastructure/ai/opportunity_wrapper.ex:  def wrap_opportunities(opportunities, code, language) do
+lib/ace/infrastructure/ai/opportunity_wrapper.ex:  def wrap_opportunities(opportunities, code, language) when is_list(opportunities) do
+lib/ace/infrastructure/ai/opportunity_wrapper.ex:  def wrap_opportunity(opportunity, code, language) do
+lib/ace/infrastructure/ai/orchestrator.ex:  def analyze_code(code, language, focus_areas \\ ["performance"], options \\ []) do
+lib/ace/infrastructure/ai/orchestrator.ex:  def analyze_cross_file(file_context, primary_language, options \\ []) do
+lib/ace/infrastructure/ai/orchestrator.ex:  def evaluate_optimization(original_code, optimized_code, metrics, options \\ []) do
+lib/ace/infrastructure/ai/orchestrator.ex:  def generate_code_optimization(module_name, source_code, feedback, history, options \\ %{}) do
+lib/ace/infrastructure/ai/orchestrator.ex:  def generate_optimization(opportunity, original_code, strategy, options \\ []) do
+lib/ace/infrastructure/ai/orchestrator.ex:  def generate_structured_response(prompt, system_prompt, schema, model \\ nil, options \\ %{}) do
+lib/ace/infrastructure/ai/prompts/analysis.ex:  def build(code, language, focus_areas, options \\ []) do
+lib/ace/infrastructure/ai/prompts/analysis.ex:  def build_multi_file(file_context, primary_language, focus_areas, options \\ []) do
+lib/ace/infrastructure/ai/prompts/analysis.ex:  def system_prompt do
+lib/ace/infrastructure/ai/prompts/analysis.ex:  def system_prompt_multi_file do
+lib/ace/infrastructure/ai/prompts/evaluation.ex:  def build(original_code, optimized_code, metrics, options \\ []) do
+lib/ace/infrastructure/ai/prompts/evaluation.ex:  def system_prompt do
+lib/ace/infrastructure/ai/prompts/optimization.ex:  def build(opportunity, original_code, strategy, options \\ []) do
+lib/ace/infrastructure/ai/prompts/optimization.ex:  def system_prompt do
+lib/ace/infrastructure/ai/providers/groq.ex:  def generate(model, prompt, options \\ %{}) do
+lib/ace/infrastructure/ai/providers/groq.ex:  def generate_structured(prompt, system_prompt, schema, model, _options \\ %{}) do
+lib/ace/infrastructure/ai/providers/groq.ex:  def name, do: "groq"
+lib/ace/infrastructure/ai/providers/groq.ex:  def supported_models do
+lib/ace/infrastructure/ai/providers/mock.ex:        def sum_of_squares_of_even_numbers(list) do
+lib/ace/infrastructure/ai/providers/mock.ex:  def generate(prompt, _system_prompt, _model, _options \\ []) do
+lib/ace/infrastructure/ai/providers/mock.ex:  def generate_structured(prompt, _system_prompt, _schema, _model, _options \\ %{}) do
+lib/ace/infrastructure/ai/providers/mock.ex:  def name do
+lib/ace/infrastructure/ai/providers/mock.ex:  def supported_models do
+lib/ace/infrastructure/ai/schemas/analysis.ex:  def cross_file_opportunity_list_schema do
+lib/ace/infrastructure/ai/schemas/analysis.ex:  def cross_file_opportunity_schema do
+lib/ace/infrastructure/ai/schemas/analysis.ex:  def opportunity_list_schema do
+lib/ace/infrastructure/ai/schemas/analysis.ex:  def opportunity_schema do
+lib/ace/infrastructure/ai/schemas/evaluation.ex:  def evaluation_schema do
+lib/ace/infrastructure/ai/schemas/optimization.ex:  def optimization_schema do
+lib/ace/infrastructure/supervisor.ex:  def init(_init_arg) do
+lib/ace/infrastructure/supervisor.ex:  def start_link(init_arg) do
+lib/ace/optimization/languages/elixir.ex:  def language, do: "elixir"
+lib/ace/optimization/languages/elixir.ex:  def optimize(opportunity, original_code, strategy) do
+lib/ace/optimization/languages/go.ex:  def language, do: "go"
+lib/ace/optimization/languages/go.ex:  def optimize(opportunity, original_code, strategy) do
+lib/ace/optimization/languages/javascript.ex:  def language, do: "javascript"
+lib/ace/optimization/languages/javascript.ex:  def optimize(opportunity, original_code, strategy) do
+lib/ace/optimization/languages/python.ex:          "def #{function_name}(#{typed_args}) -> #{return_hint}:"
+lib/ace/optimization/languages/python.ex:  def language, do: "python"
+lib/ace/optimization/languages/python.ex:  def optimize(opportunity, original_code, strategy) do
+lib/ace/optimization/languages/ruby.ex:  def language, do: "ruby"
+lib/ace/optimization/languages/ruby.ex:  def optimize(opportunity, original_code, strategy) do
+lib/ace/optimization/service.ex:    case function_def do
+lib/ace/optimization/service.ex:    function_def = Enum.find(functions, fn
+lib/ace/optimization/supervisor.ex:  def init(_init_arg) do
+lib/ace/optimization/supervisor.ex:  def start_link(init_arg) do
+lib/ace/pub_sub.ex:  def broadcast(topic, message) do
+lib/ace/pub_sub.ex:  def broadcast_from(from_pid, topic, message) do
+lib/ace/pub_sub.ex:  def node_name do
+lib/ace/pub_sub.ex:  def subscribe(topic) do
+lib/ace/pub_sub.ex:  def unsubscribe(topic) do
+lib/ace/telemetry/function_tracer.ex:      def unquote(head) do
+lib/ace/telemetry/function_tracer.ex:  def generate_operation_id do
+lib/ace/telemetry/function_tracer.ex:  def sanitize_arg(arg) when is_binary(arg) and byte_size(arg) > 50 do
+lib/ace/telemetry/function_tracer.ex:  def sanitize_arg(arg) when is_list(arg) and length(arg) > 10 do
+lib/ace/telemetry/function_tracer.ex:  def sanitize_arg(arg) when is_map(arg) and map_size(arg) > 10 do
+lib/ace/telemetry/function_tracer.ex:  def sanitize_arg(arg), do: arg
+lib/ace/telemetry/metrics.ex:  def clear do
+lib/ace/telemetry/metrics.ex:  def get_all_metrics do
+lib/ace/telemetry/metrics.ex:  def get_metric(name, opts \\ []) do
+lib/ace/telemetry/metrics.ex:  def get_summary do
+lib/ace/telemetry/metrics.ex:  def handle_call(:clear, _from, _state) do
+lib/ace/telemetry/metrics.ex:  def handle_call(:get_all_metrics, _from, state) do
+lib/ace/telemetry/metrics.ex:  def handle_call(:get_summary, _from, state) do
+lib/ace/telemetry/metrics.ex:  def handle_call({:get_metric, name, opts}, _from, state) do
+lib/ace/telemetry/metrics.ex:  def handle_cast({:record, name, value, metadata, timestamp}, state) do
+lib/ace/telemetry/metrics.ex:  def init(_opts) do
+lib/ace/telemetry/metrics.ex:  def record(name, value, metadata) do
+lib/ace/telemetry/metrics.ex:  def start_link(opts \\ []) do
+lib/ace/telemetry/supervisor.ex:  def init(_init_arg) do
+lib/ace/telemetry/supervisor.ex:  def start_link(init_arg) do
+lib/ace/telemetry/telemetry.ex:  def handle_event([:ace, :ai, operation, :error], measurements, metadata, _config) do
+lib/ace/telemetry/telemetry.ex:  def handle_event([:ace, :ai, operation, :start], measurements, metadata, _config) do
+lib/ace/telemetry/telemetry.ex:  def handle_event([:ace, :ai, operation, :stop], measurements, metadata, _config) do
+lib/ace/telemetry/telemetry.ex:  def handle_event([:ace, component, :error], measurements, metadata, _config) do
+lib/ace/telemetry/telemetry.ex:  def handle_event([:ace, component, :start], measurements, metadata, _config) do
+lib/ace/telemetry/telemetry.ex:  def handle_event([:ace, component, :stop], measurements, metadata, _config) do
+lib/ace/telemetry/telemetry.ex:  def setup do
+lib/ace_web.ex:  def channel do
+lib/ace_web.ex:  def controller do
+lib/ace_web.ex:  def html do
+lib/ace_web.ex:  def live_component do
+lib/ace_web.ex:  def live_view do
+lib/ace_web.ex:  def router do
+lib/ace_web.ex:  def static_paths, do: ~w(assets fonts images js css favicon.ico robots.txt)
+lib/ace_web.ex:  def verified_routes do
+lib/ace_web/ace_channel.ex:  def handle_in("ping", %{"count" => count}, socket) do
+lib/ace_web/ace_channel.ex:  def handle_in(_event, _payload, socket) do
+lib/ace_web/ace_channel.ex:  def join("ace:" <> _topic, _message, socket) do
+lib/ace_web/channels/user_socket.ex:  #     def id(socket), do: "user_socket:#{socket.assigns.user_id}"
+lib/ace_web/channels/user_socket.ex:  def connect(_params, socket, _connect_info) do
+lib/ace_web/channels/user_socket.ex:  def id(_socket), do: nil
+lib/ace_web/components/core_components.ex:  def button(assigns) do
+lib/ace_web/components/core_components.ex:  def card(assigns) do
+lib/ace_web/components/core_components.ex:  def custom_link(assigns) do
+lib/ace_web/components/core_components.ex:  def flash(assigns) do
+lib/ace_web/components/core_components.ex:  def flash_group(assigns) do
+lib/ace_web/components/core_components.ex:  def header(assigns) do
+lib/ace_web/components/core_components.ex:  def hide(id) do
+lib/ace_web/components/core_components.ex:  def icon(assigns) do
+lib/ace_web/components/core_components.ex:  def modal(assigns) do
+lib/ace_web/components/core_components.ex:  def modal_content(assigns) do
+lib/ace_web/components/core_components.ex:  def show(id) do
+lib/ace_web/components/core_components.ex:  def simple_form(assigns) do
+lib/ace_web/controllers/analyses_controller.ex:  def create(conn, %{"file_path" => file_path} = params) do
+lib/ace_web/controllers/analyses_controller.ex:  def index(conn, _params) do
+lib/ace_web/controllers/analyses_controller.ex:  def show(conn, %{"id" => id}) do
+lib/ace_web/controllers/dashboard_controller.ex:  def evaluations(conn, _params) do
+lib/ace_web/controllers/dashboard_controller.ex:  def evolution(conn, _params) do
+lib/ace_web/controllers/dashboard_controller.ex:  def evolution_proposals(conn, _params) do
+lib/ace_web/controllers/dashboard_controller.ex:  def files(conn, _params) do
+lib/ace_web/controllers/dashboard_controller.ex:  def index(conn, _params) do
+lib/ace_web/controllers/dashboard_controller.ex:  def opportunities(conn, _params) do
+lib/ace_web/controllers/dashboard_controller.ex:  def optimizations(conn, _params) do
+lib/ace_web/controllers/dashboard_controller.ex:  def projects(conn, _params) do
+lib/ace_web/controllers/evolution_controller.ex:      def test_function(list) do
+lib/ace_web/controllers/evolution_controller.ex:  def generate_proposal(conn, _params) do
+lib/ace_web/controllers/github_api_controller.ex:  def create(conn, params) do
+lib/ace_web/controllers/github_api_controller.ex:  def create_branch(conn, %{"repo_name" => repo_name, "branch_name" => branch_name, "sha" => sha}) do
+lib/ace_web/controllers/github_api_controller.ex:  def create_optimization_pr(conn, %{"id" => id}) do
+lib/ace_web/controllers/github_api_controller.ex:  def create_or_update_file(conn, params) do
+lib/ace_web/controllers/github_api_controller.ex:  def get_optimization_suggestions(conn, %{"pr_id" => pr_id}) do
+lib/ace_web/controllers/github_api_controller.ex:  def index(conn, _params) do
+lib/ace_web/controllers/github_api_controller.ex:  def list_branches(conn, %{"repo_name" => repo_name}) do
+lib/ace_web/controllers/github_api_controller.ex:  def list_repo_pull_requests(conn, %{"repo_name" => repo_name} = params) do
+lib/ace_web/controllers/github_api_controller.ex:  def optimize_pull_request(conn, params) do
+lib/ace_web/controllers/github_api_controller.ex:  def post_suggestion_comment(conn, %{"pr_id" => pr_id, "suggestion_id" => suggestion_id}) do
+lib/ace_web/controllers/github_api_controller.ex:  def render_optimization_ui(conn, %{"pr_id" => pr_id}) do
+lib/ace_web/controllers/github_api_controller.ex:  def show(conn, %{"id" => id}) do
+lib/ace_web/controllers/github_webhook_controller.ex:  def handle(conn, _params) do
+lib/ace_web/controllers/pr_controller.ex:  def create(conn, params) do
+lib/ace_web/controllers/pr_controller.ex:  def index(conn, _params) do
+lib/ace_web/controllers/pr_controller.ex:  def show(conn, %{"id" => id}) do
+lib/ace_web/controllers/static_pages_controller.ex:  def index(conn, _params) do
+lib/ace_web/controllers/static_pages_controller.ex:  def page(conn, %{"page" => page}) do
+lib/ace_web/controllers/test_controller.ex:  def evaluations(conn, _params), do: render_page(conn, "Evaluations")
+lib/ace_web/controllers/test_controller.ex:  def evolution(conn, _params), do: render_page(conn, "Evolution")
+lib/ace_web/controllers/test_controller.ex:  def evolution_proposals(conn, _params), do: render_page(conn, "Evolution Proposals")
+lib/ace_web/controllers/test_controller.ex:  def files(conn, _params), do: render_page(conn, "Files") 
+lib/ace_web/controllers/test_controller.ex:  def index(conn, _params) do
+lib/ace_web/controllers/test_controller.ex:  def opportunities(conn, _params), do: render_page(conn, "Opportunities")
+lib/ace_web/controllers/test_controller.ex:  def optimizations(conn, _params), do: render_page(conn, "Optimizations")
+lib/ace_web/controllers/test_controller.ex:  def overview(conn, _params), do: render_page(conn, "Overview")
+lib/ace_web/controllers/test_controller.ex:  def projects(conn, _params), do: render_page(conn, "Projects")
+lib/ace_web/controllers/webhook_controller.ex:  def github(conn, _params) do
+lib/ace_web/controllers/webhook_controller.ex:  def process_pr_comment_debug(payload) do
+lib/ace_web/controllers/webhook_controller.ex:  def process_pr_edited_debug(payload) do
+lib/ace_web/controllers/webhook_controller.ex:  def process_pr_opened_debug(payload) do
+lib/ace_web/live/dashboard_live.ex:        def find_duplicates(list) do
+lib/ace_web/live/dashboard_live.ex:        def inefficient_sum(list) do
+lib/ace_web/live/dashboard_live.ex:      def test_function(list) do
+lib/ace_web/live/dashboard_live.ex:  def format_complexity_change(%{percentage: percentage}) when is_number(percentage) do
+lib/ace_web/live/dashboard_live.ex:  def format_complexity_change(%{score: score}) when is_number(score) do
+lib/ace_web/live/dashboard_live.ex:  def format_complexity_change(_), do: "Unknown"
+lib/ace_web/live/dashboard_live.ex:  def format_datetime(datetime) do
+lib/ace_web/live/dashboard_live.ex:  def format_percentage(_), do: "N/A"
+lib/ace_web/live/dashboard_live.ex:  def format_percentage(value) when is_number(value) do
+lib/ace_web/live/dashboard_live.ex:  def format_relationship_details(_), do: ""
+lib/ace_web/live/dashboard_live.ex:  def format_relationship_details(details) when is_map(details) do
+lib/ace_web/live/dashboard_live.ex:  def format_report(_), do: ""
+lib/ace_web/live/dashboard_live.ex:  def format_report(report) when is_binary(report) do
+lib/ace_web/live/dashboard_live.ex:  def get_evaluation(optimization_id, evaluations) do
+lib/ace_web/live/dashboard_live.ex:  def get_relationship_types do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("analyze", _params, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("apply_proposal", %{"id" => id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("approve_proposal", %{"id" => id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("refresh_evolution_data", _params, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("refresh_proposals", _params, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("reject_proposal", %{"id" => id, "reason" => reason}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("reject_proposal_modal", %{"id" => id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("select-file-node", %{"id" => file_id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("select-project-for-relationships", %{"value" => ""}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("select-project-for-relationships", %{"value" => project_id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("select-relationship-file", %{"id" => file_id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("toggle-relationship-type-filter", %{"type" => type}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("trigger_evolution", _params, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_event("view_proposal", %{"id" => id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info(:analysis_complete, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:analysis_created, _analysis}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:api_error, %{provider: provider, reason: reason}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:evaluation_completed, {:error, reason}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:evaluation_completed, {:ok, evaluation}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:new_proposal, proposal}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:opportunity_created, _opportunity}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:optimization_applied, {:error, reason}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:optimization_applied, {:ok, optimization}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:optimization_created, _optimization}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:pipeline_completed, {:error, reason}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:pipeline_completed, {:ok, results}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:project_created, {:error, reason}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:project_created, {:ok, result}}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:proposal_applied, _proposal_id}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_info({:proposal_status_changed, proposal}, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_params(params, _uri, socket) do
+lib/ace_web/live/dashboard_live.ex:  def handle_proposal_application(proposal_id) do
+lib/ace_web/live/dashboard_live.ex:  def handle_proposal_approval(proposal_id, reviewer_id, comments) do
+lib/ace_web/live/dashboard_live.ex:  def handle_proposal_rejection(proposal_id, reviewer_id, comments) do
+lib/ace_web/live/dashboard_live.ex:  def has_evaluation?(optimization_id, evaluations) do
+lib/ace_web/live/dashboard_live.ex:  def humanize_status(status) do
+lib/ace_web/live/dashboard_live.ex:  def mount(_params, _session, socket) do
+lib/ace_web/live/dashboard_live.ex:  def render(assigns) do
+lib/ace_web/live/dashboard_live.ex:  def severity_color(severity) do
+lib/ace_web/live/dashboard_live.ex:  def status_badge_class(status) do
+lib/ace_web/live/dashboard_live.ex:  def status_class(status) do
+lib/ace_web/live/github_live.ex:  def create_optimization_pr(socket, %{"id" => id}) do
+lib/ace_web/live/github_live.ex:  def format_datetime(datetime) do
+lib/ace_web/live/github_live.ex:  def format_datetime(nil), do: "N/A"
+lib/ace_web/live/github_live.ex:  def get_pull_request(id) do
+lib/ace_web/live/github_live.ex:  def handle_event("create_optimization_pr", %{"id" => id}, socket) do
+lib/ace_web/live/github_live.ex:  def handle_event("optimize_pr", %{"id" => id}, socket) do
+lib/ace_web/live/github_live.ex:  def handle_event("refresh_prs", _params, socket) do
+lib/ace_web/live/github_live.ex:  def handle_event("view_suggestions", %{"id" => file_id}, socket) do
+lib/ace_web/live/github_live.ex:  def handle_info(_message, socket) do
+lib/ace_web/live/github_live.ex:  def handle_info({:pr_optimized, pr_id}, socket) do
+lib/ace_web/live/github_live.ex:  def handle_info({:pr_received, pr}, socket) do
+lib/ace_web/live/github_live.ex:  def handle_params(%{"id" => id}, _uri, socket) do
+lib/ace_web/live/github_live.ex:  def handle_params(_params, _uri, socket) do
+lib/ace_web/live/github_live.ex:  def language_icon(language) do
+lib/ace_web/live/github_live.ex:  def list_pull_requests do
+lib/ace_web/live/github_live.ex:  def list_suggestions_by_file(file_id) do
+lib/ace_web/live/github_live.ex:  def mount(_params, _session, socket) do
+lib/ace_web/live/github_live.ex:  def render(assigns) do
+lib/ace_web/live/github_live.ex:  def severity_badge_class(severity) do
+lib/ace_web/live/github_live.ex:  def status_badge_class(status) do
+lib/ace_web/plugs/raw_body_plug.ex:  def call(conn, _opts) do
+lib/ace_web/plugs/raw_body_plug.ex:  def init(opts), do: opts
+lib/ace_web/router.ex:  def log_requests(conn, _opts) do
+lib/ace_web/telemetry.ex:  def init(_arg) do
+lib/ace_web/telemetry.ex:  def metrics do
+lib/ace_web/telemetry.ex:  def start_link(arg) do
+lib/mix/tasks/ace.auto_apply_proposals.ex:  def run(_) do
+lib/mix/tasks/ace.generate_proposal.ex:      def fibonacci(n) when is_integer(n) and n >= 0 do
+lib/mix/tasks/ace.generate_proposal.ex:      def inefficient_sum(n) when is_integer(n) and n > 0 do
+lib/mix/tasks/ace.generate_proposal.ex:  def run(_) do
+lib/mix/tasks/test.real_world.ex:  def run(_) do

@@ -1,0 +1,73 @@
+lib/ace.ex:  alias Ace.Analysis
+lib/ace.ex:  alias Ace.Evaluation
+lib/ace.ex:  alias Ace.Optimization
+lib/ace/analysis/service.ex:  alias Ace.Core.{Analysis, Opportunity, Project, AnalysisRelationship}
+lib/ace/analysis/service.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/core/models/evolution_proposal.ex:  alias Ace.Core.VersionControl
+lib/ace/core/models/evolution_proposal.ex:  alias Phoenix.PubSub
+lib/ace/evaluation/service.ex:  alias Ace.Core.{Optimization, Evaluation, Experiment}
+lib/ace/evaluation/service.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/evolution/notification.ex:  alias Ace.Core.EvolutionProposal
+lib/ace/evolution/scheduler.ex:  alias Ace.Core.EvolutionProposal
+lib/ace/evolution/scheduler.ex:  alias Ace.Evolution.Service
+lib/ace/evolution/service.ex:  alias Ace.Core.{
+lib/ace/evolution/service.ex:  alias Ace.Evolution.Notification
+lib/ace/evolution/service.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/github/github_api.ex:  alias Ace.GitHub.AppAuth
+lib/ace/github/models/optimization_suggestion.ex:  alias Ace.GitHub.Models.{OptimizationSuggestion, PullRequest, PRFile}
+lib/ace/github/models/optimization_suggestion.ex:  alias Ace.Repo
+lib/ace/github/models/pr_file.ex:  alias Ace.GitHub.Models.{PullRequest, PRFile}
+lib/ace/github/models/pr_file.ex:  alias Ace.Repo
+lib/ace/github/models/pull_request.ex:  alias Ace.GitHub.Models.{PullRequest, PRFile, OptimizationSuggestion}
+lib/ace/github/models/pull_request.ex:  alias Ace.Repo
+lib/ace/github/optimization_adapter.ex:    alias Ace.Analysis.Models.Opportunity
+lib/ace/github/optimization_adapter.ex:  alias Ace.Evolution.Service, as: EvolutionService
+lib/ace/github/optimization_adapter.ex:  alias Ace.Infrastructure.AI.CodeOptimizer
+lib/ace/github/optimization_adapter.ex:  alias Ace.Optimization.Service, as: OptimizationService
+lib/ace/github/pr_creator.ex:  alias Ace.GitHub.GitHubAPI
+lib/ace/github/pr_creator.ex:  alias Ace.GitHub.Models.{PullRequest, OptimizationSuggestion}
+lib/ace/github/service.ex:  alias Ace.Analysis.Service, as: AnalysisService
+lib/ace/github/service.ex:  alias Ace.Evolution.Service, as: EvolutionService
+lib/ace/github/service.ex:  alias Ace.GitHub.GitHubAPI
+lib/ace/github/service.ex:  alias Ace.GitHub.Models.OptimizationSuggestion
+lib/ace/github/service.ex:  alias Ace.GitHub.Models.PRFile
+lib/ace/github/service.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace/github/service.ex:  alias Ace.Repo
+lib/ace/graphql/resolvers/analysis.ex:  alias Ace.Analysis.Service, as: AnalysisService
+lib/ace/graphql/resolvers/analysis.ex:  alias Ace.Core.{Analysis, Opportunity}
+lib/ace/graphql/resolvers/evaluation.ex:  alias Ace.Core.{Evaluation, Experiment}
+lib/ace/graphql/resolvers/evaluation.ex:  alias Ace.Evaluation.Service, as: EvaluationService
+lib/ace/graphql/resolvers/optimization.ex:  alias Ace.Core.Optimization
+lib/ace/graphql/resolvers/optimization.ex:  alias Ace.Optimization.Service, as: OptimizationService
+lib/ace/graphql/schema.ex:  alias Ace.GraphQL.Resolvers
+lib/ace/infrastructure/ai/orchestrator.ex:  alias Ace.Infrastructure.AI.OpportunityWrapper
+lib/ace/infrastructure/ai/providers/groq.ex:    alias Ace.Infrastructure.AI.Helpers.InstructorHelper
+lib/ace/optimization/languages/elixir.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/optimization/languages/go.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/optimization/languages/javascript.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/optimization/languages/python.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/optimization/languages/ruby.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace/optimization/service.ex:  alias Ace.Core.{Opportunity, Optimization}
+lib/ace/optimization/service.ex:  alias Ace.Infrastructure.AI.Orchestrator
+lib/ace_web/components/core_components.ex:  alias Phoenix.LiveView.JS
+lib/ace_web/controllers/analyses_controller.ex:  alias Ace.Analysis.Service
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.GitHubAPI
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Models.OptimizationSuggestion
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Models.PRFile
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.PRCreator
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/controllers/github_api_controller.ex:  alias Ace.Repo
+lib/ace_web/controllers/github_webhook_controller.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/controllers/github_webhook_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/controllers/pr_controller.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/controllers/pr_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/controllers/webhook_controller.ex:  alias Ace.GitHub.Service
+lib/ace_web/live/dashboard_live.ex:  alias Ace.Core.AnalysisRelationship
+lib/ace_web/live/github_live.ex:  alias Ace.GitHub.Models.OptimizationSuggestion
+lib/ace_web/live/github_live.ex:  alias Ace.GitHub.Models.PRFile
+lib/ace_web/live/github_live.ex:  alias Ace.GitHub.Models.PullRequest
+lib/ace_web/live/github_live.ex:  alias Phoenix.PubSub
+lib/mix/tasks/ace.auto_apply_proposals.ex:    alias Ace.Core.EvolutionProposal
+lib/mix/tasks/ace.auto_apply_proposals.ex:    alias Ace.Evolution.Service
+lib/mix/tasks/ace.generate_proposal.ex:    alias Ace.Core.EvolutionProposal

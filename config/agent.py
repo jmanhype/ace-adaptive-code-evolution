@@ -171,8 +171,13 @@ class RealisticHumanBehaviorModifier(FrameProcessor):
         self.current_time = 0
         self.emotional_state = "neutral"
         
-    async def process_frame(self, frame, direction):
-        """Process incoming frames and add human-like behaviors."""
+    async def process_frame(self, frame: Frame, direction: str) -> None:
+        """Process incoming frames and add human-like behaviors.
+
+        Args:
+            frame: The frame to process
+            direction: The direction of frame flow ("input" or "output")
+        """
         # First let's ensure we pass the frame along via the parent class
         await super().process_frame(frame, direction)
         
@@ -210,14 +215,20 @@ class RealisticHumanBehaviorModifier(FrameProcessor):
 
 class EmotionalResponseModifier(FrameProcessor):
     """This FrameProcessor modifies the LLM context to inject emotional reactions."""
-    
+
     def __init__(self, context, config: Dict[str, Any]):
         super().__init__()
         self.context = context
         self.config = config
         self.current_emotion = "neutral"
-        
-    async def process_frame(self, frame, direction):
+
+    async def process_frame(self, frame: Frame, direction: str) -> None:
+        """Process frames and inject emotional context into LLM.
+
+        Args:
+            frame: The frame to process
+            direction: The direction of frame flow ("input" or "output")
+        """
         # First let's ensure we pass the frame along via the parent class
         await super().process_frame(frame, direction)
         
@@ -286,8 +297,13 @@ class UserAudioCollector(FrameProcessor):
         self._behavior_modifier = RealisticHumanBehaviorModifier(config)
         self._emotional_modifier = EmotionalResponseModifier(context, config)
 
-    async def process_frame(self, frame, direction):
-        """Process incoming frames and handle user audio frames."""
+    async def process_frame(self, frame: Frame, direction: str) -> None:
+        """Process incoming frames and handle user audio frames.
+
+        Args:
+            frame: The frame to process
+            direction: The direction of frame flow ("input" or "output")
+        """
         # First properly handle all frames with parent method
         await super().process_frame(frame, direction)
 
@@ -348,13 +364,19 @@ class UserAudioCollector(FrameProcessor):
 
 class VolumeModulator(FrameProcessor):
     """Changes the volume, rate, or emphasis of the TTS based on emotional state."""
-    
+
     def __init__(self, tts_service):
         super().__init__()
         self.tts_service = tts_service
         self.default_settings = tts_service._settings.copy()
-        
-    async def process_frame(self, frame, direction):
+
+    async def process_frame(self, frame: Frame, direction: str) -> None:
+        """Process frames and modulate TTS settings based on emotions.
+
+        Args:
+            frame: The frame to process
+            direction: The direction of frame flow ("input" or "output")
+        """
         # First let's ensure we pass the frame along via the parent class
         await super().process_frame(frame, direction)
         
@@ -412,8 +434,13 @@ class InputTranscriptionContextFilter(FrameProcessor):
         super().__init__()
         self.system_instruction = system_instruction
     
-    async def process_frame(self, frame, direction):
-        """Process incoming frames for transcription."""
+    async def process_frame(self, frame: Frame, direction: str) -> None:
+        """Process incoming frames for transcription.
+
+        Args:
+            frame: The frame to process
+            direction: The direction of frame flow ("input" or "output")
+        """
         await super().process_frame(frame, direction)
         
         if isinstance(frame, SystemFrame):
@@ -480,8 +507,13 @@ class InputTranscriptionFrameEmitter(FrameProcessor):
         super().__init__()
         self._aggregation = ""
 
-    async def process_frame(self, frame, direction):
-        """Process frames and emit transcription frames."""
+    async def process_frame(self, frame: Frame, direction: str) -> None:
+        """Process frames and emit transcription frames.
+
+        Args:
+            frame: The frame to process
+            direction: The direction of frame flow ("input" or "output")
+        """
         await super().process_frame(frame, direction)
 
         if isinstance(frame, TextFrame):
@@ -506,7 +538,15 @@ class TranscriptionContextFixup(FrameProcessor):
         self.context = context
         self._transcript = ""
     
-    def is_user_audio_message(self, message):
+    def is_user_audio_message(self, message) -> bool:
+        """Check if a message contains user audio data.
+
+        Args:
+            message: The message to check
+
+        Returns:
+            bool: True if the message contains audio/wav data, False otherwise
+        """
         last_part = message.parts[-1]
         return (
             message.role == "user"
@@ -514,7 +554,12 @@ class TranscriptionContextFixup(FrameProcessor):
             and last_part.inline_data.mime_type == "audio/wav"
         )
 
-    def swap_user_audio(self):
+    def swap_user_audio(self) -> None:
+        """Swap audio data in message with transcribed text.
+
+        Replaces the audio inline_data with the transcribed text in the
+        most recent user audio message.
+        """
         if not self._transcript:
             return
         message = self.context.messages[-2]
@@ -527,8 +572,13 @@ class TranscriptionContextFixup(FrameProcessor):
         audio_part.inline_data = None
         audio_part.text = self._transcript
     
-    async def process_frame(self, frame, direction):
-        """Process frames and fix up context as needed."""
+    async def process_frame(self, frame: Frame, direction: str) -> None:
+        """Process frames and fix up context as needed.
+
+        Args:
+            frame: The frame to process
+            direction: The direction of frame flow ("input" or "output")
+        """
         await super().process_frame(frame, direction)
         
         if isinstance(frame, LLMDemoTranscriptionFrame):
@@ -549,9 +599,12 @@ class RealisticHumanAgent:
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the realistic human agent.
-        
+
         Args:
             config: Configuration dictionary with options for the agent
+
+        Raises:
+            ValueError: If personality traits or behavior probabilities are out of valid range
         """
         self.config = DEFAULT_CONFIG.copy()
         if config:
@@ -583,7 +636,44 @@ class RealisticHumanAgent:
         self.config["conversation_system_message"] = self.config["conversation_system_message"].format(
             **formatted_config
         )
-            
+
+        # Validate configuration
+        self._validate_config()
+
+    def _validate_config(self) -> None:
+        """Validate configuration values are within acceptable ranges.
+
+        Raises:
+            ValueError: If any configuration values are invalid
+        """
+        # Validate personality traits (0-10 scale)
+        for trait, value in self.config["personality"].items():
+            if not isinstance(value, (int, float)) or not 0 <= value <= 10:
+                raise ValueError(
+                    f"Personality trait '{trait}' must be between 0 and 10, got {value}"
+                )
+
+        # Validate behavior probabilities (0-100 scale)
+        probability_fields = [
+            "interrupt_probability",
+            "ignore_probability",
+            "talk_out_of_turn_probability",
+            "emotional_reaction_probability",
+        ]
+        for field in probability_fields:
+            value = self.config["behaviors"].get(field)
+            if value is not None and (not isinstance(value, (int, float)) or not 0 <= value <= 100):
+                raise ValueError(
+                    f"Behavior '{field}' must be between 0 and 100, got {value}"
+                )
+
+        # Validate proactive speech probability (0-1 scale)
+        prob = self.config["behaviors"].get("proactive_speech_probability")
+        if prob is not None and (not isinstance(prob, (int, float)) or not 0 <= prob <= 1):
+            raise ValueError(
+                f"proactive_speech_probability must be between 0 and 1, got {prob}"
+            )
+
     def generate_daily_token(self, room_url: str, api_key: str) -> str:
         """Generate a Daily.co meeting token.
         
@@ -611,8 +701,15 @@ class RealisticHumanAgent:
         token = jwt.encode(payload, api_key, algorithm="HS256")
         return token
             
-    async def run(self):
-        """Run the realistic human conversational agent."""
+    async def run(self) -> None:
+        """Run the realistic human conversational agent.
+
+        Sets up the conversational pipeline with LLM, TTS, and transport services,
+        then runs the pipeline with all configured behaviors and personality traits.
+
+        Raises:
+            Exception: If required environment variables are missing or configuration fails
+        """
         async with aiohttp.ClientSession() as session:
             # Use the runner.configure function to get a valid token
             try:
@@ -648,8 +745,15 @@ class RealisticHumanAgent:
             )
 
             # Set up TTS service
+            cartesia_api_key = os.getenv("CARTESIA_API_KEY")
+            if not cartesia_api_key:
+                raise ValueError(
+                    "CARTESIA_API_KEY environment variable is required. "
+                    "Please set it in your .env file or environment."
+                )
+
             tts = CartesiaTTSService(
-                api_key=os.getenv("CARTESIA_API_KEY"),
+                api_key=cartesia_api_key,
                 voice_id=self.config["voice_id"],
                 language=self.config["language_code"],
             )
@@ -836,10 +940,17 @@ class RealisticHumanAgent:
                     })
 
             # Set up LLM services
+            google_api_key = os.getenv("GOOGLE_API_KEY")
+            if not google_api_key:
+                raise ValueError(
+                    "GOOGLE_API_KEY environment variable is required. "
+                    "Please set it in your .env file or environment."
+                )
+
             conversation_llm = GoogleLLMService(
                 name="Conversation",
                 model=self.config["llm_model"],
-                api_key=os.getenv("GOOGLE_API_KEY"),
+                api_key=google_api_key,
                 system_instruction=self.config["conversation_system_message"],
                 tools=[{"function_declarations": function_declarations}] if function_declarations else None,
             )
@@ -855,7 +966,7 @@ class RealisticHumanAgent:
             input_transcription_llm = GoogleLLMService(
                 name="Transcription",
                 model=self.config["llm_model"],
-                api_key=os.getenv("GOOGLE_API_KEY"),
+                api_key=google_api_key,  # Reuse the validated key from above
                 system_instruction=self.config["transcriber_system_message"],
             )
 
